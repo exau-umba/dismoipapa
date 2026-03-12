@@ -1,0 +1,38 @@
+name: Build et déploiement
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Déployer vers le serveur (rsync)
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key "$VPS_USER@$VPS_HOST" "mkdir -p /var/www/dismoipapa-app"
+          rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key" build/ "$VPS_USER@$VPS_HOST:/var/www/dismoipapa-app/"
+          rm -f ~/.ssh/deploy_key

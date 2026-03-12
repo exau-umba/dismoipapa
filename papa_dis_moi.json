@@ -1,0 +1,649 @@
+{
+  "info": {
+    "name": "Papa Dis Moi API",
+    "_postman_id": "e3b9c4e0-1111-2222-3333-444455556666",
+    "description": "Collection de tests pour l'API Papa Dis Moi (users, catalog, library, orders, payments).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Register - Inscription utilisateur",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"motdepasse123\",\n  \"full_name\": \"Jean Dupont\",\n  \"phone_number\": \"+243000000000\",\n  \"shipping_address\": \"Adresse de livraison\",\n  \"is_subscriber\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/register/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "register", ""]
+            },
+            "description": "POST /api/users/register/ - Inscription (sans auth). Active le compte via email."
+          },
+          "response": []
+        },
+        {
+          "name": "Login - JWT obtain token pair",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"motdepasse123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/login/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "login", ""]
+            },
+            "description": "POST /api/users/login/ - Retourne access + refresh (SimpleJWT)."
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh token",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/token/refresh/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "token", "refresh", ""]
+            },
+            "description": "POST /api/users/token/refresh/ - Rafraîchit le token d'accès."
+          },
+          "response": []
+        },
+        {
+          "name": "List users (admin)",
+          "request": {
+            "auth": { "type": "bearer" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", ""]
+            },
+            "description": "GET /api/users/ - Liste tous les utilisateurs (probablement réservé admin)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get user by id",
+          "request": {
+            "auth": { "type": "bearer" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "{{userId}}", ""]
+            },
+            "description": "GET /api/users/{id}/ - Détail d'un utilisateur (UUID)."
+          },
+          "response": []
+        },
+        {
+          "name": "Update user by id (PATCH)",
+          "request": {
+            "auth": { "type": "bearer" },
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Nouveau Nom\",\n  \"phone_number\": \"+243111111111\",\n  \"shipping_address\": \"Nouvelle adresse\",\n  \"is_subscriber\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "{{userId}}", ""]
+            },
+            "description": "PATCH /api/users/{id}/ - Mise à jour partielle (PUT/PATCH/DELETE aussi supportés)."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete user by id",
+          "request": {
+            "auth": { "type": "bearer" },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "{{userId}}", ""]
+            },
+            "description": "DELETE /api/users/{id}/ - Suppression utilisateur."
+          },
+          "response": []
+        },
+        {
+          "name": "Me - Get profil",
+          "request": {
+            "auth": { "type": "bearer" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "me", ""]
+            },
+            "description": "GET /api/users/me/ - Profil de l'utilisateur connecté."
+          },
+          "response": []
+        },
+        {
+          "name": "Me - Update profil (PATCH)",
+          "request": {
+            "auth": { "type": "bearer" },
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Nom Mis à Jour\",\n  \"phone_number\": \"+243222222222\",\n  \"shipping_address\": \"Adresse mise à jour\",\n  \"is_subscriber\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "me", ""]
+            },
+            "description": "PATCH /api/users/me/ - Mise à jour du profil (PUT possible aussi)."
+          },
+          "response": []
+        },
+        {
+          "name": "Change password",
+          "request": {
+            "auth": { "type": "bearer" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"old_password\": \"ancienPass123\",\n  \"new_password\": \"nouveauPass123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}/change-password/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "{{userId}}", "change-password", ""]
+            },
+            "description": "POST /api/users/{id}/change-password/ - Changer le mot de passe."
+          },
+          "response": []
+        },
+        {
+          "name": "Password reset request",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/password-reset/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "password-reset", ""]
+            },
+            "description": "POST /api/users/password-reset/ - Demande de réinitialisation de mot de passe."
+          },
+          "response": []
+        },
+        {
+          "name": "Password reset confirm",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"token-de-reset\",\n  \"new_password\": \"nouveauPass123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/password-reset/confirm/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "password-reset", "confirm", ""]
+            },
+            "description": "POST /api/users/password-reset/confirm/ - Pose le nouveau mot de passe."
+          },
+          "response": []
+        },
+        {
+          "name": "Activate account",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/activate/?token={{activationToken}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "activate", ""],
+              "query": [
+                { "key": "token", "value": "{{activationToken}}" }
+              ]
+            },
+            "description": "GET /api/users/activate/?token=... - Active le compte via lien email."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Catalog",
+      "item": [
+        {
+          "name": "List books",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/catalog/books/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "catalog", "books", ""]
+            },
+            "description": "GET /api/catalog/books/ - Liste des livres (public)."
+          },
+          "response": []
+        },
+        {
+          "name": "Create book (admin)",
+          "request": {
+            "auth": { "type": "bearer" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Titre du livre\",\n  \"author\": \"Auteur\",\n  \"synopsis\": \"Résumé\",\n  \"sample_text\": \"Extrait facultatif\",\n  \"genre\": \"Genre\",\n  \"language\": \"fr\",\n  \"publication_date\": \"2024-01-01\",\n  \"formats\": [\n    {\n      \"format_type\": \"physical\",\n      \"price\": \"19.99\",\n      \"stock_quantity\": 10\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/catalog/books/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "catalog", "books", ""]
+            },
+            "description": "POST /api/catalog/books/ - Création d'un livre (admin)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get book detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/catalog/books/{{bookId}}/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "catalog", "books", "{{bookId}}", ""]
+            },
+            "description": "GET /api/catalog/books/{id}/ - Détail d'un livre."
+          },
+          "response": []
+        },
+        {
+          "name": "Update book (PATCH, admin)",
+          "request": {
+            "auth": { "type": "bearer" },
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Nouveau titre\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/catalog/books/{{bookId}}/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "catalog", "books", "{{bookId}}", ""]
+            },
+            "description": "PATCH /api/catalog/books/{id}/ - Mise à jour (PUT/PATCH/DELETE aussi possibles, admin)."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete book (admin)",
+          "request": {
+            "auth": { "type": "bearer" },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/catalog/books/{{bookId}}/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "catalog", "books", "{{bookId}}", ""]
+            },
+            "description": "DELETE /api/catalog/books/{id}/ - Supprimer un livre (admin)."
+          },
+          "response": []
+        },
+        {
+          "name": "List formats for a book",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/catalog/books/{{bookId}}/formats/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "catalog", "books", "{{bookId}}", "formats", ""]
+            },
+            "description": "GET /api/catalog/books/{book_id}/formats/ - Liste les formats du livre."
+          },
+          "response": []
+        },
+        {
+          "name": "Create format (ebook/physical) for a book",
+          "request": {
+            "auth": { "type": "bearer" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "multipart/form-data" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "format_type", "value": "ebook", "type": "text" },
+                { "key": "price", "value": "9.99", "type": "text" },
+                { "key": "stock_quantity", "value": "0", "type": "text" },
+                {
+                  "key": "pdf_file",
+                  "type": "file",
+                  "src": ""
+                },
+                {
+                  "key": "epub_file",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/catalog/books/{{bookId}}/formats/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "catalog", "books", "{{bookId}}", "formats", ""]
+            },
+            "description": "POST /api/catalog/books/{book_id}/formats/ - Création de format (ebook ou physical, admin)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get format detail (global)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/catalog/formats/{{formatId}}/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "catalog", "formats", "{{formatId}}", ""]
+            },
+            "description": "GET /api/catalog/formats/{id}/ - Détail d'un format."
+          },
+          "response": []
+        },
+        {
+          "name": "Update format (global, PATCH, admin)",
+          "request": {
+            "auth": { "type": "bearer" },
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": \"14.99\",\n  \"stock_quantity\": 5\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/catalog/formats/{{formatId}}/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "catalog", "formats", "{{formatId}}", ""]
+            },
+            "description": "PATCH /api/catalog/formats/{id}/ - Mise à jour d'un format (admin)."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete format (global, admin)",
+          "request": {
+            "auth": { "type": "bearer" },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/catalog/formats/{{formatId}}/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "catalog", "formats", "{{formatId}}", ""]
+            },
+            "description": "DELETE /api/catalog/formats/{id}/ - Supprime un format (admin)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get format detail under book",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/catalog/books/{{bookId}}/formats/{{formatId}}/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "catalog", "books", "{{bookId}}", "formats", "{{formatId}}", ""]
+            },
+            "description": "GET /api/catalog/books/{book_id}/formats/{format_id}/ - Détail d'un format dans le contexte du livre."
+          },
+          "response": []
+        },
+        {
+          "name": "Update format under book (PATCH, admin)",
+          "request": {
+            "auth": { "type": "bearer" },
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stock_quantity\": 50\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/catalog/books/{{bookId}}/formats/{{formatId}}/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "catalog", "books", "{{bookId}}", "formats", "{{formatId}}", ""]
+            },
+            "description": "PATCH /api/catalog/books/{book_id}/formats/{format_id}/ - Mise à jour (admin)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Library",
+      "item": [
+        {
+          "name": "List virtual library (ebooks de l'utilisateur)",
+          "request": {
+            "auth": { "type": "bearer" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/library/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "library", ""]
+            },
+            "description": "GET /api/library/ - Liste des entrées de bibliothèque numérique de l'utilisateur."
+          },
+          "response": []
+        },
+        {
+          "name": "Get virtual library entry detail",
+          "request": {
+            "auth": { "type": "bearer" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/library/{{libraryEntryId}}/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "library", "{{libraryEntryId}}", ""]
+            },
+            "description": "GET /api/library/{id}/ - Détail d'une entrée de bibliothèque."
+          },
+          "response": []
+        },
+        {
+          "name": "Download ebook file (PDF/Word)",
+          "request": {
+            "auth": { "type": "bearer" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/library/books/{{bookId}}/download/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "library", "books", "{{bookId}}", "download", ""]
+            },
+            "description": "GET /api/library/books/{book_id}/download/ - Téléchargement du fichier ebook (PDF/Word)."
+          },
+          "response": []
+        },
+        {
+          "name": "Read ebook file (EPUB)",
+          "request": {
+            "auth": { "type": "bearer" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/library/books/{{bookId}}/read/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "library", "books", "{{bookId}}", "read", ""]
+            },
+            "description": "GET /api/library/books/{book_id}/read/ - Lecture/streaming de l'EPUB."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "List my orders",
+          "request": {
+            "auth": { "type": "bearer" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/orders/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orders", ""]
+            },
+            "description": "GET /api/orders/ - Liste des commandes de l'utilisateur connecté."
+          },
+          "response": []
+        },
+        {
+          "name": "Create order",
+          "request": {
+            "auth": { "type": "bearer" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"shipping_address\": \"Adresse de livraison au moment de la commande\",\n  \"items\": [\n    {\n      \"format\": \"{{formatId}}\",\n      \"quantity\": 1\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/orders/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orders", ""]
+            },
+            "description": "POST /api/orders/ - Crée une commande pour l'utilisateur connecté (ebook ou physique)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Simulate payment for order",
+          "request": {
+            "auth": { "type": "bearer" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"{{orderId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/payments/simulate/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "payments", "simulate", ""]
+            },
+            "description": "POST /api/payments/simulate/ - Simule un paiement pour une commande existante."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://api.dismoipapa.shop"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "refreshToken",
+      "value": ""
+    },
+    {
+      "key": "userId",
+      "value": "00000000-0000-0000-0000-000000000000"
+    },
+    {
+      "key": "bookId",
+      "value": "00000000-0000-0000-0000-000000000000"
+    },
+    {
+      "key": "formatId",
+      "value": "00000000-0000-0000-0000-000000000000"
+    },
+    {
+      "key": "libraryEntryId",
+      "value": "00000000-0000-0000-0000-000000000000"
+    },
+    {
+      "key": "orderId",
+      "value": "00000000-0000-0000-0000-000000000000"
+    },
+    {
+      "key": "activationToken",
+      "value": "TOKEND_ACTIVATION_EXEMPLE"
+    }
+  ]
+}
