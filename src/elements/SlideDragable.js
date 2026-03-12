@@ -3,7 +3,7 @@ import noUiSlider from "nouislider";
 //import Nouislider from "nouislider-react";
 import "nouislider/distribute/nouislider.css";
 
-let slider, slider2;
+let slider;
 
 function destroyExistingSlider(){
   if(slider && slider.noUiSlider){

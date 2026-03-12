@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { Nav, Tab, Card, Badge, Button, Modal, Form } from 'react-bootstrap';
 import PageTitle from '../layouts/PageTitle';
 import NewsLetter from '../components/NewsLetter';
-import { bookImages, bookTitles } from '../constants/imageUrls';
+import { bookImages } from '../constants/imageUrls';
 
 // Données mockées pour les livres achetés
 const purchasedBooks = [

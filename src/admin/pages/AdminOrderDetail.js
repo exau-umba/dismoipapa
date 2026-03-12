@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Card, Table, Badge, Form, Row, Col, Button } from 'react-bootstrap';
+import { Card, Table, Form, Row, Col, Button } from 'react-bootstrap';
 
 const mockOrdersDetail = {
   1001: {
@@ -82,7 +82,6 @@ const mockOrdersDetail = {
 };
 
 const statutOptions = ['En attente', 'En préparation', 'Expédiée', 'Livrée'];
-const statutVariant = { 'En attente': 'warning', 'En préparation': 'info', 'Expédiée': 'primary', 'Livrée': 'success' };
 
 function AdminOrderDetail() {
   const { id } = useParams();

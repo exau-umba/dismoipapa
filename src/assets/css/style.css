@@ -19479,7 +19479,8 @@ ul a.rsswidget {
     color: var(--primary); }
 
 footer {
-  background-image: url(); }
+  /* URL vide cassait le build (postcss-url-parser) */
+  background-image: none; }
   @media only screen and (max-width: 767px) {
     footer .row {
       --bs-gutter-x: 10px; } }

@@ -2,7 +2,6 @@ import React from 'react';
 import {Link} from 'react-router-dom';
 
 import ucimage from './../assets/images/background/uc.jpg';
-import logo from './../assets/images/logo.png';
 
 const UnderConstruction = ()=>{
     return(

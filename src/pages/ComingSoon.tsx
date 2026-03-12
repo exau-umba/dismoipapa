@@ -4,7 +4,6 @@ import {Link} from 'react-router-dom';
 
 import DonutChart2 from '../elements/DonutChart2';
 import bg2 from './../assets/images/background/bg2.jpg';
-import logowhite from './../assets/images/logo-white.png';
 
 function ComingSoon(){
     const [timerDays, setTimerDays] = useState('00');	

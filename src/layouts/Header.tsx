@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Dropdown } from 'react-bootstrap';
-// images
-import logo from './../assets/images/logo.png';
 import { profileImages, cartBookImages } from '../constants/imageUrls';
 
 import Collapse from 'react-bootstrap/Collapse';
@@ -484,7 +482,9 @@ function Header() {
                       target="_blank"
                       rel="noreferrer"
                       href="https://www.facebook.com/dexignzone"
-                    ></a>
+                    >
+                      <span className="sr-only">Facebook</span>
+                    </a>
                   </li>
                   <li>
                     <a
@@ -492,7 +492,9 @@ function Header() {
                       target="_blank"
                       rel="noreferrer"
                       href="https://twitter.com/dexignzones"
-                    ></a>
+                    >
+                      <span className="sr-only">Twitter</span>
+                    </a>
                   </li>
                   <li>
                     <a
@@ -500,7 +502,9 @@ function Header() {
                       target="_blank"
                       rel="noreferrer"
                       href="https://www.linkedin.com/showcase/3686700/admin/"
-                    ></a>
+                    >
+                      <span className="sr-only">LinkedIn</span>
+                    </a>
                   </li>
                   <li>
                     <a
@@ -508,7 +512,9 @@ function Header() {
                       target="_blank"
                       rel="noreferrer"
                       href="https://www.instagram.com/website_templates__/"
-                    ></a>
+                    >
+                      <span className="sr-only">Instagram</span>
+                    </a>
                   </li>
                 </ul>
               </div>
