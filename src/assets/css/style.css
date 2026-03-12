@@ -21,9 +21,10 @@
 :root {
   --gradient: linear-gradient( to right, rgb(255,64,62) 0%, rgb(255,129,27) 100%);
   --gradient-sec: linear-gradient( to right, rgb(57,26,166) 0%, rgb(6,163,245) 100%);
-  --primary: #EAA451;
-  --secondary: #1a1668;
-  --primary-hover: #e58c23;
+  --primary:  #1a1668;
+  --secondary: #EAA451;
+  --primary-hover: #006af4;
+  /* --primary-hover: #e58c23; */
   --primary-dark: #915611;
   --rgba-primary-1: rgba(234, 164, 81, 0.1);
   --rgba-primary-2: rgba(234, 164, 81, 0.2);
@@ -59,8 +60,8 @@
   --bs-gray-700: #495057;
   --bs-gray-800: #343a40;
   --bs-gray-900: #212529;
-  --bs-primary: #EAA451;
-  --bs-secondary: #1a1668;
+  --bs-primary:  #1a1668;
+  --bs-secondary: #EAA451;
   --bs-success: #029e76;
   --bs-info: #00aeff;
   --bs-warning: #fea500;

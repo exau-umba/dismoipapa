@@ -3,11 +3,11 @@ import {Link} from 'react-router-dom';
 import {Collapse, Dropdown} from 'react-bootstrap';
 
 //Component
-import ClientsSlider from '../components/Home/ClientsSlider';
+// import ClientsSlider from '../components/Home/ClientsSlider';
 import NewsLetter from '../components/NewsLetter';
 
 //element
-import CounterSection from '../elements/CounterSection';
+// import CounterSection from '../elements/CounterSection';
 import ShopSidebar from '../elements/ShopSidebar';
 
 import { bookImages, bookTitles } from '../constants/imageUrls';
@@ -47,8 +47,8 @@ function BooksListViewSidebar(){
                            
                             <div className="col-xl-9">
                                 <div className="d-flex justify-content-between align-items-center">
-                                    <h4 className="title">Books</h4>
-                                    <Link to={"#"} className="btn btn-primary panel-btn">Filter</Link>
+                                <h4 className="title">Les livres de Jean Richard MAMBWENI MABIALA</h4>
+                                <Link to={"#"} className="btn btn-primary panel-btn">Filtrer</Link>
                                 </div>
                                 <div className="filter-area m-b30">
                                     <div className="grid-area">
@@ -204,7 +204,7 @@ function BooksListViewSidebar(){
                         </div>
                     </div>    
                 </div>            
-                <div className="bg-white py-5">
+                {/* <div className="bg-white py-5">
 			        <div className="container">              
                         <ClientsSlider />            
                     </div>    
@@ -215,7 +215,7 @@ function BooksListViewSidebar(){
                             <CounterSection />      
                         </div>   
                     </div>
-                </section>  
+                </section>   */}
                 <NewsLetter subscribeChange={() => {}} />      
             </div>
         </>

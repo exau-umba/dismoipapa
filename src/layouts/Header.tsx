@@ -122,7 +122,7 @@ function Header() {
                     </svg>
                     <span className="badge">21</span>
                   </Link>
-                </li>F
+                </li>
                 <Dropdown as="li" className="nav-item">
                   <Dropdown.Toggle
                     as="button"
@@ -445,7 +445,7 @@ function Header() {
                   fontFamily: 'Poppins, sans-serif',
                 }}
               >
-                <i className="fa fa-book"></i>
+                <img src="/logo.png" alt="Dis-moi Papa" />
                 Dis-moi Papa
               </Link>
             </div>
@@ -488,11 +488,12 @@ function Header() {
                     textDecoration: 'none',
                     color: '#1a1668',
                     fontWeight: '700',
-                    fontSize: '1.5rem',
+                    fontSize: '1.2rem',
                     whiteSpace: 'nowrap',
                     fontFamily: 'Poppins, sans-serif',
                   }}
                 >
+                  <img src="/logo.png" style={{ width: '50px', height: '50px' }} alt="Dis-moi Papa" />
                   Dis-moi Papa
                 </Link>
               </div>

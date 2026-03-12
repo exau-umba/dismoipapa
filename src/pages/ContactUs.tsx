@@ -34,7 +34,7 @@ const ContactUs = () =>{
                 <div className="content-inner-2 pt-0">
                     <div className="map-iframe">
                         <iframe
-                          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d227748.3825624477!2d75.65046970649679!3d26.88544791796718!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x396c4adf4c57e281%3A0xce1c63a0cf22e09!2sJaipur%2C+Rajasthan!5e0!3m2!1sen!2sin!4v1500819483219"
+                          src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d7956.232148101352!2d15.331696000000003!3d-4.389366999999997!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2scd!4v1773347696139!5m2!1sen!2scd"
                           style={{border:'0', width:'100%', minHeight:'100%', marginBottom: '-8px'}}
                           allowFullScreen
                           title="Localisation Dis-moi Papa"
@@ -70,7 +70,7 @@ const ContactUs = () =>{
                                             </div>
                                             <div className="icon-content">
                                                 <h5 className="dz-tilte text-white">Notre e-mail</h5>
-                                                <p>info@dismoipapa.com<br />contact@dismoipapa.com</p>
+                                                <p>contact@dismoipapa.com</p>
                                             </div>
                                         </li>
                                         <li className="icon-bx-wraper text-white left m-b30">
@@ -81,7 +81,7 @@ const ContactUs = () =>{
                                             </div>
                                             <div className="icon-content">
                                                 <h5 className="dz-tilte text-white">Téléphone</h5>
-                                                <p>+243 81 123 45 67<br />+243 82 987 65 43</p>
+                                                <p>+243 82 987 65 43</p>
                                             </div>
                                         </li>
                                     </ul>

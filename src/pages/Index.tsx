@@ -14,8 +14,8 @@ import MyProfile from './MyProfile';
 import MyBooks from './MyBooks';
 import Faq from './Faq';
 import HelpDesk from './HelpDesk';
-import Pricing from './Pricing';
-import PrivacyPolicy from './PrivacyPolicy';
+// import Pricing from './Pricing';
+// import PrivacyPolicy from './PrivacyPolicy';
 import BooksGridView from './BooksGridView';
 import ShopList from './ShopList';
 import BooksGridViewSidebar from './BooksGridViewSidebar';
@@ -27,6 +27,7 @@ import Registration from './Registration';
 import ShopCheckout from './ShopCheckout';
 import ShopDetail from './ShopDetail';
 import ContactUs from './ContactUs';
+import ActivateAccount from './ActivateAccount';
 
 import ErrorPage from './ErrorPage';
 import UnderConstruction from './UnderConstruction';
@@ -71,8 +72,8 @@ function Index() {
           {/* <Route path="/services" element={<Services />} /> */}
           <Route path="/faq" element={<Faq />} />
           <Route path="/help-desk" element={<HelpDesk />} />
-          <Route path="/pricing" element={<Pricing />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          {/* <Route path="/pricing" element={<Pricing />} /> */}
+          {/* <Route path="/privacy-policy" element={<PrivacyPolicy />} /> */}
           <Route path="/books-grid-view" element={<BooksGridView />} />
           <Route path="/books-list" element={<ShopList />} />
           <Route
@@ -86,6 +87,7 @@ function Index() {
           <Route path="/shop-cart" element={<ShopCart />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/shop-login" element={<Login />} />
+          <Route path="/activate-account" element={<ActivateAccount />} />
           <Route path="/shop-registration" element={<Registration />} />
           <Route path="/shop-checkout" element={<ShopCheckout />} />
           <Route path="/books-detail" element={<ShopDetail />} />

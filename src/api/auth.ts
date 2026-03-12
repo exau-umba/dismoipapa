@@ -68,3 +68,9 @@ export async function requestPasswordReset(email: string) {
   return postJson('/api/users/password-reset/', { email });
 }
 
+export async function activateAccount(token: string) {
+  // GET /api/users/activate/?token=...
+  return getJson<{ detail?: string }>('/api/users/activate/?token=' + encodeURIComponent(token));
+}
+
+

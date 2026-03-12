@@ -1,13 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-function heartToggle() {
-  const heartBlaste = document.querySelector('.heart');
-  if (heartBlaste) {
-    heartBlaste.classList.toggle('heart-blast');
-  }
-}
-
+// function heartToggle() {
+//   const heartBlaste = document.querySelector('.heart');
+//   if (heartBlaste) {
+//     heartBlaste.classList.toggle('heart-blast');
+//   }
+// }
+const isAuthenticated = localStorage.getItem('accessToken') !== null;
 // const accordList = [
 //   { name: 'Architecture' },
 //   { name: 'Art' },
@@ -96,18 +96,18 @@ function Footer({ footerChange = '', logoImage }: FooterProps) {
                         fontFamily: 'Poppins, sans-serif',
                       }}
                     >
-                      Dis-moi Papa
+                      <img src="/logo.png" style={{ width: '100px', height: '100px' }} alt="Dis-moi Papa" /> Dis-moi Papa
                     </Link>
                   </div>
                   <p className="text">
-                    Librairie en ligne – Découvrez notre sélection de livres et
+                    Plateforme dédiée aux livres de Jean Richard MAMBWENI MABIALA – Découvrez ses ouvrages et
                     commandez en quelques clics.
                   </p>
                   <div className="dz-social-icon style-1">
                     <ul>
                       <li>
                         <a
-                          href="https://www.facebook.com/dexignzone"
+                          href="https://www.facebook.com/dismoipapa"
                           target="_blank"
                           rel="noreferrer"
                         >
@@ -116,7 +116,7 @@ function Footer({ footerChange = '', logoImage }: FooterProps) {
                       </li>
                       <li>
                         <a
-                          href="https://www.youtube.com/channel/UCGL8V6uxNNMRrk3oZfVct1g"
+                          href="https://www.youtube.com/@dismoipapa"
                           target="_blank"
                           rel="noreferrer"
                         >
@@ -125,7 +125,7 @@ function Footer({ footerChange = '', logoImage }: FooterProps) {
                       </li>
                       <li>
                         <a
-                          href="https://www.linkedin.com/showcase/3686700/admin/"
+                          href="https://www.linkedin.com/company/dismoipapa"
                           target="_blank"
                           rel="noreferrer"
                         >
@@ -134,7 +134,7 @@ function Footer({ footerChange = '', logoImage }: FooterProps) {
                       </li>
                       <li>
                         <a
-                          href="https://www.instagram.com/website_templates__/"
+                          href="https://www.instagram.com/dismoipapa"
                           target="_blank"
                           rel="noreferrer"
                         >
@@ -146,7 +146,7 @@ function Footer({ footerChange = '', logoImage }: FooterProps) {
                 </div>
               </div>
               <div
-                className="col-xl-2 col-lg-3 col-md-4 col-sm-4 col-4 wow fadeInUp"
+                className="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-6 wow fadeInUp"
                 data-wow-delay="0.2s"
               >
                 <div className="widget widget_services">
@@ -161,21 +161,21 @@ function Footer({ footerChange = '', logoImage }: FooterProps) {
                     <li>
                       <Link to={'/contact-us'}>Contact</Link>
                     </li>
-                    <li>
+                    {/* <li>
                       <Link to={'/privacy-policy'}>
                         Politique de confidentialité
                       </Link>
-                    </li>
-                    <li>
+                    </li> */}
+                    {/* <li>
                       <Link to={'/pricing'}>Tarifs</Link>
-                    </li>
+                    </li> */}
                     <li>
                       <Link to={'/faq'}>FAQ</Link>
                     </li>
                   </ul>
                 </div>
               </div>
-              <div
+              {/* <div
                 className="col-xl-2 col-lg-3 col-sm-4 col-4 wow fadeInUp"
                 data-wow-delay="0.3s"
               >
@@ -199,29 +199,31 @@ function Footer({ footerChange = '', logoImage }: FooterProps) {
                     </li>
                   </ul>
                 </div>
-              </div>
+              </div> */}
               <div
-                className="col-xl-2 col-lg-3 col-md-4 col-sm-4 col-4 wow fadeInUp"
+                className="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-6 wow fadeInUp"
                 data-wow-delay="0.4s"
               >
                 <div className="widget widget_services">
                   <h5 className="footer-title">Ressources</h5>
                   <ul>
-                    <li>
+                    {/* <li>
                       <Link to={'/services'}>Téléchargements</Link>
-                    </li>
+                    </li> */}
                     <li>
                       <Link to={'/help-desk'}>Centre d'aide</Link>
                     </li>
                     <li>
                       <Link to={'/shop-cart'}>Panier</Link>
                     </li>
-                    <li>
-                      <Link to={'/shop-login'}>Connexion</Link>
-                    </li>
-                    <li>
+                    {!isAuthenticated && (
+                      <li>
+                        <Link to={'/shop-login'}>Connexion</Link>
+                      </li>
+                    )}
+                    {/* <li>
                       <Link to={'/about-us'}>Partenaires</Link>
-                    </li>
+                    </li> */}
                   </ul>
                 </div>
               </div>
@@ -242,17 +244,13 @@ function Footer({ footerChange = '', logoImage }: FooterProps) {
                     <li>
                       <i className="flaticon-phone"></i>
                       <span>
-                        +243 81 123 45 67
-                        <br />
-                        +243 82 987 65 43
+                        +243 999 999 999
                       </span>
                     </li>
                     <li>
                       <i className="flaticon-email"></i>
                       <span>
-                        support@dismoipapa.com
-                        <br />
-                        info@dismoipapa.com
+                        contact@dismoipapa.com
                       </span>
                     </li>
                   </ul>
@@ -266,22 +264,14 @@ function Footer({ footerChange = '', logoImage }: FooterProps) {
             <div className="row fb-inner">
               <div className="col-lg-6 col-md-12 text-start">
                 <p className="copyright-text">
-                  Librairie en ligne – © {d.getFullYear()} Tous droits
+                  Dis-moi Papa © {d.getFullYear()} Tous droits
                   réservés
                 </p>
               </div>
               <div className="col-lg-6 col-md-12 text-end">
                 <p>
-                  Réalisé avec{' '}
-                  <span className="heart" onClick={heartToggle}></span> par
-                  <a
-                    href="https://dexignzone.com/"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {' '}
-                    DexignZone
-                  </a>
+                  Réalisé par <a href="https://www.linkedin.com/in/exau-umba" target="_blank" rel="noreferrer">Exaucé Umba</a> {' '} et <a href="https://www.linkedin.com/in/christkt/" target="_blank" rel="noreferrer">Christ Katumba</a> {' '}
+                  {/* <span className="heart" onClick={heartToggle}></span> */}
                 </p>
               </div>
             </div>

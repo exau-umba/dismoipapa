@@ -9,11 +9,11 @@ import Header from '../layouts/Header';
 import Footer from '../layouts/Footer';
 //Components 
 import HomeMainSlider2 from '../components/Home2/HomeMainSlider2';
-import ClientsSlider from '../components/Home/ClientsSlider';
-import RecomendedSlider from '../components/Home/RecomendedSlider';
-import BookSaleSlider from '../components/Home/BookSaleSlider';
+// import ClientsSlider from '../components/Home/ClientsSlider';
+// import RecomendedSlider from '../components/Home/RecomendedSlider';
+// import BookSaleSlider from '../components/Home/BookSaleSlider';
 import CustomerSlider from '../components/Home2/CustomerSlider';
-import OfferSlider from '../components/Home/OfferSlider';
+// import OfferSlider from '../components/Home/OfferSlider';
 import CounterSection from '../elements/CounterSection';
 import NewsLetter from '../components/NewsLetter';
 
@@ -30,11 +30,11 @@ const missionBlog = [
     {iconClass:'flaticon-store', title:'Réseau en expansion' },
 ];
 
-const pricingCard = [
-    {title:'Lecture seule',price:'45 000',desc:'Lisez en ligne sans télécharger',features:['Lecture illimitée en ligne','Accès à tout le catalogue','Synchronisation multi-appareils','Pas de téléchargement']},
-    {title:'Lecture + Téléchargement',price:'65 000',desc:'Lisez en ligne et téléchargez vos ebooks',features:['Tout de la formule Lecture seule','Téléchargement d\'ebooks (5/mois)','Lecture hors ligne','Conservation de votre bibliothèque']},
-    {title:'Premium illimité',price:'85 000',desc:'Lecture et téléchargements illimités',features:['Tout de la formule Lecture + Téléchargement','Téléchargements illimités','Nouveautés en avant-première','Support prioritaire']},
-];
+// const pricingCard = [
+//     {title:'Lecture seule',price:'45 000',desc:'Lisez en ligne sans télécharger',features:['Lecture illimitée en ligne','Accès à tout le catalogue','Synchronisation multi-appareils','Pas de téléchargement']},
+//     {title:'Lecture + Téléchargement',price:'65 000',desc:'Lisez en ligne et téléchargez vos ebooks',features:['Tout de la formule Lecture seule','Téléchargement d\'ebooks (5/mois)','Lecture hors ligne','Conservation de votre bibliothèque']},
+//     {title:'Premium illimité',price:'85 000',desc:'Lecture et téléchargements illimités',features:['Tout de la formule Lecture + Téléchargement','Téléchargements illimités','Nouveautés en avant-première','Support prioritaire']},
+// ];
 
 function Home2(){
     return(
@@ -81,22 +81,22 @@ function Home2(){
                                     </div>
                                 </div>
                             </div>
-                            <div className="col-lg-6 m-b30 wow fadeInUp" data-wow-delay="0.2s">
+                            <div className="col-lg-6 m-b2 wow fadeInUp" data-wow-delay="0.2s">
                                 <div className="about-content px-lg-4">
                                     <div className="section-head style-1">
-                                        <h2 className="title">Votre librairie de référence</h2>
-                                        <p>Nous sélectionnons pour vous les meilleurs ouvrages, des classiques aux dernières sorties. Une équipe passionnée pour vous conseiller.</p>
+                                        <h2 className="title">Les livres de Jean Richard MAMBWENI MABIALA</h2>
+                                        <p>Découvrez et achetez en ligne les ouvrages de Jean Richard MAMBWENI MABIALA, réunis sur une plateforme dédiée à son univers littéraire.</p>
                                     </div>
                                     <Link to={"/contact-us"} className="btn btn-primary shadow-primary btnhover">Nous contacter</Link>
                                 </div>
                             </div>
                         </div>
-                        <div className="swiper client-swiper mt-5">
+                        {/* <div className="swiper client-swiper mt-5">
                             <ClientsSlider />
-                        </div>
+                        </div> */}
                     </div>   
                 </section>   
-                <section className="content-inner-1 bg-grey reccomend ">
+                {/* <section className="content-inner-1 bg-grey reccomend ">
                     <div className="container">
                         <div className="section-head text-center">
                             <h2 className="title">Recommandé pour vous</h2>
@@ -104,8 +104,8 @@ function Home2(){
                         </div>
                         <RecomendedSlider />
 					</div>
-				</section>
-                <section className="content-inner">
+				</section> */}
+                <section className="content-inner-1 bg-grey">
                     <div className="container">
                         <div className="row">
                             {iconBlog.map((data, ind)=>(
@@ -124,7 +124,7 @@ function Home2(){
                         </div> 
                     </div>
                 </section>    
-                <section className="content-inner-1 bg-light">
+                <section className="content-inner-1">
                     <div className="container">
                         <div className="section-head text-center">
                             <h2 className="title">Notre mission</h2>
@@ -148,11 +148,11 @@ function Home2(){
                         </div>
                     </div>
                 </section>    
-                <section className="content-inner-1">
+                {/* <section className="content-inner-1">
 					<div className="container">
 						<BookSaleSlider />
 					</div>
-				</section> 
+				</section>  */}
                 <section className="content-inner-1 bg-grey testimonial-wrapper-2">
                     <div className="container">
                         <div className="testimonial">
@@ -166,12 +166,12 @@ function Home2(){
                         <CustomerSlider />           
                     </div>
                 </section>   
-                <section className="content-inner-1">
+                {/* <section className="content-inner-1">
 			        <div className="container">                  
                         <OfferSlider />       
                     </div>
-                </section>   
-                <section className="content-inner bg-light">
+                </section>    */}
+                {/* <section className="content-inner bg-light">
                     <div className="container">
                         <div className="section-head text-center">
                             <h2 className="title">Nos tarifs</h2>
@@ -201,7 +201,7 @@ function Home2(){
                             ))}
                         </div>
                     </div>
-                </section>        
+                </section>         */}
                 <section className="content-inner">
                     <div className="container">
                         <div className="row sp15">

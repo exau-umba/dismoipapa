@@ -36,7 +36,7 @@ function ShopList(){
                 <section className="content-inner-1 border-bottom">
                     <div className="container">
                         <div className="d-flex justify-content-between align-items-center">
-                            <h4 className="title">Books</h4>
+                            <h4 className="title">Les livres de Jean Richard MAMBWENI MABIALA</h4>
                         </div>
                         <div className="filter-area m-b30">
                             <div className="grid-area">

@@ -17,7 +17,7 @@ const orderItem = [
 
 const inputData = [
     {name1: 'Appartement, bâtiment, etc.', name2:'Ville'},
-    {name1: 'Région / Département', name2:'Code postal'},
+    {name1: 'Région / Province', name2:'Code postal'},
     {name1: 'E-mail', name2:'Téléphone'},
 ];
 
@@ -46,20 +46,12 @@ function ShopCheckout(){
                                     <div className="widget">
                                         <h4 className="widget-title">Adresse de facturation et livraison</h4>
                                         <div className="form-group">
-                                            <Form.Select aria-label="Åland Islands">
-                                                <option>Åland Islands</option>
-                                                <option value="1">Afghanistan</option>
-                                                <option value="2">Albania</option>
-                                                <option value="3">Algeria</option>
-                                                <option value="4">Andorra</option>
-                                                <option value="5">Angola</option>
-                                                <option value="6">Anguilla</option>
-                                                <option value="7">Antarctica</option>
-                                                <option value="8">Antigua and Barbuda</option>
-                                                <option value="9">Argentina</option>
-                                                <option value="10">Armenia</option>
-                                                <option value="11">Aruba</option>
-                                                <option value="12">Australia</option>
+                                            <Form.Select aria-label="Pays">
+                                                <option value="CD">République démocratique du Congo</option>
+                                                <option value="CG">République du Congo</option>
+                                                <option value="RW">Rwanda</option>
+                                                <option value="BI">Burundi</option>
+                                                <option value="UG">Ouganda</option>
                                             </Form.Select>	
                                         </div>
                                         <div className="row">
@@ -67,9 +59,9 @@ function ShopCheckout(){
                                             <SingleInput ChangeClassName="col-md-6" title="Nom" />
                                         </div>
                                         <SingleInput title="Société (optionnel)" ChangeClassName="" />
-                                        <SingleInput title="Adresse" ChangeClassName="" />
+                                        <SingleInput title="Adresse (rue, numéro...)" ChangeClassName="" />
                                         {inputData.map((data, index)=>(
-                                            <div className="row">
+                                            <div className="row" key={index}>
                                                 <div className="form-group col-md-6">
                                                     <input type="text" className="form-control" placeholder={data.name1} />
                                                 </div>
@@ -78,7 +70,7 @@ function ShopCheckout(){
                                                 </div>
                                             </div>
                                         ))}                                        
-                                        <button className="btn btn-primary btnhover mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#create-an-account">Créer un compte <i className="fa fa-arrow-circle-o-down"></i></button>
+                                        <button className="btn btn-outline-primary btnhover mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#create-an-account">Créer un compte client <i className="fa fa-arrow-circle-o-down"></i></button>
                                         <div id="create-an-account" className="collapse">
                                             <p>Créez un compte en renseignant les informations ci-dessous. Déjà client ? Connectez-vous en haut de page.</p>
                                             <div className="form-group">
@@ -96,20 +88,12 @@ function ShopCheckout(){
                                             <p>Déjà client ? Renseignez vos coordonnées ci-dessous. Nouveau client ? Passez à la section Facturation & Livraison.</p>
                                             <div className="form-group">
                                                 
-                                                <Form.Select aria-label="Åland Islands">
-                                                    <option>Åland Islands</option>
-                                                    <option value="1">Afghanistan</option>
-                                                    <option value="2">Albania</option>
-                                                    <option value="3">Algeria</option>
-                                                    <option value="4">Andorra</option>
-                                                    <option value="5">Angola</option>
-                                                    <option value="6">Anguilla</option>
-                                                    <option value="7">Antarctica</option>
-                                                    <option value="8">Antigua and Barbuda</option>
-                                                    <option value="9">Argentina</option>
-                                                    <option value="10">Armenia</option>
-                                                    <option value="11">Aruba</option>
-                                                    <option value="12">Australia</option>
+                                                <Form.Select aria-label="Pays de livraison">
+                                                    <option value="CD">République démocratique du Congo</option>
+                                                    <option value="CG">République du Congo</option>
+                                                    <option value="RW">Rwanda</option>
+                                                    <option value="BI">Burundi</option>
+                                                    <option value="UG">Ouganda</option>
                                                 </Form.Select>
                                             </div>
                                             <div className="row">
@@ -117,9 +101,9 @@ function ShopCheckout(){
                                                 <SingleInput ChangeClassName="col-md-6" title="Nom" />
                                             </div>
                                             <SingleInput title="Société (optionnel)" ChangeClassName="" />
-                                            <SingleInput title="Adresse" ChangeClassName="" />
+                                            <SingleInput title="Adresse (rue, numéro...)" ChangeClassName="" />
                                             {inputData.map((data, index)=>(
-                                                <div className="row">
+                                                <div className="row" key={index}>
                                                     <div className="form-group col-md-6">
                                                         <input type="text" className="form-control" placeholder={data.name1} />
                                                     </div>
@@ -140,9 +124,9 @@ function ShopCheckout(){
                             </div>
                         </form>
                         <div className="dz-divider bg-gray-dark text-gray-dark icon-center  my-5"><i className="fa fa-circle bg-white text-gray-dark"></i></div>
-                        <div className="row">
+                        <div className="row g-4 align-items-start">
                             <div className="col-lg-6">
-                                <div className="widget">
+                                <div className="widget h-100 p-3 p-md-4 bg-white shadow-sm">
                                     <h4 className="widget-title">Votre commande</h4>
                                     <table className="table-bordered check-tbl">
                                         <thead className="text-center">
@@ -165,7 +149,7 @@ function ShopCheckout(){
                                 </div>
                             </div>
                             <div className="col-lg-6">
-                                <form className="shop-form widget">
+                                <form className="shop-form widget h-100 p-3 p-md-4 bg-white shadow-sm">
                                     <h4 className="widget-title">Total de la commande</h4>
                                     <table className="table-bordered check-tbl mb-4">
                                         <tbody>
@@ -187,18 +171,16 @@ function ShopCheckout(){
                                             </tr>
                                         </tbody>
                                     </table>
-                                    <h4 className="widget-title">Mode de paiement</h4>
-                                    <SingleInput title="Nom sur la carte" ChangeClassName="" />
+                                    <h4 className="widget-title">Mode de paiement (simulation)</h4>
+                                    <SingleInput title="Nom sur la carte / compte" ChangeClassName="" />
                                     <div className="form-group">
-                                        <Form.Select aria-label="Credit Card Type">
-                                            <option>Type de carte</option>
-                                            <option value="1">Carte avec cashback</option>
-                                            <option value="2">Carte voyage</option>
-                                            <option value="3">Carte professionnelle</option>
+                                        <Form.Select aria-label="Moyen de paiement">
+                                            <option value="card">Carte bancaire (simulation)</option>
+                                            <option value="mobile">Mobile Money (simulation)</option>
                                         </Form.Select>
                                     </div>
-                                    <SingleInput title="Numéro de carte" ChangeClassName="" />
-                                    <SingleInput title="Cryptogramme" ChangeClassName="" />
+                                    <SingleInput title="Numéro de carte / téléphone" ChangeClassName="" />
+                                    <SingleInput title="Référence paiement (optionnel)" ChangeClassName="" />
                                     <div className="form-group">
                                         <button className="btn btn-primary btnhover" type="button">Passer la commande</button>
                                     </div>

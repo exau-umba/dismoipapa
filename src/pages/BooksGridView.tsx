@@ -3,8 +3,8 @@ import {Link} from 'react-router-dom';
 import {Collapse, Dropdown} from 'react-bootstrap';
 
 //Component
-import ClientsSlider from '../components/Home/ClientsSlider';
-import CounterSection from '../elements/CounterSection';
+// import ClientsSlider from '../components/Home/ClientsSlider';
+// import CounterSection from '../elements/CounterSection';
 import NewsLetter from '../components/NewsLetter';
 
 import { bookImages, bookTitles, bookTags } from '../constants/imageUrls';
@@ -70,7 +70,7 @@ function BooksGridView(){
                 <section className="content-inner-1 border-bottom">
                     <div className="container">
                         <div className="d-flex justify-content-between align-items-center">
-                            <h4 className="title">Livres</h4>
+                            <h4 className="title">Les livres de Jean Richard MAMBWENI MABIALA</h4>
                         </div>
                         <div className="filter-area m-b30">
                             <div className="grid-area">
@@ -233,7 +233,7 @@ function BooksGridView(){
                         </div>    
                     </div>
                 </section>
-                <div className="bg-white py-5">
+                {/* <div className="bg-white py-5">
 			        <div className="container">              
                         <ClientsSlider />            
                     </div>    
@@ -244,7 +244,7 @@ function BooksGridView(){
                             <CounterSection />      
                         </div>   
                     </div>
-                </section>  
+                </section>   */}
                 <NewsLetter subscribeChange={() => {}} />      
             </div>
         </>
