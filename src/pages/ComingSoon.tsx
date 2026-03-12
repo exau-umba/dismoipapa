@@ -3,7 +3,6 @@ import emailjs from '@emailjs/browser'
 import {Link} from 'react-router-dom';
 
 import DonutChart2 from '../elements/DonutChart2';
-import bg2 from './../assets/images/background/bg2.jpg';
 
 function ComingSoon(){
     const [timerDays, setTimerDays] = useState('00');	
@@ -66,7 +65,14 @@ function ComingSoon(){
     return(
         <>
             <div className="dez-coming-soon style-3">
-                <div className="bg-img" style={{backgroundImage:'url(' + bg2 + ')'}}></div>
+                <div
+                  className="bg-img"
+                  style={{
+                    backgroundImage: "url('https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=1600&q=80')",
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                  }}
+                ></div>
                 <div className="clearfix dez-coming-bx">
                     <div className="dez-content">
                         <div className="center-md">

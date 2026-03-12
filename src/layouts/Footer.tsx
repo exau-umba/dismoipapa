@@ -54,7 +54,7 @@ function Footer({ footerChange = '', logoImage }: FooterProps) {
   return (
     <>
       <footer className={`site-footer ${footerChange}`}>
-        <div className="footer-category">
+        {/* <div className="footer-category">
           <div className="container">
             <div className="category-toggle">
               <Link
@@ -77,7 +77,7 @@ function Footer({ footerChange = '', logoImage }: FooterProps) {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
         <div className="footer-top">
           <div className="container">
             <div className="row">

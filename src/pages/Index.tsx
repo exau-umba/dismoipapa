@@ -73,7 +73,7 @@ function Index() {
           <Route path="/auteur" element={<Auteur />} />
           <Route path="/my-profile" element={<MyProfile />} />
           <Route path="/my-books" element={<MyBooks />} />
-          <Route path="/services" element={<Services />} />
+          {/* <Route path="/services" element={<Services />} /> */}
           <Route path="/faq" element={<Faq />} />
           <Route path="/help-desk" element={<HelpDesk />} />
           <Route path="/pricing" element={<Pricing />} />
@@ -94,12 +94,13 @@ function Index() {
           <Route path="/shop-registration" element={<Registration />} />
           <Route path="/shop-checkout" element={<ShopCheckout />} />
           <Route path="/books-detail" element={<ShopDetail />} />
-          <Route path="/blog-grid" element={<BlogGrid />} />
-          <Route path="/blog-large-sidebar" element={<BlogLargeSidebar />} />
-          <Route path="/blog-list-sidebar" element={<BlogListSidebar />} />
-          <Route path="/blog-detail" element={<BlogDetail />} />
+          {/* <Route path="/blog-grid" element={<BlogGrid />} /> */}
+          {/* <Route path="/blog-large-sidebar" element={<BlogLargeSidebar />} /> */}
+          {/* <Route path="/blog-list-sidebar" element={<BlogListSidebar />} /> */}
+          {/* <Route path="/blog-detail" element={<BlogDetail />} /> */}
           <Route path="/contact-us" element={<ContactUs />} />
         </Route>
+        <Route path="*" element={<ErrorPage />} />
       </Routes>
       <ScrollToTop />
       <ScrollToTop2 className="styles_scroll-to-top__2A70v  fas fa-arrow-up scroltop" smooth />

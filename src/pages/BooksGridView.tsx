@@ -1,4 +1,4 @@
-import React,{useState} from 'react';
+import React,{useEffect, useState} from 'react';
 import {Link} from 'react-router-dom';
 import {Collapse, Dropdown} from 'react-bootstrap';
 
@@ -7,7 +7,8 @@ import ClientsSlider from '../components/Home/ClientsSlider';
 import CounterSection from '../elements/CounterSection';
 import NewsLetter from '../components/NewsLetter';
 
-import { bookImages, bookTitles } from '../constants/imageUrls';
+import { bookImages, bookTitles, bookTags } from '../constants/imageUrls';
+import { fetchBooks, Book } from '../api/catalog';
 
 const lableBlogData = [
     {name:'Poésie'},
@@ -18,35 +19,58 @@ const lableBlogData = [
     {name:'Fiction'},
 ];
 
-const cardDetials = [
-    {image: bookImages[0], title: bookTitles[0], subtitle1:'Poésie', subtitle2:'Fables', price1:'45.0', price2:'55.0' },
-    {image: bookImages[1], title: bookTitles[1], subtitle1:'Technique', subtitle2:'Énergie', price1:'65.0', price2:'80.0' },
-    {image: bookImages[2], title: bookTitles[2], subtitle1:'Roman', price1:'55.0', price2:'68.0' },
-    {image: bookImages[0], title: bookTitles[0], subtitle1:'Poésie', price1:'48.0', price2:'58.0' },
-    {image: bookImages[1], title: bookTitles[1], subtitle1:'Technique', price1:'70.0', price2:'85.0' },
-    {image: bookImages[2], title: bookTitles[2], subtitle1:'Roman', subtitle2:'Fiction', price1:'60.0', price2:'75.0' },
-    {image: bookImages[0], title: bookTitles[0], subtitle1:'Poésie', subtitle2:'Fables', price1:'50.0', price2:'62.0' },
-    {image: bookImages[1], title: bookTitles[1], subtitle1:'Technique', price1:'75.0', price2:'90.0' },
-    {image: bookImages[2], title: bookTitles[2], subtitle1:'Roman', price1:'65.0', price2:'80.0' },
-    {image: bookImages[0], title: bookTitles[0], subtitle1:'Poésie', subtitle2:'Fables', price1:'47.0', price2:'57.0' },
-    {image: bookImages[1], title: bookTitles[1], subtitle1:'Technique', price1:'68.0', price2:'83.0' },
-    {image: bookImages[2], title: bookTitles[2], subtitle1:'Roman', price1:'58.0', price2:'72.0' },
-    {image: bookImages[0], title: bookTitles[0], subtitle1:'Poésie', price1:'49.0', price2:'60.0' },
-    {image: bookImages[1], title: bookTitles[1], subtitle1:'Technique', subtitle2:'Énergie', price1:'72.0', price2:'88.0' },
-    {image: bookImages[2], title: bookTitles[2], subtitle1:'Roman', price1:'62.0', price2:'78.0' },
-    {image: bookImages[0], title: bookTitles[0], subtitle1:'Poésie', subtitle2:'Fables', price1:'46.0', price2:'56.0' },
-];
+function mapBackendBookToCard(book: Book, index: number) {
+    const img = bookImages[index % bookImages.length];
+    const title = book.title || bookTitles[index % bookTitles.length] || 'Livre';
+    const tags = bookTags[index % bookTags.length] || [];
+    const mainFormat = book.formats && book.formats.length > 0 ? book.formats[0] : undefined;
+    const price = mainFormat?.price ?? '';
+
+    return {
+        id: book.id,
+        image: img,
+        title,
+        subtitle1: tags[0] || '',
+        subtitle2: tags[1] || '',
+        price1: price || '',
+        price2: '',
+    };
+}
 
 function BooksGridView(){
     const [accordBtn, setAccordBtn] = useState<boolean>(false);
     const [selectBtn, setSelectBtn] = useState('Newest');
+    const [books, setBooks] = useState<Book[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const load = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const data = await fetchBooks();
+                setBooks(data);
+            } catch (err) {
+                console.error(err);
+                if (err instanceof Error) {
+                    setError(err.message);
+                } else {
+                    setError('Impossible de charger les livres pour le moment.');
+                }
+            } finally {
+                setLoading(false);
+            }
+        };
+        load();
+    }, []);
     return(
         <>
             <div className="page-content bg-grey">
                 <section className="content-inner-1 border-bottom">
                     <div className="container">
                         <div className="d-flex justify-content-between align-items-center">
-                            <h4 className="title">Books</h4>
+                            <h4 className="title">Livres</h4>
                         </div>
                         <div className="filter-area m-b30">
                             <div className="grid-area">
@@ -121,7 +145,28 @@ function BooksGridView(){
                             </div>
                         </Collapse>
                         <div className="row book-grid-row">
-                            {cardDetials.map((data, i)=>(
+                            {loading && (
+                              <div className="col-12 text-center py-5">
+                                <p>Chargement des livres…</p>
+                              </div>
+                            )}
+                            {error && !loading && (
+                              <div className="col-12">
+                                <div className="alert alert-danger">
+                                  {error}
+                                </div>
+                              </div>
+                            )}
+                            {!loading && !error && books.length === 0 && (
+                              <div className="col-12 text-center py-5">
+                                <p className="text-muted">
+                                  Aucun livre n&apos;est disponible pour le moment.
+                                </p>
+                              </div>
+                            )}
+                            {!loading && !error && books.map((book, i) => {
+                              const data = mapBackendBookToCard(book, i);
+                              return (
                                 <div className="col-book style-1" key={i}>
                                     <div className="dz-shop-card style-1">
                                         <div className="dz-media">
@@ -134,10 +179,14 @@ function BooksGridView(){
                                             </label>
                                         </div> 
                                         <div className="dz-content">
-                                            <h5 className="title book-title-truncate" title={data.title}><Link to={"/books-grid-view"}>{data.title}</Link></h5>
+                                            <h5 className="title book-title-truncate" title={data.title}><Link to={"/books-detail"}>{data.title}</Link></h5>
                                             <ul className="dz-tags">
-                                                <li><Link to={"/books-grid-view"}>{data.subtitle1},</Link></li>
-                                                <li><Link to={"/books-grid-view"}>{data.subtitle2}</Link></li>
+                                                {data.subtitle1 && (
+                                                  <li><Link to={"/books-grid-view"}>{data.subtitle1}{data.subtitle2 ? ',' : ''}</Link></li>
+                                                )}
+                                                {data.subtitle2 && (
+                                                  <li><Link to={"/books-grid-view"}>{data.subtitle2}</Link></li>
+                                                )}
                                             </ul>
                                             <ul className="dz-rating">
                                                 <li><i className="flaticon-star text-primary"></i></li>	
@@ -148,15 +197,22 @@ function BooksGridView(){
                                             </ul>
                                             <div className="book-footer">
                                                 <div className="price">
-                                                    <span className="price-num">{data.price1} FC</span>
-                                                    <del>{data.price2} FC</del>
+                                                    {data.price1 ? (
+                                                      <>
+                                                        <span className="price-num">{data.price1} FC</span>
+                                                        {data.price2 && <del>{data.price2} FC</del>}
+                                                      </>
+                                                    ) : (
+                                                      <span className="price-num text-muted">Prix à venir</span>
+                                                    )}
                                                 </div>
                                                 <Link to={"/shop-cart"} className="btn btn-secondary box-btn btnhover btnhover2"><i className="flaticon-shopping-cart-1 m-r10"></i> Add to cart</Link>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            ))}   
+                              );
+                            })}   
                              
                         </div>
                         <div className="row page mt-0">

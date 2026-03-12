@@ -1,26 +1,50 @@
 import React from 'react';
-import {Link} from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
-import ucimage from './../assets/images/background/uc.jpg';
+const UnderConstruction = () => {
+  const maintenanceBg = 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1600&q=80';
 
-const UnderConstruction = ()=>{
-    return(
-        <>
-            <div className="under-construct">
-                <div className="inner-box">
-                    <div className="logo-header logo-dark">
-                        <Link to={"/"} style={{ textDecoration: 'none', color: '#1a1668', fontWeight: '700', fontSize: '1.5rem', whiteSpace: 'nowrap', fontFamily: 'Poppins, sans-serif' }}>
-                        <i className="fa fa-book"></i> Dis-moi Papa
-                        </Link>
-                    </div>	
-                    <div className="dz-content">
-                        <h2 className="dz-title">Site Is Down <br/>For <span className="text-primary">Maintenance</span></h2>
-                        <p>This is the Technical Problems Page.<br /> Or any other page.</p>
-                    </div>
-                </div>
-                <img src={ucimage} className="uc-bg" alt="" />
-            </div>
-        </>
-    )
-}
+  return (
+    <>
+      <div className="under-construct">
+        <div className="inner-box">
+          <div className="logo-header logo-dark">
+            <Link
+              to="/"
+              style={{
+                textDecoration: 'none',
+                color: '#1a1668',
+                fontWeight: '700',
+                fontSize: '1.5rem',
+                whiteSpace: 'nowrap',
+                fontFamily: 'Poppins, sans-serif',
+              }}
+            >
+              <img src="/logo.png" alt="Dis-moi Papa" /> Dis-moi Papa
+            </Link>
+          </div>
+          <div className="dz-content">
+            <h2 className="dz-title">
+              Le site est en <span className="text-primary">maintenance</span>
+            </h2>
+            <p>
+              Le site est en maintenance pour des raisons techniques.
+              <br />
+              Veuillez réessayer plus tard.
+            </p>
+          </div>
+        </div>
+        <div
+          className="uc-bg"
+          style={{
+            backgroundImage: `url('/images/maintenance.jpg')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        ></div>
+      </div>
+    </>
+  );
+};
+
 export default UnderConstruction;
