@@ -1,10 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import bg404 from './../assets/images/quality-media.jpg';
-
 const ErrorPage = () => {
-
   return (
     <>
       <div

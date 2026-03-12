@@ -12,7 +12,6 @@ import AboutUs from './AboutUs';
 import Auteur from './Auteur';
 import MyProfile from './MyProfile';
 import MyBooks from './MyBooks';
-import Services from './Services';
 import Faq from './Faq';
 import HelpDesk from './HelpDesk';
 import Pricing from './Pricing';
@@ -27,10 +26,6 @@ import Login from './Login';
 import Registration from './Registration';
 import ShopCheckout from './ShopCheckout';
 import ShopDetail from './ShopDetail';
-import BlogGrid from './BlogGrid';
-import BlogLargeSidebar from './BlogLargeSidebar';
-import BlogListSidebar from './BlogListSidebar';
-import BlogDetail from './BlogDetail';
 import ContactUs from './ContactUs';
 
 import ErrorPage from './ErrorPage';

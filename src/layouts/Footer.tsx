@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import Collapse from 'react-bootstrap/Collapse';
 
 function heartToggle() {
   const heartBlaste = document.querySelector('.heart');
@@ -49,7 +48,6 @@ type FooterProps = {
 
 function Footer({ footerChange = '', logoImage }: FooterProps) {
   const d = new Date();
-  const [accordBtn, setAccordBtn] = useState<boolean>(false);
 
   return (
     <>
