@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Dropdown } from 'react-bootstrap';
 import { cartBookImages } from '../constants/imageUrls';
 import { getCurrentUser, logoutUser, type UserProfile } from '../api/auth';
+import LogoutConfirmModal from '../components/LogoutConfirmModal';
 
 import Collapse from 'react-bootstrap/Collapse';
 import { MenuListArray2 } from './MenuListArray2';
@@ -51,6 +52,7 @@ function Header() {
 
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
   const [authLoading, setAuthLoading] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -79,9 +81,10 @@ function Header() {
     navigate(`/books-grid-view?q=${encodeURIComponent(query)}`);
   };
 
-  const handleLogout = () => {
+  const handleLogoutConfirm = () => {
     logoutUser();
     setCurrentUser(null);
+    setShowLogoutModal(false);
     navigate('/');
   };
 
@@ -339,7 +342,7 @@ function Header() {
                       <div className="dropdown-footer">
                         <button
                           type="button"
-                          onClick={handleLogout}
+                          onClick={() => setShowLogoutModal(true)}
                           className="btn btn-primary w-100 btnhover btn-sm"
                         >
                           Déconnexion
@@ -552,10 +555,19 @@ function Header() {
                     )}
                   </li>
                 ))}
-                {currentUser && (
+                {currentUser ? (
                   <li>
                     <Link to="/my-profile">
                       <span>Mon profil</span>
+                    </Link>
+                  </li>
+                ) : (
+                  <li className="mt-2">
+                    <Link
+                      to="/shop-login"
+                      className="btn btn-primary btnhover btn-sm"
+                    >
+                      {authLoading ? 'Connexion…' : 'Se connecter'}
                     </Link>
                   </li>
                 )}
@@ -608,6 +620,11 @@ function Header() {
           </div>
         </div>
       </div>
+      <LogoutConfirmModal
+        show={showLogoutModal}
+        onConfirm={handleLogoutConfirm}
+        onCancel={() => setShowLogoutModal(false)}
+      />
     </header>
   );
 }

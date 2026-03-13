@@ -28,6 +28,7 @@ import ShopCheckout from './ShopCheckout';
 import ShopDetail from './ShopDetail';
 import ContactUs from './ContactUs';
 import ActivateAccount from './ActivateAccount';
+import ProtectedRoute from '../components/ProtectedRoute';
 
 import ErrorPage from './ErrorPage';
 import UnderConstruction from './UnderConstruction';
@@ -67,8 +68,8 @@ function Index() {
         <Route element={<MainLayout />}>
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/auteur" element={<Auteur />} />
-          <Route path="/my-profile" element={<MyProfile />} />
-          <Route path="/my-books" element={<MyBooks />} />
+          <Route path="/my-profile" element={<ProtectedRoute><MyProfile /></ProtectedRoute>} />
+          <Route path="/my-books" element={<ProtectedRoute><MyBooks /></ProtectedRoute>} />
           {/* <Route path="/services" element={<Services />} /> */}
           <Route path="/faq" element={<Faq />} />
           <Route path="/help-desk" element={<HelpDesk />} />
@@ -84,12 +85,12 @@ function Index() {
             path="/books-list-view-sidebar"
             element={<BooksListViewSidebar />}
           />
-          <Route path="/shop-cart" element={<ShopCart />} />
-          <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/shop-cart" element={<ProtectedRoute><ShopCart /></ProtectedRoute>} />
+          <Route path="/wishlist" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
           <Route path="/shop-login" element={<Login />} />
           <Route path="/activate-account" element={<ActivateAccount />} />
           <Route path="/shop-registration" element={<Registration />} />
-          <Route path="/shop-checkout" element={<ShopCheckout />} />
+          <Route path="/shop-checkout" element={<ProtectedRoute><ShopCheckout /></ProtectedRoute>} />
           <Route path="/books-detail" element={<ShopDetail />} />
           {/* <Route path="/blog-grid" element={<BlogGrid />} /> */}
           {/* <Route path="/blog-large-sidebar" element={<BlogLargeSidebar />} /> */}

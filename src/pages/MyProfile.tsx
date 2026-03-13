@@ -2,7 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import PageTitle from './../layouts/PageTitle';
+import ErrorMessage from '../components/ErrorMessage';
 import { getCurrentUser, type UserProfile } from '../api/auth';
+import { getFriendlyErrorMessage } from '../utils/errorMessages';
 
 const profilePages = [
   { to: '/my-books', icons: 'fa fa-book', name: 'Mes Livres' },
@@ -54,7 +56,7 @@ function MyProfile() {
             {error && !loading && (
               <div className="row">
                 <div className="col-12">
-                  <div className="alert alert-danger">{error}</div>
+                  <ErrorMessage message={error} onDismiss={() => setError(null)} className="mb-3" />
                 </div>
               </div>
             )}
@@ -74,7 +76,7 @@ function MyProfile() {
                         justifyContent: 'center',
                         fontSize: 32,
                         fontWeight: 600,
-                        margin: '0 auto',
+                        // margin: '0 auto',
                       }}
                     >
                       {userInitial}

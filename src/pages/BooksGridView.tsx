@@ -6,8 +6,10 @@ import {Collapse, Dropdown} from 'react-bootstrap';
 // import ClientsSlider from '../components/Home/ClientsSlider';
 // import CounterSection from '../elements/CounterSection';
 import NewsLetter from '../components/NewsLetter';
+import ErrorMessage from '../components/ErrorMessage';
 
 import { bookImages, bookTitles, bookTags } from '../constants/imageUrls';
+import { getFriendlyErrorMessage } from '../utils/errorMessages';
 import { fetchBooks, Book } from '../api/catalog';
 
 const lableBlogData = [
@@ -54,12 +56,7 @@ function BooksGridView(){
                 const data = await fetchBooks();
                 setBooks(data);
             } catch (err) {
-                console.error(err);
-                if (err instanceof Error) {
-                    setError(err.message);
-                } else {
-                    setError('Impossible de charger les livres pour le moment.');
-                }
+                setError(getFriendlyErrorMessage(err));
             } finally {
                 setLoading(false);
             }
@@ -175,9 +172,7 @@ function BooksGridView(){
                             )}
                             {error && !loading && (
                               <div className="col-12">
-                                <div className="alert alert-danger">
-                                  {error}
-                                </div>
+                                <ErrorMessage message={error} onDismiss={() => setError(null)} className="mb-3" />
                               </div>
                             )}
                             {!loading && !error && filteredBooks.length === 0 && (

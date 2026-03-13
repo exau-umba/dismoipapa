@@ -1,3 +1,5 @@
+import { getFriendlyErrorMessage } from '../utils/errorMessages';
+
 const API_BASE_URL =
   process.env.REACT_APP_API_BASE_URL || 'https://api.dismoipapa.shop';
 
@@ -38,7 +40,12 @@ async function request<T>(
           : JSON.stringify(body),
     });
 
-  let response = await doFetch();
+  let response: Response;
+  try {
+    response = await doFetch();
+  } catch (e) {
+    throw new Error(getFriendlyErrorMessage(e));
+  }
 
   // Gestion automatique du refresh token sur 401
   if (response.status === 401 && !options._retry401) {
@@ -77,17 +84,19 @@ async function request<T>(
     try {
       const data = await response.json();
       if (data && typeof data === 'object') {
-        // Django REST Framework renvoie souvent {detail: "..."} ou des messages par champ
         if ('detail' in data) {
-          message = data.detail as string;
-        } else {
-          message = JSON.stringify(data);
+          message = Array.isArray(data.detail) ? data.detail.join(' ') : (data.detail as string);
+        } else if (typeof (data as Record<string, unknown>).message === 'string') {
+          message = (data as Record<string, unknown>).message as string;
         }
       }
     } catch {
-      // ignore erreur de parse JSON, on garde statusText
+      // ignore erreur de parse JSON
     }
-    throw new Error(message || 'Erreur réseau');
+    const friendly = getFriendlyErrorMessage(
+      Object.assign(new Error(message || 'Erreur réseau'), { detail: message })
+    );
+    throw new Error(friendly);
   }
 
   if (response.status === 204) {

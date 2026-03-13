@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { activateAccount } from '../api/auth';
 import PageTitle from '../layouts/PageTitle';
+import ErrorMessage from '../components/ErrorMessage';
+import { getFriendlyErrorMessage } from '../utils/errorMessages';
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -17,7 +19,7 @@ const ActivateAccount = () => {
     const token = query.get('token');
     if (!token) {
       setStatus('error');
-      setMessage('Lien d’activation invalide ou incomplet.');
+      setMessage('Lien d\'activation invalide ou incomplet.');
       return;
     }
     setStatus('loading');
@@ -31,13 +33,7 @@ const ActivateAccount = () => {
       })
       .catch((err) => {
         setStatus('error');
-        if (err instanceof Error) {
-          setMessage(err.message);
-        } else {
-          setMessage(
-            'Impossible d’activer votre compte. Le lien est peut‑être expiré ou déjà utilisé.',
-          );
-        }
+        setMessage(getFriendlyErrorMessage(err));
       });
   }, [query]);
 
@@ -74,10 +70,10 @@ const ActivateAccount = () => {
                 )}
                 {status === 'error' && (
                   <>
-                    <h4 className="text-danger mb-3">Erreur d’activation</h4>
-                    <p>{message}</p>
-                    <p className="mt-2">
-                      Si le problème persiste, vous pouvez demander un nouveau lien d’activation
+                    <h4 className="text-secondary mb-3">Erreur d'activation</h4>
+                    <ErrorMessage message={message} className="mb-3 text-start" />
+                    <p className="mt-2 small text-muted">
+                      Si le problème persiste, vous pouvez demander un nouveau lien d'activation
                       via la page de connexion.
                     </p>
                     <Link to="/shop-login" className="btn btn-primary btnhover mt-3">
@@ -95,4 +91,3 @@ const ActivateAccount = () => {
 };
 
 export default ActivateAccount;
-

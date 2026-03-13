@@ -3,7 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 
 //Components 
 import PageTitle from '../layouts/PageTitle';
+import ErrorMessage from '../components/ErrorMessage';
 import { registerUser } from '../api/auth';
+import { getFriendlyErrorMessage } from '../utils/errorMessages';
 
 function Registration(){
     const [fullName, setFullName] = useState('');
@@ -67,9 +69,7 @@ function Registration(){
                                         <h4 className="text-primary">Inscription</h4>
                                         <p className="font-weight-600">Si vous n'avez pas encore de compte, créez-en un.</p>
                                         {error && (
-                                          <div className="alert alert-danger py-2">
-                                            {error}
-                                          </div>
+                                          <ErrorMessage message={error} onDismiss={() => setError(null)} className="mb-3" />
                                         )}
                                         {success && (
                                           <div className="alert alert-success py-2">

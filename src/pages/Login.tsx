@@ -1,9 +1,40 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
 //Components 
 import PageTitle from '../layouts/PageTitle';
-import { loginUser, requestPasswordReset } from '../api/auth';
+import ErrorMessage from '../components/ErrorMessage';
+import { getCurrentUser, loginUser, requestPasswordReset } from '../api/auth';
+import { getFriendlyErrorMessage } from '../utils/errorMessages';
+
+/** Chemins internes autorisés pour la redirection après connexion */
+const ALLOWED_NEXT_PATHS = ['/my-profile', '/my-books', '/shop-cart', '/wishlist', '/shop-checkout', '/admin'];
+
+function getRedirectPath(next: string | null): string {
+  if (!next) return '/my-profile';
+  try {
+    const path = decodeURIComponent(next);
+    if (!path.startsWith('/')) return '/my-profile';
+    const allowed = ALLOWED_NEXT_PATHS.some(
+      (p) => path === p || path.startsWith(p + '?') || path.startsWith(p + '/')
+    );
+    if (allowed) return path;
+  } catch {
+    // ignore invalid next
+  }
+  return '/my-profile';
+}
+
+/** Détermine la page de redirection après connexion : admin -> /admin, sinon next ou /my-profile */
+async function getRedirectAfterLogin(next: string | null): Promise<string> {
+  try {
+    const user = await getCurrentUser();
+    if (user?.is_staff) return '/admin';
+  } catch {
+    // token invalide ou API indisponible, on utilise next
+  }
+  return getRedirectPath(next);
+}
 
 function Login() {
   const [forgotPass, setForgotPass] = useState<boolean>(false);
@@ -14,14 +45,17 @@ function Login() {
   const [resetEmail, setResetEmail] = useState('');
   const [resetMessage, setResetMessage] = useState<string | null>(null);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const nextParam = searchParams.get('next');
 
-  // Si déjà connecté, on redirige vers le profil / mes livres
+  // Si déjà connecté, on redirige : admin -> /admin, sinon page demandée ou profil
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
-    if (token) {
-      navigate('/my-profile');
-    }
-  }, [navigate]);
+    if (!token) return;
+    getRedirectAfterLogin(nextParam).then((path) => {
+      navigate(path, { replace: true });
+    });
+  }, [navigate, nextParam]);
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -29,13 +63,10 @@ function Login() {
     setLoading(true);
     try {
       await loginUser(email, password);
-      navigate('/my-books');
+      const path = await getRedirectAfterLogin(nextParam);
+      navigate(path, { replace: true });
     } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("Échec de la connexion. Veuillez réessayer.");
-      }
+      setError(getFriendlyErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -51,11 +82,7 @@ function Login() {
         "Si un compte existe avec cet e‑mail, un lien de réinitialisation vous a été envoyé."
       );
     } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("Impossible d'envoyer l'e‑mail de réinitialisation.");
-      }
+      setError(getFriendlyErrorMessage(err));
     }
   };
 
@@ -82,9 +109,7 @@ function Login() {
                                             <h4 className="text-primary">CONNEXION</h4>
                                             <p className="font-weight-600">Si vous avez déjà un compte, connectez-vous.</p>
                                             {error && !forgotPass && (
-                                              <div className="alert alert-danger py-2">
-                                                {error}
-                                              </div>
+                                              <ErrorMessage message={error} onDismiss={() => setError(null)} className="mb-3" />
                                             )}
                                             <div className="mb-4">
                                                 <label className="label-title">E-MAIL *</label>
@@ -125,9 +150,7 @@ function Login() {
                                             <h4 className="text-secondary">MOT DE PASSE OUBLIÉ ?</h4>
                                             <p className="font-weight-600">Nous vous enverrons un e-mail pour réinitialiser votre mot de passe.</p>
                                             {error && forgotPass && (
-                                              <div className="alert alert-danger py-2">
-                                                {error}
-                                              </div>
+                                              <ErrorMessage message={error} onDismiss={() => setError(null)} className="mb-3" />
                                             )}
                                             {resetMessage && (
                                               <div className="alert alert-success py-2">
