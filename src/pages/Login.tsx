@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 //Components 
@@ -14,6 +14,14 @@ function Login() {
   const [resetEmail, setResetEmail] = useState('');
   const [resetMessage, setResetMessage] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  // Si déjà connecté, on redirige vers le profil / mes livres
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      navigate('/my-profile');
+    }
+  }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -71,7 +79,7 @@ function Login() {
                                 <div className="login-area">
                                     <div className="tab-content nav">
                                         <form onSubmit={handleLogin} className={` col-12 ${forgotPass ? 'd-none' : ''}`}>
-                                            <h4 className="text-secondary">CONNEXION</h4>
+                                            <h4 className="text-primary">CONNEXION</h4>
                                             <p className="font-weight-600">Si vous avez déjà un compte, connectez-vous.</p>
                                             {error && !forgotPass && (
                                               <div className="alert alert-danger py-2">

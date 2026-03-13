@@ -6,6 +6,8 @@ export type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
 export interface RequestOptions extends RequestInit {
   /** Si true, n'ajoute pas automatiquement le header JSON */
   skipJsonHeader?: boolean;
+  /** Interne : évite de boucler sur le refresh token */
+  _retry401?: boolean;
 }
 
 async function request<T>(
@@ -25,15 +27,50 @@ async function request<T>(
     (headers as Record<string, string>).Authorization = `Bearer ${accessToken}`;
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    ...options,
-    method,
-    headers,
-    body:
-      body === undefined || body === null || options.skipJsonHeader
-        ? (body as BodyInit | undefined)
-        : JSON.stringify(body),
-  });
+  const doFetch = () =>
+    fetch(`${API_BASE_URL}${path}`, {
+      ...options,
+      method,
+      headers,
+      body:
+        body === undefined || body === null || options.skipJsonHeader
+          ? (body as BodyInit | undefined)
+          : JSON.stringify(body),
+    });
+
+  let response = await doFetch();
+
+  // Gestion automatique du refresh token sur 401
+  if (response.status === 401 && !options._retry401) {
+    const refreshToken = localStorage.getItem('refreshToken');
+    if (refreshToken) {
+      try {
+        const refreshResponse = await fetch(`${API_BASE_URL}/api/users/token/refresh/`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refresh: refreshToken }),
+        });
+        if (refreshResponse.ok) {
+          const data = (await refreshResponse.json()) as { access: string };
+          localStorage.setItem('accessToken', data.access);
+          // Met à jour le header Authorization et retente une fois
+          (headers as Record<string, string>).Authorization = `Bearer ${data.access}`;
+          response = await request<Response>(path, method, body, {
+            ...options,
+            _retry401: true,
+          });
+          // La réponse a déjà été traitée via l'appel récursif
+          return response as unknown as T;
+        } else {
+          // Refresh invalide : on nettoie les tokens
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+        }
+      } catch {
+        // En cas d'erreur réseau sur le refresh, on laisse tomber et on remontera l'erreur originale
+      }
+    }
+  }
 
   if (!response.ok) {
     let message = response.statusText;

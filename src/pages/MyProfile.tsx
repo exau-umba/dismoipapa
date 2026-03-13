@@ -1,9 +1,8 @@
-// @ts-nocheck
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 import PageTitle from './../layouts/PageTitle';
-import profile from './../assets/images/profile3.jpg';
+import { getCurrentUser, type UserProfile } from '../api/auth';
 
 const profilePages = [
   { to: '/my-books', icons: 'fa fa-book', name: 'Mes Livres' },
@@ -13,21 +12,79 @@ const profilePages = [
 ];
 
 function MyProfile() {
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      navigate('/shop-login');
+      return;
+    }
+    setLoading(true);
+    getCurrentUser()
+      .then((u) => {
+        setUser(u);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError("Impossible de charger votre profil. Veuillez vous reconnecter.");
+      })
+      .finally(() => setLoading(false));
+  }, [navigate]);
+
+  const userInitial =
+    (user?.full_name?.trim() || user?.email?.trim() || '?').charAt(0).toUpperCase();
+
   return (
     <>
       <div className="page-content">
         <PageTitle parentPage="Pages" childPage="Mon profil" />
         <section className="content-inner-1">
           <div className="container">
+            {loading && (
+              <div className="row">
+                <div className="col-12 text-center py-5">
+                  <p>Chargement du profil…</p>
+                </div>
+              </div>
+            )}
+            {error && !loading && (
+              <div className="row">
+                <div className="col-12">
+                  <div className="alert alert-danger">{error}</div>
+                </div>
+              </div>
+            )}
             <div className="row">
               <div className="col-lg-4 col-md-5">
                 <div className="profile-box">
                   <div className="profile-img">
-                    <img src={profile} alt="Profil" />
+                    <div
+                      style={{
+                        width: 80,
+                        height: 80,
+                        borderRadius: '50%',
+                        backgroundColor: '#1a1668',
+                        color: '#fff',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: 32,
+                        fontWeight: 600,
+                        margin: '0 auto',
+                      }}
+                    >
+                      {userInitial}
+                    </div>
                   </div>
                   <div className="profile-info">
-                    <h4 className="title">Nom du lecteur</h4>
-                    <p className="text-muted">lecteur@exemple.com</p>
+                    <h4 className="title">
+                      {user?.full_name || 'Lecteur'}
+                    </h4>
+                    <p className="text-muted">{user?.email || ''}</p>
                   </div>
                   <ul className="profile-menu">
                     {profilePages.map((item, i) => (
@@ -50,7 +107,8 @@ function MyProfile() {
                         <input
                           type="text"
                           className="form-control"
-                          defaultValue="Nom du lecteur"
+                          value={user?.full_name || ''}
+                          readOnly
                         />
                       </div>
                     </div>
@@ -60,7 +118,8 @@ function MyProfile() {
                         <input
                           type="email"
                           className="form-control"
-                          defaultValue="lecteur@exemple.com"
+                          value={user?.email || ''}
+                          readOnly
                         />
                       </div>
                     </div>
@@ -70,40 +129,21 @@ function MyProfile() {
                         <input
                           type="text"
                           className="form-control"
-                          defaultValue="+243 81 000 00 00"
+                          value={user?.phone_number || ''}
+                          readOnly
                         />
                       </div>
                     </div>
                     <div className="col-md-6">
                       <div className="mb-3">
-                        <label className="form-label">Ville</label>
+                        <label className="form-label">Adresse de livraison</label>
                         <input
                           type="text"
                           className="form-control"
-                          defaultValue="Kinshasa"
+                          value={user?.shipping_address || ''}
+                          readOnly
                         />
                       </div>
-                    </div>
-                    <div className="col-12">
-                      <div className="mb-3">
-                        <label
-                          htmlFor="exampleFormControlTextarea"
-                          className="form-label"
-                        >
-                          Description
-                        </label>
-                        <textarea
-                          className="form-control"
-                          id="exampleFormControlTextarea"
-                          rows={5}
-                          defaultValue="Lorem Ipsum is simply dummy text of the printing and typesetting industry."
-                        ></textarea>
-                      </div>
-                    </div>
-                    <div className="col-12">
-                      <button className="btn btn-primary btnhover" type="button">
-                        Enregistrer les modifications
-                      </button>
                     </div>
                   </div>
                 </div>

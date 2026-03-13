@@ -1,5 +1,5 @@
 import React,{useEffect, useState} from 'react';
-import {Link} from 'react-router-dom';
+import {Link, useSearchParams} from 'react-router-dom';
 import {Collapse, Dropdown} from 'react-bootstrap';
 
 //Component
@@ -43,6 +43,8 @@ function BooksGridView(){
     const [books, setBooks] = useState<Book[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [searchParams] = useSearchParams();
+    const searchTerm = (searchParams.get('q') || '').trim().toLowerCase();
 
     useEffect(() => {
         const load = async () => {
@@ -64,13 +66,34 @@ function BooksGridView(){
         };
         load();
     }, []);
+
+    const filteredBooks = React.useMemo(() => {
+        if (!searchTerm) return books;
+        return books.filter((book) => {
+            const title = (book.title || '').toLowerCase();
+            const author = (book.author || '').toLowerCase();
+            const genre = (book.genre || '').toLowerCase();
+            return (
+                title.includes(searchTerm) ||
+                author.includes(searchTerm) ||
+                genre.includes(searchTerm)
+            );
+        });
+    }, [books, searchTerm]);
     return(
         <>
             <div className="page-content bg-grey">
                 <section className="content-inner-1 border-bottom">
                     <div className="container">
                         <div className="d-flex justify-content-between align-items-center">
-                            <h4 className="title">Les livres de Jean Richard MAMBWENI MABIALA</h4>
+                            <div>
+                                <h4 className="title">Les livres de Jean Richard MAMBWENI MABIALA</h4>
+                                {searchTerm && (
+                                    <p className="mb-0 text-muted">
+                                        Résultats pour « {searchTerm} »
+                                    </p>
+                                )}
+                            </div>
                         </div>
                         <div className="filter-area m-b30">
                             <div className="grid-area">
@@ -157,14 +180,16 @@ function BooksGridView(){
                                 </div>
                               </div>
                             )}
-                            {!loading && !error && books.length === 0 && (
+                            {!loading && !error && filteredBooks.length === 0 && (
                               <div className="col-12 text-center py-5">
                                 <p className="text-muted">
-                                  Aucun livre n&apos;est disponible pour le moment.
+                                  {searchTerm
+                                    ? `Aucun livre ne correspond à « ${searchTerm} » pour le moment.`
+                                    : "Aucun livre n'est disponible pour le moment."}
                                 </p>
                               </div>
                             )}
-                            {!loading && !error && books.map((book, i) => {
+                            {!loading && !error && filteredBooks.map((book, i) => {
                               const data = mapBackendBookToCard(book, i);
                               return (
                                 <div className="col-book style-1" key={i}>
@@ -245,7 +270,7 @@ function BooksGridView(){
                         </div>   
                     </div>
                 </section>   */}
-                <NewsLetter subscribeChange={() => {}} />      
+                {/* <NewsLetter subscribeChange={() => {}} />       */}
             </div>
         </>
     )

@@ -75,7 +75,7 @@ function AboutUs(){
                         </div>
                     </div>
                 </section>
-                <section className="content-inner-1 bg-light">
+                {/* <section className="content-inner-1 bg-light">
                     <div className="container">
                         <div className="section-head text-center">
                             <h2 className="title">Notre mission</h2>
@@ -98,10 +98,10 @@ function AboutUs(){
                             ))}
                         </div>
                     </div>
-                </section>
-                <section className="content-inner-1 testimonial-wrapper">
+                </section> */}
+                {/* <section className="content-inner-1 testimonial-wrapper">
 					<TestimonialSlider />	
-				</section>	
+				</section>	 */}
                 <section className="content-inner bg-light">
                     <div className="container">
 				        <div className="row sp15">
@@ -109,12 +109,12 @@ function AboutUs(){
                          </div>
                     </div>        
                 </section>
-                <div className="py-5">
+                {/* <div className="py-5">
 			        <div className="container">
                          <ClientsSlider />       
                     </div>
                 </div>    
-                <NewsLetter subscribeChange={() => {}} />             
+                <NewsLetter subscribeChange={() => {}} />              */}
             </div>
         </>
     )

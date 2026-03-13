@@ -216,7 +216,7 @@ function BooksListViewSidebar(){
                         </div>   
                     </div>
                 </section>   */}
-                <NewsLetter subscribeChange={() => {}} />      
+                {/* <NewsLetter subscribeChange={() => {}} />       */}
             </div>
         </>
     )

@@ -11,10 +11,10 @@ const PageTitle = ({ parentPage, childPage }: PageTitleProps) => {
     <>
       <div
         className="dz-bnr-inr overlay-secondary-dark dz-bnr-inr-sm"
-        style={{ backgroundImage: 'url(/images/bg-page-title.jpg)' }}
+        style={{ backgroundImage: 'url(/images/bg-page-title.jpg)', height: '100px' }}
       >
         <div className="container">
-          <div className="dz-bnr-inr-entry">
+          <div className="dz-bnr-inr-entry" style={{ height: '100px' }}>
             <h1>{childPage}</h1>
             {/* <nav aria-label="breadcrumb" className="breadcrumb-row">
               <ul className="breadcrumb">

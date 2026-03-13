@@ -12044,7 +12044,7 @@ label.error {
 
 .label-title {
   font-weight: 600;
-  color: var(--secondary);
+  color: var(--primary);
   margin-bottom: 5px;
   font-size: 14px; }
 

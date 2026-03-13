@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 //Components 
@@ -16,6 +16,14 @@ function Registration(){
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
     const navigate = useNavigate();
+
+    // Si déjà connecté, on redirige vers le profil
+    useEffect(() => {
+        const token = localStorage.getItem('accessToken');
+        if (token) {
+            navigate('/my-profile');
+        }
+    }, [navigate]);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -56,7 +64,7 @@ function Registration(){
                             <div className="col-lg-6 col-md-6 mb-4">
                                 <div className="login-area">
                                     <form onSubmit={handleSubmit}> 
-                                        <h4 className="text-secondary">Inscription</h4>
+                                        <h4 className="text-primary">Inscription</h4>
                                         <p className="font-weight-600">Si vous n'avez pas encore de compte, créez-en un.</p>
                                         {error && (
                                           <div className="alert alert-danger py-2">
@@ -126,7 +134,7 @@ function Registration(){
                                               onChange={(e) => setShippingAddress(e.target.value)}
                                             />
                                         </div>
-                                        <div className="mb-4 form-check">
+                                        {/* <div className="mb-4 form-check">
                                             <input
                                               id="isSubscriber"
                                               type="checkbox"
@@ -137,7 +145,7 @@ function Registration(){
                                             <label className="form-check-label" htmlFor="isSubscriber">
                                               Je souhaite recevoir les nouveautés et offres (abonnement newsletter)
                                             </label>
-                                        </div>
+                                        </div> */}
                                         <div className="mb-5">
                                             <small>Vos données personnelles sont utilisées pour gérer votre compte et améliorer votre expérience, conformément à notre <Link to={"/privacy-policy"}>politique de confidentialité</Link>.</small>
                                         </div>
@@ -147,6 +155,11 @@ function Registration(){
                                             </button>
                                         </div>
                                     </form>
+                                        <div className="text-center mt-3">
+                                            <Link to={"/shop-login"} className="me-2 btn-link">
+                                                Vous avez déjà un compte ? Se connecter
+                                            </Link>
+                                        </div> 
                                 </div>
                             </div>
                         </div>

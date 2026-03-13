@@ -10,6 +10,7 @@ import { MenuListArray2 } from './MenuListArray2';
 
 function Header() {
   const [selectBtn, setSelectBtn] = useState<string>('Catégorie');
+  const [searchValue, setSearchValue] = useState('');
   // for sticky header
   const [headerFix, setheaderFix] = React.useState<boolean>(false);
 
@@ -70,6 +71,13 @@ function Header() {
       })
       .finally(() => setAuthLoading(false));
   }, [location.pathname]);
+
+  const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const query = searchValue.trim();
+    if (!query) return;
+    navigate(`/books-grid-view?q=${encodeURIComponent(query)}`);
+  };
 
   const handleLogout = () => {
     logoutUser();
@@ -355,7 +363,7 @@ function Header() {
 
           {/* header search nav */}
           <div className="header-search-nav">
-            <form className="header-item-search">
+            <form className="header-item-search" onSubmit={handleSearchSubmit}>
               <div className="input-group search-input">
                 <Dropdown className="dropdown bootstrap-select default-select drop-head">
                   <Dropdown.Toggle as="div" className="i-false">
@@ -416,8 +424,10 @@ function Header() {
                   className="form-control"
                   aria-label="Text input with dropdown button"
                   placeholder="Rechercher un livre..."
+                  value={searchValue}
+                  onChange={(e) => setSearchValue(e.target.value)}
                 />
-                <button className="btn" type="button">
+                <button className="btn" type="submit">
                   <i className="flaticon-loupe"></i>
                 </button>
               </div>
@@ -542,6 +552,13 @@ function Header() {
                     )}
                   </li>
                 ))}
+                {currentUser && (
+                  <li>
+                    <Link to="/my-profile">
+                      <span>Mon profil</span>
+                    </Link>
+                  </li>
+                )}
               </ul>
               <div className="dz-social-icon">
                 <ul>

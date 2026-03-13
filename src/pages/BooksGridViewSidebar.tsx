@@ -198,7 +198,7 @@ function BooksGridViewSidebar(){
                         </div>   
                     </div>
                 </section>   */}
-                <NewsLetter subscribeChange={() => {}} />      
+                {/* <NewsLetter subscribeChange={() => {}} />       */}
             </div>
         </>
     )

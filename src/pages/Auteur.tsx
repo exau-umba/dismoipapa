@@ -58,6 +58,7 @@ un graduat en Informatique de Gestion à l'Institut Supérieur de Navigation et 
 Engagé comme inspecteur pétrolier à l'Office Congolais de Contrôle (OCC), Agence de Muanda en 2000, il est présentement Chef de Département Certification et Contrôle de la Production Locale Adjoint dans cet établissement public.
 <br /><br />
 Il a publié notamment :<br /><br />
+
 - « Les dangers de la sismique pétrolière dans une zone à risque volcanique » in Madose : Revue culturelle et scientifique, n° 083, Mwene Ditu, Novembre – Décembre 2022 ;<br />
 - Le canard : Recueil des poèmes et fables, Éditions Madose, Mwene Ditu, 2023 ;<br />
 - Gestion de stock des hydrocarbures liquides et/ou liquéfiés, Éditions Madose, Mwene Ditu, 2024 ;<br />
@@ -104,7 +105,7 @@ Il a publié notamment :<br /><br />
             </div>
           </div>
         </section> */}
-        <NewsLetter subscribeChange={() => {}} />
+        {/* <NewsLetter subscribeChange={() => {}} /> */}
       </div>
     </>
   );
