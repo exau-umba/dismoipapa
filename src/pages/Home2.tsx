@@ -16,6 +16,7 @@ import CustomerSlider from '../components/Home2/CustomerSlider';
 // import OfferSlider from '../components/Home/OfferSlider';
 import CounterSection from '../elements/CounterSection';
 import NewsLetter from '../components/NewsLetter';
+import ClientsSlider from '../components/Home/ClientsSlider';
 
 const iconBlog = [
     {title:'Livraison rapide', iconClass:'flaticon-power'}, 
@@ -44,7 +45,7 @@ function Home2(){
                 <div className="main-slider style-1 slider-white"> 
                     <HomeMainSlider2 />
                 </div>    
-                <section className="content-inner-1 overlay-white-middle">
+                {/* <section className="content-inner-1 overlay-white-middle">
                     <div className="container">
                         <div className="row about-style1 align-items-center">
                             <div className="col-lg-6 m-b30 wow fadeInUp" data-wow-delay="0.1s">
@@ -91,11 +92,11 @@ function Home2(){
                                 </div>
                             </div>
                         </div>
-                        {/* <div className="swiper client-swiper mt-5">
+                        <div className="swiper client-swiper mt-5">
                             <ClientsSlider />
-                        </div> */}
+                        </div>
                     </div>   
-                </section>   
+                </section>    */}
                 {/* <section className="content-inner-1 bg-grey reccomend ">
                     <div className="container">
                         <div className="section-head text-center">
@@ -105,7 +106,7 @@ function Home2(){
                         <RecomendedSlider />
 					</div>
 				</section> */}
-                <section className="content-inner-1 bg-grey">
+                <section className="content-inner-1">
                     <div className="container">
                         <div className="row">
                             {iconBlog.map((data, ind)=>(
@@ -124,11 +125,11 @@ function Home2(){
                         </div> 
                     </div>
                 </section>    
-                <section className="content-inner-1">
+                {/* <section className="content-inner-1">
                     <div className="container">
                         <div className="section-head text-center">
                             <h2 className="title">Notre mission</h2>
-                            <p>Rendre la lecture accessible à tous avec une offre variée, des conseils personnalisés et un service de qualité.</p>
+                            <p>Une plateforme dédiée pour faire découvrir et diffuser les ouvrages de Jean Richard MAMBWENI MABIALA.</p>
                         </div>
                         <div className="row">
                             {missionBlog.map((data, i)=>(
@@ -139,7 +140,11 @@ function Home2(){
                                         </div>
                                         <div className="icon-content">
                                             <h4 className="title">{data.title}</h4>
-                                            <p>Découvrez notre histoire et nos engagements pour nos lecteurs.</p>
+                                            <p>
+                                                {i === 0 && 'Offrir un espace unique où retrouver l’ensemble des livres de l’auteur, en ligne comme en version imprimée.'}
+                                                {i === 1 && 'Garantir un achat simple, sécurisé et un suivi direct entre l’auteur et ses lecteurs.'}
+                                                {i === 2 && 'Étendre progressivement la présence des ouvrages de l’auteur auprès de nouveaux lecteurs et partenaires.'}
+                                            </p>
                                             <Link to={"/about-us"}>En savoir plus <i className="fa-solid fa-angles-right"></i></Link>
                                         </div>
                                     </div>
@@ -147,13 +152,13 @@ function Home2(){
                             ))}   
                         </div>
                     </div>
-                </section>    
+                </section>     */}
                 {/* <section className="content-inner-1">
 					<div className="container">
 						<BookSaleSlider />
 					</div>
 				</section>  */}
-                <section className="content-inner-1 bg-grey testimonial-wrapper-2">
+                {/* <section className="content-inner-1 bg-grey testimonial-wrapper-2">
                     <div className="container">
                         <div className="testimonial">
                             <div className="section-head text-center">
@@ -165,7 +170,7 @@ function Home2(){
                     <div className="container">     
                         <CustomerSlider />           
                     </div>
-                </section>   
+                </section>    */}
                 {/* <section className="content-inner-1">
 			        <div className="container">                  
                         <OfferSlider />       
@@ -202,16 +207,16 @@ function Home2(){
                         </div>
                     </div>
                 </section>         */}
-                <section className="content-inner">
+                <section className="content-inner bg-light">
                     <div className="container">
                         <div className="row sp15">
                             <CounterSection />           
                         </div>              
                     </div>
                 </section>    
-                <NewsLetter subscribeChange={() => 'style-2'} />        
+                {/* <NewsLetter subscribeChange={() => 'style-2'} />         */}
             </div>
-            <Footer  footerChange="footer-dark" logoImage={logoWhite} />
+            <Footer  footerChange="style-1" logoImage={logoWhite} />
         </>
     )
 }

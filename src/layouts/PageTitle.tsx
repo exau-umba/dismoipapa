@@ -1,7 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-
-import bg3 from './../assets/images/background/bg3.jpg';
+// import { Link } from 'react-router-dom';
 
 type PageTitleProps = {
   parentPage: string;
@@ -13,19 +11,19 @@ const PageTitle = ({ parentPage, childPage }: PageTitleProps) => {
     <>
       <div
         className="dz-bnr-inr overlay-secondary-dark dz-bnr-inr-sm"
-        style={{ backgroundImage: 'url(' + bg3 + ')' }}
+        style={{ backgroundImage: 'url(/images/bg-page-title.jpg)' }}
       >
         <div className="container">
           <div className="dz-bnr-inr-entry">
             <h1>{childPage}</h1>
-            <nav aria-label="breadcrumb" className="breadcrumb-row">
+            {/* <nav aria-label="breadcrumb" className="breadcrumb-row">
               <ul className="breadcrumb">
                 <li className="breadcrumb-item">
                   <Link to={'/'}>{parentPage}</Link>
                 </li>
                 <li className="breadcrumb-item">{childPage}</li>
               </ul>
-            </nav>
+            </nav> */}
           </div>
         </div>
       </div>

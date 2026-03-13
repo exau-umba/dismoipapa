@@ -4,8 +4,8 @@ import CountUp from 'react-countup';
 const counterBlog = [
 	{iconClass:'fa-users', number:'125663', title:'Clients satisfaits'},
 	{iconClass:'fa-book', number:'50672', title:'Livres en catalogue'},
-	{iconClass:'fa-store', number:'1562', title:'Points de vente'},
-	{iconClass:'fa-leaf', number:'457', title:'Auteurs référencés'},
+	{iconClass:'fa-store', number:'1562', title:'Catalogues de livres'},
+	// {iconClass:'fa-leaf', number:'457', title:'Auteurs référencés'},
 ];
 
 
@@ -13,7 +13,7 @@ const CounterSection = () =>{
     return(
         <>
             {counterBlog.map((data, i)=>(
-                <div className="col-lg-3 col-md-6 col-sm-6 col-6" key={i} >
+                <div className="col-lg-4 col-md-6 col-sm-6 col-6" key={i} >
                     <div className="icon-bx-wraper style-2 m-b30 text-center">
                         <div className="icon-bx-lg">
                             <i className={`fa-solid icon-cell ${data.iconClass}`}></i>

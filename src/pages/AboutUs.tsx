@@ -16,9 +16,9 @@ import { aboutImages } from '../constants/imageUrls';
 
 
 const missionBlog = [
-    {iconClass:'flaticon-open-book-1', title:'Meilleure librairie' },
-    {iconClass:'flaticon-exclusive', title:'Vendeur de confiance' },
-    {iconClass:'flaticon-store', title:'Réseau en expansion' },
+    {iconClass:'flaticon-open-book-1', title:'Meilleure librairie', description:'Découvrez notre sélection de livres et commandez en quelques clics.', link:'/books-list-sidebar', },
+    {iconClass:'flaticon-exclusive', title:'Vendeur de confiance', description:'Découvrez notre histoire et nos engagements pour nos lecteurs.', link:'/about-us' },
+    {iconClass:'flaticon-store', title:'Réseau en expansion', description:'Découvrez notre histoire et nos engagements pour nos lecteurs.', link:'/about-us' },
 ];
 
 function AboutUs(){
@@ -90,8 +90,8 @@ function AboutUs(){
                                         </div>
                                         <div className="icon-content">
                                             <h4 className="title">{data.title}</h4>
-                                            <p>Découvrez notre histoire et nos engagements pour nos lecteurs.</p>
-                                            <Link to={"/about-us"}>En savoir plus <i className="fa-solid fa-angles-right"></i></Link>
+                                            <p>{data.description}</p>
+                                            <Link to={data.link}>En savoir plus <i className="fa-solid fa-angles-right"></i></Link>
                                         </div>
                                     </div>
                                 </div>

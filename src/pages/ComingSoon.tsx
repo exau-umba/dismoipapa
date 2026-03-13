@@ -78,11 +78,11 @@ function ComingSoon(){
                         <div className="center-md">
                             <div className="logo top-left m-b30">
                                 <Link to={'/'} style={{ textDecoration: 'none', color: '#fff', fontWeight: '700', fontSize: '1.5rem', whiteSpace: 'nowrap', fontFamily: 'Poppins, sans-serif' }}>
-								<i className="fa fa-book"></i> Dis-moi Papa
+								<img src="/logo.png" style={{ width: '50px', height: '50px' }} alt="Dis-moi Papa" /> Dis-moi Papa
                                 </Link>
                             </div>
                             <h2 className="dez-title mb-2">COMING SOON</h2>
-                            <p className="text-white">Our website is coming soon, follow us for update now!</p>
+                            <p className="text-white">Notre site web est en cours de développement, suivez-nous pour obtenir les mises à jour!</p>
                             
                             <form className="dzSubscribe"ref={form} onSubmit={sendEmail}>
                                 <div className="ft-subscribe">
@@ -91,7 +91,7 @@ function ComingSoon(){
                                         <input name="dzEmail" required={true} type="email" placeholder="Enter Email Address" className="form-control" />
                                         <button name="submit" value="Submit" type="submit" className="btn"><i className="fas fa-arrow-right"></i></button>
                                     </div>
-                                    <p className="text-white">And don’t worry, we hate spam too! You can unsubcribe at anytime.</p>
+                                    <p className="text-white">Et ne vous inquiétez pas, nous détestons aussi le spam! Vous pouvez vous désabonner à tout moment.</p>
                                 </div>
                             </form>
                             

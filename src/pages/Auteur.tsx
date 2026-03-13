@@ -3,16 +3,25 @@ import { Link } from 'react-router-dom';
 
 import PageTitle from '../layouts/PageTitle';
 import NewsLetter from '../components/NewsLetter';
-import { bookImages, bookTitles, profileImages } from '../constants/imageUrls';
+// import { profileImages } from '../constants/imageUrls';
 
-const AUTHOR_NAME = 'Jean Richard MAMBWENI MABIALA';
-const AUTHOR_BIO = `Jean Richard MAMBWENI MABIALA est l'auteur de tous les ouvrages proposés sur cette plateforme. Il signe des recueils de poésie et fables, des ouvrages techniques dans le domaine des hydrocarbures, ainsi que des romans. Ses livres sont édités aux éditions MADOSE.`;
+const AUTHOR_NAME = 'Jean Richard MAMBUENI MABIALA';
+const AUTHOR_BIO = `Jean Richard MAMBUENI MABIALA est né à Matadi le 08 avril 1967. 
+Il a obtenu, après son diplôme d'État des Humanités littéraires à l'Institut Tomisa Luzingu à Matadi (1986), un graduat en Anglais – Culture Africaine à l'Institut Supérieur Pédagogique de Mbanza Ngungu (1991), un graduat en Informatique de Gestion à l'Institut Supérieur de Navigation et de Pêche de Muanda (2007) et une Licence en Géologie à l'Université de Kinshasa (2015). Outre ces études, il a suivi 12 mois de Comptabilité au CIDEP/Matadi et a quitté l'Institut Supérieur de Commerce de Matadi lorsqu'il était en troisième année de Graduat/soir.
 
-const authorBooks = [
-  { image: bookImages[0], title: bookTitles[0], to: '/books-detail' },
-  { image: bookImages[1], title: bookTitles[1], to: '/books-detail' },
-  { image: bookImages[2], title: bookTitles[2], to: '/books-detail' },
-];
+Engagé comme inspecteur pétrolier à l'Office Congolais de Contrôle (OCC), Agence de Muanda en 2000, il est présentement Chef de Département Certification et Contrôle de la Production Locale Adjoint dans cet établissement public.
+
+Il a publié notamment :
+- « Les dangers de la sismique pétrolière dans une zone à risque volcanique » in Madose : Revue culturelle et scientifique, n° 083, Mwene Ditu, Novembre – Décembre 2022 ;
+- Le canard : Recueil des poèmes et fables, Éditions Madose, Mwene Ditu, 2023 ;
+- Gestion de stock des hydrocarbures liquides et/ou liquéfiés, Éditions Madose, Mwene Ditu, 2024 ;
+- Volkan devait vite se marier : Roman, Éditions Madose, Mwene Ditu, 2026.`;
+
+// const authorBooks = [
+//   { image: bookImages[0], title: 'Le canard : Recueil des poèmes et fables', to: '/books-detail' },
+//   { image: bookImages[1], title: 'Gestion de stock des hydrocarbures liquides et/ou liquéfiés', to: '/books-detail' },
+//   { image: bookImages[2], title: 'Volkan devait vite se marier', to: '/books-detail' },
+// ];
 
 function Auteur() {
   return (
@@ -26,18 +35,33 @@ function Auteur() {
                 <div className="text-center">
                   <div className="rounded overflow-hidden shadow-sm d-inline-block">
                     <img
-                      src={profileImages[0]}
+                      // src={profileImages[0]}
+                      src="/images/jrmm.png"
                       alt={AUTHOR_NAME}
-                      style={{ maxWidth: '320px', width: '100%', height: 'auto', objectFit: 'cover' }}
+                      style={{ maxWidth: '420px', width: '100%', height: 'auto', objectFit: 'cover' }}
                     />
                   </div>
                 </div>
               </div>
               <div className="col-lg-8 col-md-7 m-b30">
                 <div className="about-content px-lg-4">
-                  <div className="section-head style-1">
-                    <h2 className="title mb-3">{AUTHOR_NAME}</h2>
-                    <p className="mb-0">{AUTHOR_BIO}</p>
+                  <div className="section-head style-1" style={{ textAlign: 'justify' }}>
+                    <h2 className="title mb-3" style={{ borderBottom: '2px solid #1a1668' }}>{AUTHOR_NAME}</h2>
+                    <p className="mb-0 " >
+                      {/* {AUTHOR_BIO} */}
+                      Jean Richard MAMBUENI MABIALA est né à Matadi le 08 avril 1967. 
+Il a obtenu, après son diplôme d'État des Humanités littéraires à l'Institut Tomisa Luzingu à Matadi (1986), 
+un graduat en Anglais – Culture Africaine à l'Institut Supérieur Pédagogique de Mbanza Ngungu (1991),
+un graduat en Informatique de Gestion à l'Institut Supérieur de Navigation et de Pêche de Muanda (2007) et une Licence en Géologie à l'Université de Kinshasa (2015).
+ Outre ces études, il a suivi 12 mois de Comptabilité au CIDEP/Matadi et a quitté l'Institut Supérieur de Commerce de Matadi lorsqu'il était en troisième année de Graduat/soir.
+ <br /><br />
+Engagé comme inspecteur pétrolier à l'Office Congolais de Contrôle (OCC), Agence de Muanda en 2000, il est présentement Chef de Département Certification et Contrôle de la Production Locale Adjoint dans cet établissement public.
+<br /><br />
+Il a publié notamment :<br /><br />
+- « Les dangers de la sismique pétrolière dans une zone à risque volcanique » in Madose : Revue culturelle et scientifique, n° 083, Mwene Ditu, Novembre – Décembre 2022 ;<br />
+- Le canard : Recueil des poèmes et fables, Éditions Madose, Mwene Ditu, 2023 ;<br />
+- Gestion de stock des hydrocarbures liquides et/ou liquéfiés, Éditions Madose, Mwene Ditu, 2024 ;<br />
+                    </p>
                   </div>
                   <Link to="/contact-us" className="btn btn-primary btnhover shadow-primary mt-3">
                     Contacter l'auteur
@@ -47,7 +71,7 @@ function Auteur() {
             </div>
           </div>
         </section>
-        <section className="content-inner-1 bg-light">
+        {/* <section className="content-inner-1 bg-light">
           <div className="container">
             <div className="section-head text-center m-b40">
               <h2 className="title">Ses ouvrages</h2>
@@ -79,7 +103,7 @@ function Auteur() {
               ))}
             </div>
           </div>
-        </section>
+        </section> */}
         <NewsLetter subscribeChange={() => {}} />
       </div>
     </>
