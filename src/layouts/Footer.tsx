@@ -84,12 +84,12 @@ function Footer({ footerChange = '', logoImage }: FooterProps) {
                 data-wow-delay="0.1s"
               >
                 <div className="widget widget_about">
-                  <div className="footer-logo logo-white">
+                  <div className="footer-logo ">
                     <Link
                       to={'/'}
                       style={{
                         textDecoration: 'none',
-                        color: '#fff',
+                        color: '#1a1668',
                         fontWeight: '700',
                         fontSize: '1.5rem',
                         whiteSpace: 'nowrap',
@@ -99,8 +99,8 @@ function Footer({ footerChange = '', logoImage }: FooterProps) {
                       <img src="/logo.png" style={{ width: '100px', height: '100px' }} alt="Dis-moi Papa" /> Dis-moi Papa
                     </Link>
                   </div>
-                  <p className="text">
-                    Plateforme dédiée aux livres de Jean Richard MAMBWENI MABIALA – Découvrez ses ouvrages et
+                  <p className="text" style={{textAlign:'start'}}>
+                    Plateforme dédiée aux livres de Jean Richard MAMBWENI MABIALA Découvrez ses ouvrages et
                     commandez en quelques clics.
                   </p>
                   <div className="dz-social-icon style-1">
