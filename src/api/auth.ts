@@ -12,6 +12,8 @@ export interface UserProfile {
   phone_number?: string;
   shipping_address?: string;
   is_subscriber: boolean;
+  /** Si true, l'utilisateur est admin et doit être redirigé vers /admin après connexion */
+  is_staff?: boolean;
 }
 
 export async function registerUser(payload: {
