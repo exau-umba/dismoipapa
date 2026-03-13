@@ -122,6 +122,20 @@
   border-top: 1px solid rgba(255,255,255,0.1);
 }
 
+.admin-nav-link-logout {
+  width: 100%;
+  background: none;
+  border: none;
+  border-left: 3px solid transparent;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+}
+
+.admin-nav-link-logout:hover {
+  color: #ff9b9b;
+}
+
 .admin-main {
   flex: 1;
   margin-left: 260px;
