@@ -22,7 +22,7 @@ jobs:
         run: npm ci --legacy-peer-deps
 
       - name: Build
-        run: npm run build --ignore-scripts
+        run: npm run build:ignore-ts
 
       - name: Déployer vers le serveur (rsync)
         env:
