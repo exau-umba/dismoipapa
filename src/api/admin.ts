@@ -49,7 +49,7 @@ export function deleteUser(id: string): Promise<void> {
   return delJson<void>(`/api/users/${id}/`);
 }
 
-// --- Catalogs (GET/POST /api/catalogs/) ---
+// --- Catalogs : même base /api/catalog/catalogs/ pour list, create, read, update, delete ---
 export interface Catalog {
   id: string;
   name: string;
@@ -57,22 +57,53 @@ export interface Catalog {
   [key: string]: unknown;
 }
 
+const CATALOGS_PATH = '/api/catalog/catalogs';
+
+/** Réponse possible : tableau direct, paginée { results: T[] }, ou null/undefined */
+function normalizeCatalogList<T>(data: T[] | { results?: T[] } | null | undefined): T[] {
+  if (data == null) return [];
+  if (Array.isArray(data)) return data;
+  if (typeof data === 'object' && Array.isArray((data as { results?: T[] }).results)) {
+    return (data as { results: T[] }).results;
+  }
+  return [];
+}
+
+/** Liste. GET /api/catalog/catalogs/ (public, sans auth) */
 export function listCatalogs(): Promise<Catalog[]> {
-  return getJson<Catalog[]>('/api/catalog/');
+  const url = `${CATALOGS_PATH}/?_=${Date.now()}`;
+  return getJson<Catalog[] | { results: Catalog[] } | null>(url, { skipAuth: true })
+    .then((data) => normalizeCatalogList(data ?? null));
 }
 
+/** Détail. GET /api/catalog/catalogs/{id}/ */
+export function getCatalog(id: string): Promise<Catalog> {
+  return getJson<Catalog>(`${CATALOGS_PATH}/${id}/`);
+}
+
+/** Création. POST /api/catalog/catalogs/ — body: { name, description } */
 export function createCatalog(data: { name: string; description?: string }): Promise<Catalog> {
-  return postJson<Catalog>('/api/catalog/', data);
+  return postJson<Catalog>(`${CATALOGS_PATH}/`, data);
 }
 
-// --- Catalog admin (POST/PATCH/DELETE books, formats) ---
+/** Mise à jour. PATCH /api/catalog/catalogs/{id}/ */
+export function updateCatalog(id: string, data: { name?: string; description?: string }): Promise<Catalog> {
+  return patchJson<Catalog>(`${CATALOGS_PATH}/${id}/`, data);
+}
+
+/** Suppression. DELETE /api/catalog/catalogs/{id}/ */
+export function deleteCatalog(id: string): Promise<void> {
+  return delJson<void>(`${CATALOGS_PATH}/${id}/`);
+}
+
+// --- Books (POST/PATCH/DELETE /api/catalog/books/, formats) ---
+/** Payload création livre : title, author, synopsis, sample_text, catalog (UUID), language, publication_date (YYYY-MM-DD), formats. Pas de genre. */
 export interface CreateBookPayload {
   catalog: string;
   title: string;
   author: string;
   synopsis?: string;
   sample_text?: string;
-  genre?: string;
   language?: string;
   publication_date?: string;
   formats?: { format_type: 'ebook' | 'physical'; price: string; stock_quantity: number }[];

@@ -8,6 +8,8 @@ export type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
 export interface RequestOptions extends RequestInit {
   /** Si true, n'ajoute pas automatiquement le header JSON */
   skipJsonHeader?: boolean;
+  /** Si true, n'envoie pas le token (pour les endpoints publics : catalogue, liste livres) */
+  skipAuth?: boolean;
   /** Interne : évite de boucler sur le refresh token */
   _retry401?: boolean;
 }
@@ -18,9 +20,10 @@ async function request<T>(
   body?: unknown,
   options: RequestOptions = {},
 ): Promise<T> {
-  const accessToken = localStorage.getItem('accessToken');
+  const accessToken = options.skipAuth ? null : localStorage.getItem('accessToken');
 
   const headers: HeadersInit = {
+    Accept: 'application/json',
     ...(options.skipJsonHeader ? {} : { 'Content-Type': 'application/json' }),
     ...(options.headers || {}),
   };
@@ -34,6 +37,7 @@ async function request<T>(
       ...options,
       method,
       headers,
+      cache: method === 'GET' ? 'no-store' : undefined,
       body:
         body === undefined || body === null || options.skipJsonHeader
           ? (body as BodyInit | undefined)
@@ -106,7 +110,13 @@ async function request<T>(
 
   const contentType = response.headers.get('Content-Type') || '';
   if (contentType.includes('application/json')) {
-    return (await response.json()) as T;
+    const text = await response.text();
+    if (!text || !text.trim()) return null as T;
+    try {
+      return JSON.parse(text) as T;
+    } catch {
+      throw new Error('Réponse API invalide (JSON attendu).');
+    }
   }
 
   // Pour les téléchargements / fichiers, on renvoie la réponse brute
