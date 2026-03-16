@@ -1,38 +1,19 @@
-import React,{useState} from 'react';
-import {Link} from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Nav, Tab } from 'react-bootstrap';
-//import {Collapse, Dropdown} from 'react-bootstrap';
 
-//Component
 import ClientsSlider from '../components/Home/ClientsSlider';
 import CounterSection from '../elements/CounterSection';
 import NewsLetter from '../components/NewsLetter';
-
-//Images
-import { bookImages, bookTitles, bookTags } from '../constants/imageUrls';
+import ErrorMessage from '../components/ErrorMessage';
+import { bookImages } from '../constants/imageUrls';
 import profile2 from './../assets/images/profile2.jpg';
 import profile4 from './../assets/images/profile4.jpg';
 import profile3 from './../assets/images/profile3.jpg';
 import profile1 from './../assets/images/profile1.jpg';
-
-const tableDetail = [
-    {tablehead:'Titre', tabledata: bookTitles[0]},
-    {tablehead:'Auteur', tabledata:'Jean Richard MAMBWENI MABIALA'},
-    {tablehead:'ISBN', tabledata:'121341381648 (ISBN13: 121341381648)'},
-    {tablehead:'Ediiton Language', tabledata:'English'},
-    {tablehead:'Book Format', tabledata:'Paperback, 450 Pages'},
-    {tablehead:'Date Published', tabledata:'Janvier 2025'},
-    {tablehead:'Publisher', tabledata:'Jean Richard MAMBWENI MABIALA (Auto-édition)'},
-    {tablehead:'Pages', tabledata:'520'},    
-    {tablehead:'Lesson', tabledata:'7'},
-    {tablehead:'Topic', tabledata:'360'},
-];
-
-const relatedBook = [
-    { image: bookImages[0], title: bookTitles[0], tags: bookTags[0] },
-    { image: bookImages[1], title: bookTitles[1], tags: bookTags[1] },
-    { image: bookImages[2], title: bookTitles[2], tags: bookTags[2] },
-];
+import { getBook, fetchBooks, type Book } from '../api/catalog';
+import { API_BASE_URL } from '../api/client';
+import { getFriendlyErrorMessage } from '../utils/errorMessages';
 
 function CommentBlog({title, image}: {title: string, image: string}){
     return(
@@ -56,10 +37,51 @@ function CommentBlog({title, image}: {title: string, image: string}){
     )
 }
 
-function ShopDetail(){
+function ShopDetail() {
+    const { id } = useParams<{ id: string }>();
+    const navigate = useNavigate();
+    const [book, setBook] = useState<Book | null>(null);
+    const [relatedBooks, setRelatedBooks] = useState<Book[]>([]);
+    const [loading, setLoading] = useState(!!id);
+    const [error, setError] = useState<string | null>(null);
     const [count, setCount] = useState<number>(0);
-    
-    return(
+
+    useEffect(() => {
+        if (!id) {
+            navigate('/books-grid-view', { replace: true });
+            return;
+        }
+        setLoading(true);
+        setError(null);
+        getBook(id)
+            .then(setBook)
+            .catch((err) => setError(getFriendlyErrorMessage(err)))
+            .finally(() => setLoading(false));
+    }, [id, navigate]);
+
+    useEffect(() => {
+        fetchBooks().then((list) => {
+            if (id) setRelatedBooks(list.filter((b) => b.id !== id).slice(0, 3));
+            else setRelatedBooks(list.slice(0, 3));
+        }).catch(() => setRelatedBooks([]));
+    }, [id]);
+
+    if (!id) return null;
+    if (loading) return <div className="page-content bg-grey"><div className="container py-5 text-center">Chargement du livre…</div></div>;
+    if (error || !book) return <div className="page-content bg-grey"><div className="container py-5"><ErrorMessage message={error || 'Livre non trouvé.'} onDismiss={() => navigate('/books-grid-view')} /><Link to="/books-grid-view" className="btn btn-primary mt-3">Retour aux livres</Link></div></div>;
+
+    const coverUrl = (book.cover_image && (book.cover_image.startsWith('http') ? book.cover_image : `${API_BASE_URL.replace(/\/$/, '')}${book.cover_image.startsWith('/') ? '' : '/'}${book.cover_image}`)) || bookImages[0];
+    const price = book.formats?.[0]?.price ?? '';
+    const publicationYear = book.publication_date ? book.publication_date.slice(0, 4) : '';
+
+    const tableDetail = [
+        { tablehead: 'Titre', tabledata: book.title },
+        { tablehead: 'Auteur', tabledata: book.author },
+        { tablehead: 'Langue', tabledata: book.language === 'en' ? 'English' : book.language === 'fr' ? 'Français' : book.language || '—' },
+        { tablehead: 'Date de publication', tabledata: book.publication_date ? new Date(book.publication_date).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long' }) : '—' },
+    ];
+
+    return (
         <>
             <div className="page-content bg-grey">
                 <section className="content-inner-1">
@@ -67,28 +89,28 @@ function ShopDetail(){
                         <div className="row book-grid-row style-4 m-b60">
                             <div className="col">
                                 <div className="dz-box">
-                                    <div className="dz-media">
-                                        <img src={bookImages[0]} alt="book" />
+                                    <div className="dz-media" style={{ maxWidth: 220, aspectRatio: '210/297' }}>
+                                        <img src={coverUrl} alt={book.title} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                                     </div>
                                     <div className="dz-content">
                                         <div className="dz-header">
-                                            <h3 className="title book-title-truncate" title={bookTitles[0]}>{bookTitles[0]}</h3>
+                                            <h3 className="title book-title-truncate" title={book.title}>{book.title}</h3>
                                             <div className="shop-item-rating">
                                                 <div className="d-lg-flex d-sm-inline-flex d-flex align-items-center">
                                                     <ul className="dz-rating">
-                                                        <li><i className="flaticon-star text-primary"></i></li>	
-                                                        <li><i className="flaticon-star text-primary"></i></li>	
-                                                        <li><i className="flaticon-star text-primary"></i></li>	
-                                                        <li><i className="flaticon-star text-primary"></i></li>		
-                                                        <li><i className="flaticon-star text-muted"></i></li>		
+                                                        <li><i className="flaticon-star text-primary"></i></li>
+                                                        <li><i className="flaticon-star text-primary"></i></li>
+                                                        <li><i className="flaticon-star text-primary"></i></li>
+                                                        <li><i className="flaticon-star text-primary"></i></li>
+                                                        <li><i className="flaticon-star text-muted"></i></li>
                                                     </ul>
                                                     <h6 className="m-b0">4.0</h6>
                                                 </div>
                                                 <div className="social-area">
                                                     <ul className="dz-social-icon style-3">
-                                                        <li className="me-2"><a  href="https://www.facebook.com/dexignzone" target="_blank" rel="noreferrer"><i className="fa-brands fa-facebook-f"></i></a></li>
-                                                        <li className="me-2"><a  href="https://twitter.com/dexignzones" target="_blank" rel="noreferrer"><i className="fa-brands fa-twitter"></i></a></li>
-                                                        <li className="me-2"><a  href="https://www.whatsapp.com/" target="_blank" rel="noreferrer"><i className="fa-brands fa-whatsapp"></i></a></li>
+                                                        <li className="me-2"><a href="https://www.facebook.com/dexignzone" target="_blank" rel="noreferrer"><i className="fa-brands fa-facebook-f"></i></a></li>
+                                                        <li className="me-2"><a href="https://twitter.com/dexignzones" target="_blank" rel="noreferrer"><i className="fa-brands fa-twitter"></i></a></li>
+                                                        <li className="me-2"><a href="https://www.whatsapp.com/" target="_blank" rel="noreferrer"><i className="fa-brands fa-whatsapp"></i></a></li>
                                                         <li><a href="https://www.google.com/intl/en-GB/gmail/about/" target="_blank" rel="noreferrer"><i className="fa-solid fa-envelope"></i></a></li>
                                                     </ul>
                                                 </div>
@@ -101,42 +123,29 @@ function ShopDetail(){
                                                         <div className="writer-info">
                                                             <img src={profile2} alt="book" />
                                                             <div>
-                                                                <span>Écrit par </span>Jean Richard MAMBWENI MABIALA
+                                                                <span>Écrit par </span>{book.author}
                                                             </div>
                                                         </div>
                                                     </li>
-                                                    <li><span>Publisher</span>Jean Richard MAMBWENI MABIALA</li>
-                                                    <li><span>Year</span>2025</li>
+                                                    <li><span>Année</span>{publicationYear || '—'}</li>
                                                 </ul>
                                             </div>
-                                            <p className="text-1">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit.</p>
-                                            <p className="text-2">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem</p>
+                                            <p className="text-1">{book.synopsis || 'Aucun résumé disponible.'}</p>
+                                            {book.sample_text && <p className="text-2">{book.sample_text}</p>}
                                             <div className="book-footer">
                                                 <div className="price">
-                                                    <h5>45 000 FC</h5>
-                                                    <p className="p-lr10">55 000 FC</p>
+                                                    {price ? <><h5>{price} FC</h5></> : <h5 className="text-muted">Prix sur demande</h5>}
                                                 </div>
                                                 <div className="product-num">
                                                     <div className="quantity btn-quantity style-1 me-3">
-                                                            <button className="btn btn-plus" type="button"                                                                 
-                                                                onClick={() => setCount((prev) => prev + 1)}
-                                                            >
-                                                                <i className="ti-plus"></i>
-                                                            </button>
-                                                            <input className="quantity-input" type="text" value={count} name="demo_vertical2" />
-                                                            <button className="btn btn-minus " type="button"                                                             
-                                                                onClick={() => setCount((prev) => prev - 1)}
-                                                            >
-                                                                <i className="ti-minus"></i>
-                                                            </button> 
-                                                        
+                                                        <button className="btn btn-plus" type="button" onClick={() => setCount((prev) => prev + 1)}><i className="ti-plus"></i></button>
+                                                        <input className="quantity-input" type="text" value={count} name="demo_vertical2" readOnly />
+                                                        <button className="btn btn-minus" type="button" onClick={() => setCount((prev) => Math.max(0, prev - 1))}><i className="ti-minus"></i></button>
                                                     </div>
-                                                    <Link to={"/shop-cart"} className="btn btn-primary btnhover btnhover2"><i className="flaticon-shopping-cart-1"></i> <span>Ajouter au panier</span></Link>
+                                                    <Link to="/shop-cart" className="btn btn-primary btnhover btnhover2"><i className="flaticon-shopping-cart-1"></i> <span>Ajouter au panier</span></Link>
                                                     <div className="bookmark-btn style-1 d-none d-sm-block">
                                                         <input className="form-check-input" type="checkbox" id="flexCheckDefault1" />
-                                                        <label className="form-check-label" htmlFor="flexCheckDefault1">
-                                                            <i className="flaticon-heart"></i>
-                                                        </label>
+                                                        <label className="form-check-label" htmlFor="flexCheckDefault1"><i className="flaticon-heart"></i></label>
                                                     </div>
                                                 </div>
                                             </div>
@@ -157,20 +166,12 @@ function ShopDetail(){
                                             <Tab.Pane eventKey="details">
                                                 <table className="table border book-overview">
                                                     <tbody>
-                                                        {tableDetail.map((data, index)=>(
+                                                        {tableDetail.map((data, index) => (
                                                             <tr key={index}>
                                                                 <th>{data.tablehead}</th>
                                                                 <td>{data.tabledata}</td>
                                                             </tr>
                                                         ))}
-                                                        <tr className="tags">
-                                                            <th>Tags</th>
-                                                            <td>
-                                                                {bookTags[0].map((tag, k) => (
-                                                                    <Link key={k} to={"#"} className="badge me-1">{tag}</Link>
-                                                                ))}
-                                                            </td>
-                                                        </tr>
                                                     </tbody>
                                                 </table>
                                             </Tab.Pane>
@@ -229,39 +230,36 @@ function ShopDetail(){
                             </div>
                             <div className="col-xl-4 mt-5 mt-xl-0">
                                 <div className="widget">
-                                    <h4 className="widget-title">Related Books</h4>
+                                    <h4 className="widget-title">Autres livres</h4>
                                     <div className="row">
-                                        {relatedBook.map((data, index)=>(
-                                            <div className="col-xl-12 col-lg-6" key={index}>
+                                        {relatedBooks.map((related) => {
+                                            const relImg = (related.cover_image && (related.cover_image.startsWith('http') ? related.cover_image : `${API_BASE_URL.replace(/\/$/, '')}${related.cover_image.startsWith('/') ? '' : '/'}${related.cover_image}`)) || bookImages[0];
+                                            const relPrice = related.formats?.[0]?.price ?? '';
+                                            return (
+                                            <div className="col-xl-12 col-lg-6" key={related.id}>
                                                 <div className="dz-shop-card style-5">
                                                     <div className="dz-media">
-                                                        <img src={data.image} alt="" /> 
+                                                        <Link to={`/books-detail/${related.id}`}><img src={relImg} alt={related.title} /></Link>
                                                     </div>
                                                     <div className="dz-content">
-                                                        <h5 className="subtitle book-title-truncate" title={data.title}>{data.title}</h5>
-                                                        <ul className="dz-tags">
-                                                            {data.tags.map((tag, k) => (
-                                                            <li key={k}>{tag}{k < data.tags.length - 1 ? ', ' : ''}</li>
-                                                            ))}
-                                                        </ul>
+                                                        <h5 className="subtitle book-title-truncate" title={related.title}><Link to={`/books-detail/${related.id}`}>{related.title}</Link></h5>
+                                                        <p className="small text-muted">par {related.author}</p>
                                                         <div className="price">
-                                                            <span className="price-num">60 000 FC</span>
-                                                            <del>75 000 FC</del>
+                                                            <span className="price-num">{relPrice ? `${relPrice} FC` : '—'}</span>
                                                         </div>
-                                                        <Link to={"/shop-cart"} className="btn btn-outline-primary btn-sm btnhover btnhover2"><i className="flaticon-shopping-cart-1 me-2"></i> Ajouter au panier</Link>
+                                                        <Link to={`/books-detail/${related.id}`} className="btn btn-outline-primary btn-sm btnhover btnhover2">Voir le détail</Link>
                                                     </div>
                                                 </div>
-                                            </div>   
-                                        ))}
-
-                                        
+                                            </div>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </section>        
-                <div className="bg-white py-5">
+                {/* <div className="bg-white py-5">
 			        <div className="container">              
                         <ClientsSlider />            
                     </div>    
@@ -272,8 +270,8 @@ function ShopDetail(){
                             <CounterSection />      
                         </div>   
                     </div>
-                </section>  
-                <NewsLetter subscribeChange={() => {}} />      
+                </section>   */}
+                {/* <NewsLetter subscribeChange={() => {}} />       */}
             </div>
         </>
     )
