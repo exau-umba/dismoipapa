@@ -226,7 +226,7 @@ function BooksGridView(){
                                                       <span className="price-num text-muted">Prix à venir</span>
                                                     )}
                                                 </div>
-                                                <Link to={"/shop-cart"} className="btn btn-secondary box-btn btnhover btnhover2"><i className="flaticon-shopping-cart-1 m-r10"></i> Add to cart</Link>
+                                                <Link to={"/shop-cart"} className="btn btn-primary box-btn btnhover btnhover2"><i className="flaticon-shopping-cart-1 m-r10"></i> Add to cart</Link>
                                             </div>
                                         </div>
                                     </div>
