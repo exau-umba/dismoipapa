@@ -1,19 +1,12 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
 import { Bar, Line, Doughnut } from 'react-chartjs-2';
 import { Card, Table, Badge, Row, Col } from 'react-bootstrap';
+import { fetchBooks } from '../../api/catalog';
+import { listUsers, listOrders } from '../../api/admin';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend, ArcElement);
-
-const stats = [
-  { label: 'Commandes du mois', value: '128', icon: 'fa-shopping-cart', type: 'primary', change: '+12%' },
-  { label: 'Livres en catalogue', value: '1 247', icon: 'fa-book', type: 'success', change: '+8' },
-  { label: 'Utilisateurs actifs', value: '3 542', icon: 'fa-users', type: 'info', change: '+156' },
-  { label: 'Chiffre d\'affaires (FC)', value: '2 450 000', icon: 'fa-euro-sign', type: 'warning', change: '+18%' },
-  { label: 'Abonnements actifs', value: '892', icon: 'fa-star', type: 'success', change: '+45' },
-  { label: 'Livres téléchargés', value: '2 134', icon: 'fa-download', type: 'primary', change: '+234' },
-];
 
 const chartData = {
   labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'],
@@ -69,7 +62,7 @@ const categoryData = {
 const chartOptions = {
   responsive: true,
   plugins: {
-    legend: { position: 'top' },
+    legend: { position: 'top' as const },
     title: { display: true, text: 'Activité des 6 derniers mois' },
   },
   scales: {
@@ -77,21 +70,58 @@ const chartOptions = {
   },
 };
 
-const recentOrders = [
-  { id: 1001, client: 'Marie Dupont', montant: '165 000 FC', date: '08/02/2025', statut: 'Expédiée' },
-  { id: 1002, client: 'Jean Martin', montant: '130 000 FC', date: '07/02/2025', statut: 'En préparation' },
-  { id: 1003, client: 'Sophie Bernard', montant: '220 000 FC', date: '06/02/2025', statut: 'Livrée' },
-  { id: 1004, client: 'Pierre Leroy', montant: '95 000 FC', date: '05/02/2025', statut: 'En attente' },
-];
-
-const statutVariant = {
+const statutVariant: Record<string, string> = {
   'En attente': 'warning',
   'En préparation': 'info',
   'Expédiée': 'primary',
   'Livrée': 'success',
 };
 
-function AdminDashboard() {
+export default function AdminDashboard() {
+  const [booksCount, setBooksCount] = useState<number | null>(null);
+  const [usersCount, setUsersCount] = useState<number | null>(null);
+  const [recentOrders, setRecentOrders] = useState<{ id: string | number; client: string; montant: string; date: string; statut: string }[]>([]);
+
+  useEffect(() => {
+    fetchBooks().then((data) => setBooksCount(data.length)).catch(() => setBooksCount(0));
+    listUsers()
+      .then((data) => setUsersCount(data.length))
+      .catch(() => setUsersCount(0));
+  }, []);
+
+  useEffect(() => {
+    listOrders()
+      .then((data) => {
+        const list = Array.isArray(data) ? data.slice(0, 4) : [];
+        setRecentOrders(
+          list.map((o) => ({
+            id: o.id,
+            client: typeof o.user === 'string' ? o.user : (o as { client?: string }).client ?? '—',
+            montant: typeof o.total === 'number' ? `${o.total} FC` : String(o.total ?? '—'),
+            date: o.created_at ? new Date(o.created_at).toLocaleDateString('fr-FR') : '—',
+            statut: (o.status as string) ?? '—',
+          }))
+        );
+      })
+      .catch(() => {
+        setRecentOrders([
+          { id: 1001, client: 'Marie Dupont', montant: '165 000 FC', date: '08/02/2025', statut: 'Expédiée' },
+          { id: 1002, client: 'Jean Martin', montant: '130 000 FC', date: '07/02/2025', statut: 'En préparation' },
+          { id: 1003, client: 'Sophie Bernard', montant: '220 000 FC', date: '06/02/2025', statut: 'Livrée' },
+          { id: 1004, client: 'Pierre Leroy', montant: '95 000 FC', date: '05/02/2025', statut: 'En attente' },
+        ]);
+      });
+  }, []);
+
+  const stats = [
+    { label: 'Commandes du mois', value: '128', icon: 'fa-shopping-cart', type: 'primary' as const, change: '+12%' },
+    { label: 'Livres en catalogue', value: booksCount !== null ? String(booksCount) : '—', icon: 'fa-book', type: 'success' as const, change: '' },
+    { label: 'Utilisateurs', value: usersCount !== null ? String(usersCount) : '—', icon: 'fa-users', type: 'info' as const, change: '' },
+    { label: "Chiffre d'affaires (FC)", value: '2 450 000', icon: 'fa-euro-sign', type: 'warning' as const, change: '+18%' },
+    { label: 'Abonnements actifs', value: '892', icon: 'fa-star', type: 'success' as const, change: '+45' },
+    { label: 'Livres téléchargés', value: '2 134', icon: 'fa-download', type: 'primary' as const, change: '+234' },
+  ];
+
   return (
     <>
       <h1 className="admin-page-title">Tableau de bord</h1>
@@ -104,9 +134,11 @@ function AdminDashboard() {
             <div style={{ flex: 1 }}>
               <div className="admin-stat-value">{s.value}</div>
               <div className="admin-stat-label">{s.label}</div>
-              <div className="admin-stat-change" style={{ fontSize: '0.75rem', color: '#029e76', marginTop: '0.25rem' }}>
-                <i className="fa fa-arrow-up me-1"></i>{s.change}
-              </div>
+              {s.change && (
+                <div className="admin-stat-change" style={{ fontSize: '0.75rem', color: '#029e76', marginTop: '0.25rem' }}>
+                  <i className="fa fa-arrow-up me-1"></i>{s.change}
+                </div>
+              )}
             </div>
           </div>
         ))}
@@ -189,5 +221,3 @@ function AdminDashboard() {
     </>
   );
 }
-
-export default AdminDashboard;

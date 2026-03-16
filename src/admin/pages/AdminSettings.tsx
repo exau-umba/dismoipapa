@@ -1,7 +1,16 @@
 import React, { useState } from 'react';
 import { Form, Button, Row, Col } from 'react-bootstrap';
 
-const defaultSettings = {
+interface SettingsState {
+  nomBoutique: string;
+  email: string;
+  telephone: string;
+  adresse: string;
+  livraisonGratuite: string;
+  tva: string;
+}
+
+const defaultSettings: SettingsState = {
   nomBoutique: 'Librairie en ligne',
   email: 'contact@librairie.cd',
   telephone: '+243 81 123 45 67',
@@ -10,14 +19,14 @@ const defaultSettings = {
   tva: '20',
 };
 
-function AdminSettings() {
-  const [settings, setSettings] = useState(defaultSettings);
+export default function AdminSettings() {
+  const [settings, setSettings] = useState<SettingsState>(defaultSettings);
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSettings({ ...settings, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // TODO: sauvegarde API
   };
@@ -73,5 +82,3 @@ function AdminSettings() {
     </>
   );
 }
-
-export default AdminSettings;

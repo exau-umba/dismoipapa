@@ -45,10 +45,22 @@
 .admin-logo {
   display: flex;
   align-items: center;
+  gap: 0.5rem;
   color: #fff;
   text-decoration: none;
   font-weight: 600;
   font-size: 1.1rem;
+}
+
+.admin-logo-img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.admin-sidebar.closed .admin-logo-img {
+  margin: 0;
 }
 
 .admin-logo:hover {

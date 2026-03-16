@@ -1,0 +1,152 @@
+/**
+ * API admin (papa_dis_moi.json) : users, catalog CRUD, orders.
+ */
+import { getJson, postJson, patchJson, delJson, API_BASE_URL } from './client';
+
+function buildBookFormData(payload: Record<string, unknown>, coverImage?: File | null): FormData {
+  const form = new FormData();
+  Object.entries(payload).forEach(([key, value]) => {
+    if (value === undefined || value === null) return;
+    if (key === 'formats' && Array.isArray(value)) {
+      form.append(key, JSON.stringify(value));
+    } else if (typeof value === 'string') {
+      form.append(key, value);
+    }
+  });
+  if (coverImage) {
+    form.append('cover_image', coverImage, coverImage.name || 'cover.jpg');
+  }
+  return form;
+}
+
+// --- Users (GET /api/users/, GET/PATCH/DELETE /api/users/{id}/) ---
+export interface AdminUser {
+  id: string;
+  email: string;
+  full_name: string;
+  phone_number?: string;
+  shipping_address?: string;
+  is_subscriber: boolean;
+  is_staff?: boolean;
+  is_active?: boolean;
+  date_joined?: string;
+  [key: string]: unknown;
+}
+
+export function listUsers(): Promise<AdminUser[]> {
+  return getJson<AdminUser[]>('/api/users/');
+}
+
+export function getUser(id: string): Promise<AdminUser> {
+  return getJson<AdminUser>(`/api/users/${id}/`);
+}
+
+export function updateUser(id: string, data: Partial<Pick<AdminUser, 'full_name' | 'phone_number' | 'shipping_address' | 'is_subscriber' | 'is_active'>>): Promise<AdminUser> {
+  return patchJson<AdminUser>(`/api/users/${id}/`, data);
+}
+
+export function deleteUser(id: string): Promise<void> {
+  return delJson<void>(`/api/users/${id}/`);
+}
+
+// --- Catalogs (GET/POST /api/catalogs/) ---
+export interface Catalog {
+  id: string;
+  name: string;
+  description?: string;
+  [key: string]: unknown;
+}
+
+export function listCatalogs(): Promise<Catalog[]> {
+  return getJson<Catalog[]>('/api/catalog/');
+}
+
+export function createCatalog(data: { name: string; description?: string }): Promise<Catalog> {
+  return postJson<Catalog>('/api/catalog/', data);
+}
+
+// --- Catalog admin (POST/PATCH/DELETE books, formats) ---
+export interface CreateBookPayload {
+  catalog: string;
+  title: string;
+  author: string;
+  synopsis?: string;
+  sample_text?: string;
+  genre?: string;
+  language?: string;
+  publication_date?: string;
+  formats?: { format_type: 'ebook' | 'physical'; price: string; stock_quantity: number }[];
+}
+
+export function createBook(
+  payload: CreateBookPayload,
+  coverImage?: File | null
+): Promise<{ id: string; [key: string]: unknown }> {
+  if (coverImage) {
+    const form = buildBookFormData(payload as unknown as Record<string, unknown>, coverImage);
+    return postJson(`/api/catalog/books/`, form, { skipJsonHeader: true });
+  }
+  return postJson(`/api/catalog/books/`, payload);
+}
+
+export function updateBook(
+  id: string,
+  payload: Partial<CreateBookPayload>,
+  coverImage?: File | null
+): Promise<unknown> {
+  if (coverImage) {
+    const form = buildBookFormData(payload as unknown as Record<string, unknown>, coverImage);
+    return patchJson(`/api/catalog/books/${id}/`, form, { skipJsonHeader: true });
+  }
+  return patchJson(`/api/catalog/books/${id}/`, payload);
+}
+
+export function deleteBook(id: string): Promise<void> {
+  return delJson(`/api/catalog/books/${id}/`);
+}
+
+export function updateFormat(formatId: string, data: { price?: string; stock_quantity?: number }): Promise<unknown> {
+  return patchJson(`/api/catalog/formats/${formatId}/`, data);
+}
+
+export function deleteFormat(formatId: string): Promise<void> {
+  return delJson(`/api/catalog/formats/${formatId}/`);
+}
+
+/** Prévisualisation EPUB d’un livre (admin). Si le backend expose GET /api/catalog/books/{id}/preview/, retourne une blob URL. */
+export async function getCatalogBookPreviewUrl(bookId: string): Promise<string> {
+  const token = localStorage.getItem('accessToken');
+  if (!token) throw new Error('Non autorisé.');
+  const res = await fetch(`${API_BASE_URL}/api/catalog/books/${bookId}/preview/`, {
+    method: 'GET',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error(res.status === 404 ? 'Prévisualisation non disponible pour ce livre.' : 'Impossible de charger la prévisualisation.');
+  const blob = await res.blob();
+  return URL.createObjectURL(blob);
+}
+
+// --- Orders (GET /api/orders/ liste des commandes utilisateur ; admin peut avoir toutes si le backend le permet) ---
+export interface OrderItem {
+  format: string;
+  quantity: number;
+}
+
+export interface AdminOrder {
+  id: string;
+  user?: string;
+  shipping_address?: string;
+  status?: string;
+  total?: string | number;
+  created_at?: string;
+  items?: OrderItem[];
+  [key: string]: unknown;
+}
+
+export function listOrders(): Promise<AdminOrder[]> {
+  return getJson<AdminOrder[]>('/api/orders/');
+}
+
+export function getOrder(id: string): Promise<AdminOrder> {
+  return getJson<AdminOrder>(`/api/orders/${id}/`);
+}

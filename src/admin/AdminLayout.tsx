@@ -6,13 +6,14 @@ import './admin.css';
 
 const menuItems = [
   { path: '/admin', label: 'Tableau de bord', icon: 'fa-chart-line' },
+  { path: '/admin/catalogues', label: 'Catalogues', icon: 'fa-folder-open' },
   { path: '/admin/livres', label: 'Livres', icon: 'fa-book' },
   { path: '/admin/commandes', label: 'Commandes', icon: 'fa-shopping-cart' },
   { path: '/admin/utilisateurs', label: 'Utilisateurs', icon: 'fa-users' },
   { path: '/admin/parametres', label: 'Paramètres', icon: 'fa-cog' },
 ];
 
-function AdminLayout() {
+export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const location = useLocation();
@@ -32,7 +33,8 @@ function AdminLayout() {
       <aside className={`admin-sidebar ${sidebarOpen ? 'open' : 'closed'}`}>
         <div className="admin-sidebar-header">
           <Link to="/admin" className="admin-logo" style={{ whiteSpace: 'nowrap', fontFamily: 'Poppins, sans-serif' }}>
-            <span className="admin-logo-text"><i className="fa fa-book"></i> Dis-moi Papa</span>
+            <img src="/logo.png" alt="Dis-moi Papa" className="admin-logo-img" />
+            <span className="admin-logo-text">Dis-moi Papa</span>
           </Link>
           <button
             type="button"
@@ -103,5 +105,3 @@ function AdminLayout() {
     </div>
   );
 }
-
-export default AdminLayout;

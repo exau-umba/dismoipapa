@@ -2,7 +2,32 @@ import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Card, Table, Form, Row, Col, Button } from 'react-bootstrap';
 
-const mockOrdersDetail = {
+interface OrderLine {
+  livre: string;
+  ref: string;
+  qte: number;
+  prixUnitaire: number;
+  total: number;
+}
+
+interface OrderDetail {
+  id: number;
+  numero: string;
+  date: string;
+  statut: string;
+  client: { nom: string; email: string; tel: string };
+  adresseLivraison: { adresse: string; complement: string; codePostal: string; ville: string; pays: string };
+  facturation: { adresse: string; codePostal: string; ville: string };
+  lignes: OrderLine[];
+  sousTotal: number;
+  fraisLivraison: number;
+  remise: number;
+  total: number;
+  modePaiement: string;
+  note: string;
+}
+
+const mockOrdersDetail: Record<number, OrderDetail> = {
   1001: {
     id: 1001,
     numero: '#CMD-1001',
@@ -83,9 +108,9 @@ const mockOrdersDetail = {
 
 const statutOptions = ['En attente', 'En préparation', 'Expédiée', 'Livrée'];
 
-function AdminOrderDetail() {
-  const { id } = useParams();
-  const order = mockOrdersDetail[id];
+export default function AdminOrderDetail() {
+  const { id } = useParams<{ id: string }>();
+  const order = id ? mockOrdersDetail[Number(id)] : undefined;
   const [statut, setStatut] = useState(order ? order.statut : 'En attente');
 
   if (!order) {
@@ -223,5 +248,3 @@ function AdminOrderDetail() {
     </>
   );
 }
-
-export default AdminOrderDetail;
