@@ -147,7 +147,7 @@ function BooksGridViewSidebar() {
                                 {!loading && !error && filteredBooks.length > 0 && (
                                 <div className="row book-grid-row">
                                     {filteredBooks.map((book, i) => {
-                                        const img = book.cover_image && (book.cover_image.startsWith('http') ? book.cover_image : `${API_BASE_URL.replace(/\/$/, '')}${book.cover_image.startsWith('/') ? '' : '/'}${book.cover_image}`) || bookImages[i % bookImages.length];
+                                        const img = (book.cover_image && (book.cover_image.startsWith('http') ? book.cover_image : `${API_BASE_URL.replace(/\/$/, '')}${book.cover_image.startsWith('/') ? '' : '/'}${book.cover_image}`)) || bookImages[i % bookImages.length];
                                         const price = book.formats?.[0]?.price ?? '';
                                         const catalogName = book.catalog ? (catalogById[book.catalog]?.name ?? '') : '';
                                         return (

@@ -136,7 +136,7 @@ function ShopList() {
                         {!loading && !error && filteredBooks.length > 0 && (
                         <div className="row ">
                             {filteredBooks.map((book, i) => {
-                                const img = book.cover_image && (book.cover_image.startsWith('http') ? book.cover_image : `${API_BASE_URL.replace(/\/$/, '')}${book.cover_image.startsWith('/') ? '' : '/'}${book.cover_image}`) || bookImages[i % bookImages.length];
+                                const img = (book.cover_image && (book.cover_image.startsWith('http') ? book.cover_image : `${API_BASE_URL.replace(/\/$/, '')}${book.cover_image.startsWith('/') ? '' : '/'}${book.cover_image}`)) || bookImages[i % bookImages.length];
                                 const price = book.formats?.[0]?.price ?? '';
                                 return (
                                 <div className="col-md-12 col-sm-12" key={book.id}>
