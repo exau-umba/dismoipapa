@@ -1,35 +1,51 @@
-import React,{useState} from 'react';
-import {Link} from 'react-router-dom';
-import {Collapse, Dropdown} from 'react-bootstrap';
+import React, { useEffect, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { Collapse, Dropdown } from 'react-bootstrap';
 
-//Component
 import ClientsSlider from '../components/Home/ClientsSlider';
 import CounterSection from '../elements/CounterSection';
 import NewsLetter from '../components/NewsLetter';
+import ErrorMessage from '../components/ErrorMessage';
+import { bookImages } from '../constants/imageUrls';
+import { fetchBooks, type Book } from '../api/catalog';
+import { listCatalogs, type Catalog } from '../api/admin';
+import { API_BASE_URL } from '../api/client';
+import { getFriendlyErrorMessage } from '../utils/errorMessages';
 
-import { bookImages, bookTitles } from '../constants/imageUrls';
-
-const lableBlogData = [
-    {name:'Poésie'},
-    {name:'Fables'},
-    {name:'Technique'},
-    {name:'Énergie'},
-    {name:'Roman'},
-    {name:'Fiction'},
-];
-
-const cardDetials = [
-   {image: bookImages[0], title: bookTitles[0], subtitle1:'Poésie', subtitle2:'Fables', price1:'46.0', price2:'56.0' },
-   {image: bookImages[1], title: bookTitles[1], subtitle1:'Technique', subtitle2:'Énergie', price1:'65.0', price2:'80.0' },
-   {image: bookImages[2], title: bookTitles[2], subtitle1:'Roman', price1:'55.0', price2:'68.0' },
-   {image: bookImages[0], title: bookTitles[0], subtitle1:'Poésie', price1:'48.0', price2:'58.0' },
-   {image: bookImages[1], title: bookTitles[1], subtitle1:'Technique', price1:'70.0', price2:'85.0' },
-   {image: bookImages[2], title: bookTitles[2], subtitle1:'Roman', subtitle2:'Fiction', price1:'60.0', price2:'75.0' }, 
-];
-
-function ShopList(){
+function ShopList() {
     const [accordBtn, setAccordBtn] = useState<boolean>(false);
     const [selectBtn, setSelectBtn] = useState('Newest');
+    const [books, setBooks] = useState<Book[]>([]);
+    const [catalogs, setCatalogs] = useState<Catalog[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [searchParams, setSearchParams] = useSearchParams();
+    const catalogId = (searchParams.get('catalog') || '').trim();
+
+    useEffect(() => {
+        listCatalogs().then(setCatalogs).catch(() => setCatalogs([]));
+    }, []);
+
+    useEffect(() => {
+        setLoading(true);
+        setError(null);
+        fetchBooks()
+            .then(setBooks)
+            .catch((err) => setError(getFriendlyErrorMessage(err)))
+            .finally(() => setLoading(false));
+    }, []);
+
+    const handleCatalogCheck = (id: string) => {
+        const next = new URLSearchParams(searchParams);
+        if (id) next.set('catalog', id);
+        else next.delete('catalog');
+        setSearchParams(next);
+    };
+
+    const filteredBooks = React.useMemo(() => {
+        if (!catalogId) return books;
+        return books.filter((b) => b.catalog === catalogId);
+    }, [books, catalogId]);
     return(
         <>
             <div className="page-content bg-grey">
@@ -99,87 +115,70 @@ function ShopList(){
                         <Collapse in={accordBtn} className="acod-content">
                             <div>
                                 <div className="widget widget_services">
-                                    {lableBlogData.map((item, ind)=>(
-                                        <div className="form-check search-content" key={ind}>
-                                            <input className="form-check-input" type="checkbox" value="" id={`productCheckBox${ind+1}`} /> 
-                                            <label className="form-check-label" htmlFor={`productCheckBox${ind+1}`}>
-                                                {item.name}
-                                            </label>
+                                    <div className="form-check search-content">
+                                        <input className="form-check-input" type="checkbox" id="shopListCatalogAll" checked={!catalogId} onChange={() => handleCatalogCheck('')} />
+                                        <label className="form-check-label" htmlFor="shopListCatalogAll">Tous les catalogues</label>
+                                    </div>
+                                    {catalogs.map((c) => (
+                                        <div className="form-check search-content" key={c.id}>
+                                            <input className="form-check-input" type="checkbox" id={`shopListCatalog${c.id}`} checked={catalogId === c.id} onChange={() => handleCatalogCheck(c.id)} />
+                                            <label className="form-check-label" htmlFor={`shopListCatalog${c.id}`}>{c.name}</label>
                                         </div>
                                     ))}
-                                </div>   
+                                </div>
                             </div>
                         </Collapse>
+                        {error && <ErrorMessage message={error} onDismiss={() => setError(null)} className="mb-3" />}
+                        {loading && <div className="col-12 text-center py-5"><p>Chargement des livres…</p></div>}
+                        {!loading && !error && filteredBooks.length === 0 && (
+                            <div className="col-12 text-center py-5"><p className="text-muted">Aucun livre pour le moment.</p></div>
+                        )}
+                        {!loading && !error && filteredBooks.length > 0 && (
                         <div className="row ">
-                            {cardDetials.map((data, i)=>(                                
-                                <div className="col-md-12 col-sm-12">
+                            {filteredBooks.map((book, i) => {
+                                const img = book.cover_image && (book.cover_image.startsWith('http') ? book.cover_image : `${API_BASE_URL.replace(/\/$/, '')}${book.cover_image.startsWith('/') ? '' : '/'}${book.cover_image}`) || bookImages[i % bookImages.length];
+                                const price = book.formats?.[0]?.price ?? '';
+                                return (
+                                <div className="col-md-12 col-sm-12" key={book.id}>
                                     <div className="dz-shop-card style-2">
                                         <div className="dz-media">
-                                            <img src={data.image} alt="book"></img>
+                                            <img src={img} alt={book.title} />
                                         </div>
                                         <div className="dz-content">
                                             <div className="dz-header">
                                                 <div>
-                                                    <ul className="dz-tags">
-                                                        {data.subtitle1 && <li><Link to={"#"}>{data.subtitle1}{data.subtitle2 ? ',' : ''}</Link></li>}
-                                                        {data.subtitle2 && <li><Link to={"#"}>{data.subtitle2}</Link></li>}
-                                                    </ul>
-                                                    <h4 className="title mb-0 book-title-truncate" title={data.title}><Link to={"/books-list"}>{data.title}</Link></h4>
+                                                    <h4 className="title mb-0 book-title-truncate" title={book.title}><Link to={`/books-detail/${book.id}`}>{book.title}</Link></h4>
                                                 </div>
                                                 <div className="price">
-                                                    <span className="price-num text-primary">{data.price1} FC</span>
-                                                    <del>{data.price2} FC</del>
+                                                    {price ? <><span className="price-num text-primary">{price} FC</span></> : <span className="price-num text-muted">Prix à venir</span>}
                                                 </div>
                                             </div>
-                                            
                                             <div className="dz-body">
                                                 <div className="dz-rating-box">
                                                     <div>
-                                                        <p className="dz-para">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting.</p>
-                                                        <div>
-                                                            <Link to={"/pricing"} className="badge me-1">Get 20% Discount for today</Link>
-                                                            <Link to={"/pricing"} className="badge me-1">50% OFF Discount</Link>
-                                                            <Link to={"/pricing"} className="badge next-badge">See 2+ promos</Link>
-                                                        </div>
-                                                    </div>
-                                                    <div className="review-num">
-                                                        <h4>4.0</h4>
-                                                        <ul className="dz-rating">
-                                                            <li><i className="flaticon-star text-primary"></i></li>	
-                                                            <li><i className="flaticon-star text-primary"></i></li>	
-                                                            <li><i className="flaticon-star text-primary"></i></li>	
-                                                            <li><i className="flaticon-star text-primary"></i></li>		
-                                                            <li><i className="flaticon-star text-muted"></i></li>		
-                                                        </ul>
-                                                        <span><Link to={"#"}> 235 Reviews</Link></span>
+                                                        <p className="dz-para">{book.synopsis || 'Aucun résumé.'}</p>
                                                     </div>
                                                 </div>
                                                 <div className="rate">
                                                     <ul className="book-info">
-                                                        <li><span>Par </span>Jean Richard MAMBWENI MABIALA</li>
-                                                        <li><span>Publisher</span>Jean Richard MAMBWENI MABIALA</li>
-                                                        <li><span>Year</span>2025</li>
+                                                        <li><span>Par </span>{book.author}</li>
+                                                        {book.publication_date && <li><span>Année </span>{book.publication_date.slice(0, 4)}</li>}
                                                     </ul>
                                                     <div className="d-flex">
-                                                        <Link to={"/shop-cart"} className="btn btn-secondary btnhover btnhover2"><i className="flaticon-shopping-cart-1 m-r10"></i> Add to cart</Link>
-                                                        <div className="bookmark-btn style-1">
-                                                            <input className="form-check-input" type="checkbox" id="flexCheckDefault1" />
-                                                            <label className="form-check-label" htmlFor="flexCheckDefault1">
-                                                                <i className="flaticon-heart"></i>
-                                                            </label>
-                                                        </div>
+                                                        <Link to={`/books-detail/${book.id}`} className="btn btn-secondary btnhover btnhover2"><i className="flaticon-shopping-cart-1 m-r10"></i> Voir le livre</Link>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            ))}   
-                             
+                                );
+                            })}
                         </div>
+                        )}
                         <div className="row page mt-0">
                             <div className="col-md-6">
-                                <p className="page-text">Showing 12 from 50 data</p>
+                                <p className="page-text">{loading ? '…' : `Affichage de ${filteredBooks.length} livre(s)`}</p>
                             </div>
                             <div className="col-md-6">
                                 <nav aria-label="Blog Pagination">

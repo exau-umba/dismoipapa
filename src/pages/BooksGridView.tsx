@@ -1,28 +1,19 @@
-import React,{useEffect, useState} from 'react';
-import {Link, useSearchParams} from 'react-router-dom';
-import {Collapse, Dropdown} from 'react-bootstrap';
+import React, { useEffect, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { Collapse, Dropdown } from 'react-bootstrap';
 
-//Component
-// import ClientsSlider from '../components/Home/ClientsSlider';
-// import CounterSection from '../elements/CounterSection';
-import NewsLetter from '../components/NewsLetter';
 import ErrorMessage from '../components/ErrorMessage';
-
 import { bookImages, bookTitles, bookTags } from '../constants/imageUrls';
 import { getFriendlyErrorMessage } from '../utils/errorMessages';
 import { fetchBooks, Book } from '../api/catalog';
-
-const lableBlogData = [
-    {name:'Poésie'},
-    {name:'Fables'},
-    {name:'Technique'},
-    {name:'Énergie'},
-    {name:'Roman'},
-    {name:'Fiction'},
-];
+import { listCatalogs, type Catalog } from '../api/admin';
+import { API_BASE_URL } from '../api/client';
 
 function mapBackendBookToCard(book: Book, index: number) {
-    const img = bookImages[index % bookImages.length];
+    const fallbackImg = bookImages[index % bookImages.length];
+    const img = book.cover_image
+        ? (book.cover_image.startsWith('http') ? book.cover_image : `${API_BASE_URL.replace(/\/$/, '')}${book.cover_image.startsWith('/') ? '' : '/'}${book.cover_image}`)
+        : fallbackImg;
     const title = book.title || bookTitles[index % bookTitles.length] || 'Livre';
     const tags = bookTags[index % bookTags.length] || [];
     const mainFormat = book.formats && book.formats.length > 0 ? book.formats[0] : undefined;
@@ -39,14 +30,22 @@ function mapBackendBookToCard(book: Book, index: number) {
     };
 }
 
-function BooksGridView(){
+function BooksGridView() {
     const [accordBtn, setAccordBtn] = useState<boolean>(false);
     const [selectBtn, setSelectBtn] = useState('Newest');
+    const [catalogs, setCatalogs] = useState<Catalog[]>([]);
     const [books, setBooks] = useState<Book[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
     const searchTerm = (searchParams.get('q') || '').trim().toLowerCase();
+    const catalogId = (searchParams.get('catalog') || '').trim();
+
+    useEffect(() => {
+        listCatalogs()
+            .then(setCatalogs)
+            .catch(() => setCatalogs([]));
+    }, []);
 
     useEffect(() => {
         const load = async () => {
@@ -64,19 +63,34 @@ function BooksGridView(){
         load();
     }, []);
 
+    const selectedCatalog = catalogs.find((c) => c.id === catalogId);
+
+    const handleCatalogCheck = (id: string) => {
+        const next = new URLSearchParams(searchParams);
+        if (id) next.set('catalog', id);
+        else next.delete('catalog');
+        setSearchParams(next);
+    };
+
     const filteredBooks = React.useMemo(() => {
-        if (!searchTerm) return books;
-        return books.filter((book) => {
-            const title = (book.title || '').toLowerCase();
-            const author = (book.author || '').toLowerCase();
-            const genre = (book.genre || '').toLowerCase();
-            return (
-                title.includes(searchTerm) ||
-                author.includes(searchTerm) ||
-                genre.includes(searchTerm)
-            );
-        });
-    }, [books, searchTerm]);
+        let list = books;
+        if (catalogId) {
+            list = list.filter((book) => book.catalog === catalogId);
+        }
+        if (searchTerm) {
+            list = list.filter((book) => {
+                const title = (book.title || '').toLowerCase();
+                const author = (book.author || '').toLowerCase();
+                const synopsis = (book.synopsis || '').toLowerCase();
+                return (
+                    title.includes(searchTerm) ||
+                    author.includes(searchTerm) ||
+                    synopsis.includes(searchTerm)
+                );
+            });
+        }
+        return list;
+    }, [books, searchTerm, catalogId]);
     return(
         <>
             <div className="page-content bg-grey">
@@ -85,9 +99,13 @@ function BooksGridView(){
                         <div className="d-flex justify-content-between align-items-center">
                             <div>
                                 <h4 className="title">Les livres de Jean Richard MAMBWENI MABIALA</h4>
-                                {searchTerm && (
+                                {(searchTerm || selectedCatalog) && (
                                     <p className="mb-0 text-muted">
-                                        Résultats pour « {searchTerm} »
+                                        {searchTerm && selectedCatalog
+                                            ? `Résultats pour « ${searchTerm} » dans ${selectedCatalog.name}`
+                                            : searchTerm
+                                            ? `Résultats pour « ${searchTerm} »`
+                                            : `Catalogue : ${selectedCatalog?.name}`}
                                     </p>
                                 )}
                             </div>
@@ -129,23 +147,25 @@ function BooksGridView(){
                             </div>
                             <div className="category">
                                 <div className="filter-category">
-                                    <Link to={"#"} className="text-primary" data-bs-toggle="collapse"  
+                                    <Link to={"#"} className="text-primary" data-bs-toggle="collapse"
                                         onClick={() => setAccordBtn((prev) => !prev)}
                                     >
                                         <i className="fas fa-list me-2 text-primary"></i>
-                                        Categories
+                                        Catalogue
                                     </Link>
                                 </div>
                                 <div className="form-group">
-                                    <i className="fas fa-sort-amount-down me-2 text-primary"></i>                                   
+                                    <i className="fas fa-sort-amount-down me-2 text-primary"></i>
                                     <Dropdown>
-                                        <Dropdown.Toggle  className="i-false text-primary">{selectBtn} <i className="ms-4 font-14 fa-solid fa-caret-down" /></Dropdown.Toggle>
+                                        <Dropdown.Toggle className="i-false text-primary">
+                                            {selectBtn} <i className="ms-4 font-14 fa-solid fa-caret-down" />
+                                        </Dropdown.Toggle>
                                         <Dropdown.Menu>
-                                            <Dropdown.Item onClick={()=>setSelectBtn('Newest')}>Newest</Dropdown.Item>
-                                            <Dropdown.Item onClick={()=>setSelectBtn('1 Days')}>1 Days</Dropdown.Item>
-                                            <Dropdown.Item onClick={()=>setSelectBtn('2 Week')}>2 Week</Dropdown.Item>
-                                            <Dropdown.Item onClick={()=>setSelectBtn('3 Week')}>3 Weeks</Dropdown.Item>
-                                            <Dropdown.Item onClick={()=>setSelectBtn('1 Month')}>1 Month</Dropdown.Item>
+                                            <Dropdown.Item onClick={() => setSelectBtn('Newest')}>Newest</Dropdown.Item>
+                                            <Dropdown.Item onClick={() => setSelectBtn('1 Days')}>1 Days</Dropdown.Item>
+                                            <Dropdown.Item onClick={() => setSelectBtn('2 Week')}>2 Week</Dropdown.Item>
+                                            <Dropdown.Item onClick={() => setSelectBtn('3 Week')}>3 Weeks</Dropdown.Item>
+                                            <Dropdown.Item onClick={() => setSelectBtn('1 Month')}>1 Month</Dropdown.Item>
                                         </Dropdown.Menu>
                                     </Dropdown>
                                 </div>
@@ -155,15 +175,36 @@ function BooksGridView(){
                         <Collapse in={accordBtn} className="acod-content">
                             <div>
                                 <div className="widget widget_services">
-                                    {lableBlogData.map((item, ind)=>(
-                                        <div className="form-check search-content" key={ind}>
-                                            <input className="form-check-input" type="checkbox" value="" id={`productCheckBox${ind+1}`} /> 
-                                            <label className="form-check-label" htmlFor={`productCheckBox${ind+1}`}>
-                                                {item.name}
+                                    <div className="form-check search-content" key="all">
+                                        <input
+                                            className="form-check-input"
+                                            type="checkbox"
+                                            id="catalogCheckAll"
+                                            checked={!catalogId}
+                                            onChange={() => handleCatalogCheck('')}
+                                        />
+                                        <label className="form-check-label" htmlFor="catalogCheckAll">
+                                            Tous les catalogues
+                                        </label>
+                                    </div>
+                                    {catalogs.map((c) => (
+                                        <div className="form-check search-content" key={c.id}>
+                                            <input
+                                                className="form-check-input"
+                                                type="checkbox"
+                                                id={`catalogCheck${c.id}`}
+                                                checked={catalogId === c.id}
+                                                onChange={() => handleCatalogCheck(c.id)}
+                                            />
+                                            <label className="form-check-label" htmlFor={`catalogCheck${c.id}`}>
+                                                {c.name}
                                             </label>
                                         </div>
                                     ))}
-                                </div>   
+                                    {catalogs.length === 0 && (
+                                        <p className="text-muted small mb-0">Aucun catalogue</p>
+                                    )}
+                                </div>
                             </div>
                         </Collapse>
                         <div className="row book-grid-row">
@@ -180,8 +221,10 @@ function BooksGridView(){
                             {!loading && !error && filteredBooks.length === 0 && (
                               <div className="col-12 text-center py-5">
                                 <p className="text-muted">
-                                  {searchTerm
-                                    ? `Aucun livre ne correspond à « ${searchTerm} » pour le moment.`
+                                  {catalogId && !searchTerm
+                                    ? `Aucun livre dans ce catalogue pour le moment.`
+                                    : searchTerm
+                                    ? `Aucun livre ne correspond à « ${searchTerm} »${catalogId ? ' dans ce catalogue' : ''} pour le moment.`
                                     : "Aucun livre n'est disponible pour le moment."}
                                 </p>
                               </div>
@@ -189,7 +232,7 @@ function BooksGridView(){
                             {!loading && !error && filteredBooks.map((book, i) => {
                               const data = mapBackendBookToCard(book, i);
                               return (
-                                <div className="col-book style-1" key={i}>
+                                <div className="col-book style-1" key={book.id}>
                                     <div className="dz-shop-card style-1">
                                         <div className="dz-media">
                                             <img src={data.image} alt="book" />									
@@ -201,7 +244,7 @@ function BooksGridView(){
                                             </label>
                                         </div> 
                                         <div className="dz-content">
-                                            <h5 className="title book-title-truncate" title={data.title}><Link to={"/books-detail"}>{data.title}</Link></h5>
+                                            <h5 className="title book-title-truncate" title={data.title}><Link to={`/books-detail/${data.id}`}>{data.title}</Link></h5>
                                             <ul className="dz-tags">
                                                 {data.subtitle1 && (
                                                   <li><Link to={"/books-grid-view"}>{data.subtitle1}{data.subtitle2 ? ',' : ''}</Link></li>

@@ -1,46 +1,56 @@
-import React,{useState} from 'react';
-import {Link} from 'react-router-dom';
-import {Collapse, Dropdown} from 'react-bootstrap';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { Collapse, Dropdown } from 'react-bootstrap';
 
-//Component
-// import ClientsSlider from '../components/Home/ClientsSlider';
 import NewsLetter from '../components/NewsLetter';
-
-//element
-// import CounterSection from '../elements/CounterSection';
+import ErrorMessage from '../components/ErrorMessage';
 import ShopSidebar from '../elements/ShopSidebar';
+import { bookImages } from '../constants/imageUrls';
+import { fetchBooks, type Book } from '../api/catalog';
+import { listCatalogs, type Catalog } from '../api/admin';
+import { API_BASE_URL } from '../api/client';
+import { getFriendlyErrorMessage } from '../utils/errorMessages';
 
-import { bookImages, bookTitles } from '../constants/imageUrls';
-
-const lableBlogData = [
-    {name:'Poésie'},
-    {name:'Fables'},
-    {name:'Technique'},
-    {name:'Énergie'},
-    {name:'Roman'},
-    {name:'Fiction'},
-];
-
-const cardDetials = [
-    {image: bookImages[0], title: bookTitles[0], subtitle1:'Poésie', subtitle2:'Fables', price1:'45.0', price2:'55.0' },
-    {image: bookImages[1], title: bookTitles[1], subtitle1:'Technique', subtitle2:'Énergie', price1:'65.0', price2:'80.0' },
-    {image: bookImages[2], title: bookTitles[2], subtitle1:'Roman', price1:'55.0', price2:'68.0' },
-    {image: bookImages[0], title: bookTitles[0], subtitle1:'Poésie', price1:'48.0', price2:'58.0' },
-    {image: bookImages[1], title: bookTitles[1], subtitle1:'Technique', price1:'70.0', price2:'85.0' },
-    {image: bookImages[2], title: bookTitles[2], subtitle1:'Roman', subtitle2:'Fiction', price1:'60.0', price2:'75.0' },
-    {image: bookImages[0], title: bookTitles[0], subtitle1:'Poésie', subtitle2:'Fables', price1:'50.0', price2:'62.0' },
-    {image: bookImages[1], title: bookTitles[1], subtitle1:'Technique', price1:'75.0', price2:'90.0' },
-    {image: bookImages[2], title: bookTitles[2], subtitle1:'Roman', price1:'65.0', price2:'80.0' },
-    {image: bookImages[0], title: bookTitles[0], subtitle1:'Poésie', subtitle2:'Fables', price1:'47.0', price2:'57.0' },
-    {image: bookImages[1], title: bookTitles[1], subtitle1:'Technique', price1:'68.0', price2:'83.0' },
-    {image: bookImages[2], title: bookTitles[2], subtitle1:'Roman', price1:'58.0', price2:'72.0' },
-];
-
-
-
-function BooksGridViewSidebar(){
+function BooksGridViewSidebar() {
     const [accordBtn, setAccordBtn] = useState<boolean>(false);
     const [selectBtn, setSelectBtn] = useState('Newest');
+    const [books, setBooks] = useState<Book[]>([]);
+    const [catalogs, setCatalogs] = useState<Catalog[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [searchParams, setSearchParams] = useSearchParams();
+    const catalogId = (searchParams.get('catalog') || '').trim();
+
+    useEffect(() => {
+        listCatalogs().then(setCatalogs).catch(() => setCatalogs([]));
+    }, []);
+
+    useEffect(() => {
+        setLoading(true);
+        setError(null);
+        fetchBooks()
+            .then(setBooks)
+            .catch((err) => setError(getFriendlyErrorMessage(err)))
+            .finally(() => setLoading(false));
+    }, []);
+
+    const handleCatalogCheck = (id: string) => {
+        const next = new URLSearchParams(searchParams);
+        if (id) next.set('catalog', id);
+        else next.delete('catalog');
+        setSearchParams(next);
+    };
+
+    const filteredBooks = useMemo(() => {
+        if (!catalogId) return books;
+        return books.filter((b) => b.catalog === catalogId);
+    }, [books, catalogId]);
+
+    const catalogById = useMemo(() => {
+        const m: Record<string, Catalog> = {};
+        catalogs.forEach((c) => { m[c.id] = c; });
+        return m;
+    }, [catalogs]);
     return(
         <>
             <div className="page-content bg-grey">
@@ -116,59 +126,59 @@ function BooksGridViewSidebar(){
                                 <Collapse in={accordBtn} className="acod-content">
                                     <div>
                                         <div className="widget widget_services style-2">
-                                            {lableBlogData.map((item, ind)=>(
-                                                <div className="form-check search-content" key={ind}>
-                                                    <input className="form-check-input" type="checkbox" value="" id={`productCheckBox${ind+1}`} /> 
-                                                    <label className="form-check-label" htmlFor={`productCheckBox${ind+1}`}>
-                                                        {item.name}
-                                                    </label>
+                                            <div className="form-check search-content">
+                                                <input className="form-check-input" type="checkbox" id="sidebarCatalogAll" checked={!catalogId} onChange={() => handleCatalogCheck('')} />
+                                                <label className="form-check-label" htmlFor="sidebarCatalogAll">Tous les catalogues</label>
+                                            </div>
+                                            {catalogs.map((c) => (
+                                                <div className="form-check search-content" key={c.id}>
+                                                    <input className="form-check-input" type="checkbox" id={`sidebarCatalog${c.id}`} checked={catalogId === c.id} onChange={() => handleCatalogCheck(c.id)} />
+                                                    <label className="form-check-label" htmlFor={`sidebarCatalog${c.id}`}>{c.name}</label>
                                                 </div>
                                             ))}
-                                        </div>   
+                                        </div>
                                     </div>
                                 </Collapse>
+                                {error && <ErrorMessage message={error} onDismiss={() => setError(null)} className="mb-3" />}
+                                {loading && <div className="col-12 text-center py-5"><p>Chargement des livres…</p></div>}
+                                {!loading && !error && filteredBooks.length === 0 && (
+                                    <div className="col-12 text-center py-5"><p className="text-muted">Aucun livre pour le moment.</p></div>
+                                )}
+                                {!loading && !error && filteredBooks.length > 0 && (
                                 <div className="row book-grid-row">
-                                    {cardDetials.map((data, i)=>(
-                                        <div className="col-book style-2" key={i}>
+                                    {filteredBooks.map((book, i) => {
+                                        const img = book.cover_image && (book.cover_image.startsWith('http') ? book.cover_image : `${API_BASE_URL.replace(/\/$/, '')}${book.cover_image.startsWith('/') ? '' : '/'}${book.cover_image}`) || bookImages[i % bookImages.length];
+                                        const price = book.formats?.[0]?.price ?? '';
+                                        const catalogName = book.catalog ? (catalogById[book.catalog]?.name ?? '') : '';
+                                        return (
+                                        <div className="col-book style-2" key={book.id}>
                                             <div className="dz-shop-card style-1">
                                                 <div className="dz-media">
-                                                    <img src={data.image} alt="book" />									
+                                                    <img src={img} alt={book.title} />
                                                 </div>
-                                                <div className="bookmark-btn style-2">
-                                                    <input className="form-check-input" type="checkbox" id={`flexCheckDefault${i+21}`} />
-                                                    <label className="form-check-label" htmlFor={`flexCheckDefault${i+21}`}>
-                                                        <i className="flaticon-heart"></i>
-                                                    </label>
-                                                </div> 
                                                 <div className="dz-content">
-                                                    <h5 className="title book-title-truncate" title={data.title}><Link to={"books-grid-view"}>{data.title}</Link></h5>
-                                                    <ul className="dz-tags">
-                                                        <li><Link to={"/books-grid-view"}>{data.subtitle1},</Link></li>
-                                                        <li><Link to={"/books-grid-view"}>{data.subtitle2}</Link></li>
-                                                    </ul>
-                                                    <ul className="dz-rating">
-                                                        <li><i className="flaticon-star text-primary"></i></li>	
-                                                        <li><i className="flaticon-star text-primary"></i></li>	
-                                                        <li><i className="flaticon-star text-primary"></i></li>	
-                                                        <li><i className="flaticon-star text-primary"></i></li>		
-                                                        <li><i className="flaticon-star text-primary"></i></li>		
-                                                    </ul>
+                                                    <h5 className="title book-title-truncate" title={book.title}><Link to={`/books-detail/${book.id}`}>{book.title}</Link></h5>
+                                                    {catalogName && (
+                                                        <ul className="dz-tags">
+                                                            <li><Link to={`/books-grid-view-sidebar?catalog=${book.catalog}`}>{catalogName}</Link></li>
+                                                        </ul>
+                                                    )}
                                                     <div className="book-footer">
                                                         <div className="price">
-                                                            <span className="price-num">{data.price1} FC</span>
-                                                            <del>{data.price2} FC</del>
+                                                            {price ? <span className="price-num">{price} FC</span> : <span className="price-num text-muted">—</span>}
                                                         </div>
-                                                        <Link to={"/shop-cart"} className="btn btn-secondary box-btn btnhover btnhover2"><i className="flaticon-shopping-cart-1 m-r10"></i> Add to cart</Link>
+                                                        <Link to={`/books-detail/${book.id}`} className="btn btn-secondary box-btn btnhover btnhover2"><i className="flaticon-shopping-cart-1 m-r10"></i> Voir</Link>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    ))}   
-                                    
+                                        );
+                                    })}
                                 </div>
+                                )}
                                 <div className="row page mt-0">
                                     <div className="col-md-6">
-                                        <p className="page-text">Showing 12 from 50 data</p>
+                                        <p className="page-text">{loading ? '…' : `Affichage de ${filteredBooks.length} livre(s)`}</p>
                                     </div>
                                     <div className="col-md-6">
                                         <nav aria-label="Blog Pagination">
