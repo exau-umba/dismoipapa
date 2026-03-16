@@ -1,32 +1,55 @@
-import React, {useRef} from 'react';
-import emailjs from '@emailjs/browser';
-import Swal from 'sweetalert2';	
+import React, { useRef, useState } from 'react';
+import Swal from 'sweetalert2';
 
 import PageTitle from '../layouts/PageTitle';
 import CounterSection from '../elements/CounterSection';
-import NewsLetter from '../components/NewsLetter';
+import { sendContactMessage } from '../api/contact';
 
-import bg2 from './../assets/images/background/bg2.jpg';
+const ContactUs = () => {
+  const form = useRef<HTMLFormElement>(null);
+  const [sending, setSending] = useState(false);
 
-const ContactUs = () =>{
-    const form = useRef<HTMLFormElement>(null);
-	const sendEmail = (e: React.FormEvent<HTMLFormElement>) => {
-		e.preventDefault();
-		//emailjs.sendForm('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', form.current, 'YOUR_USER_ID')
-		emailjs.sendForm('service_gfykn6i', 'template_iy1pb0b', form.current, 'HccoOtZS6GHw-N-m6')
-		  .then((result) => {
-			  console.log(result.text);
-		  }, (error) => {
-			  console.log(error.text);
-		  });
-		  form.current?.reset()
-		  Swal.fire({
-			title: 'Message envoyé !',
-			text: 'Votre formulaire a bien été envoyé.',
-			icon: 'success',
-			confirmButtonText: 'OK'
-		  });
-	};
+  const sendEmail = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formEl = form.current;
+    if (!formEl) return;
+
+    const name = (formEl.querySelector('[name="dzName"]') as HTMLInputElement)?.value?.trim();
+    const email = (formEl.querySelector('[name="dzEmail"]') as HTMLInputElement)?.value?.trim();
+    const subject = (formEl.querySelector('[name="dzSubject"]') as HTMLInputElement)?.value?.trim() || 'Message depuis le site';
+    const message = (formEl.querySelector('[name="dzMessage"]') as HTMLTextAreaElement)?.value?.trim();
+
+    if (!name || !email || !message) {
+      Swal.fire({
+        title: 'Champs manquants',
+        text: 'Veuillez remplir le nom, l’e-mail et le message.',
+        icon: 'warning',
+        confirmButtonText: 'OK',
+      });
+      return;
+    }
+
+    setSending(true);
+    try {
+      await sendContactMessage({ name, email, subject, message });
+      formEl.reset();
+      Swal.fire({
+        title: 'Message envoyé !',
+        text: 'Votre message a bien été envoyé. Nous vous répondrons rapidement.',
+        icon: 'success',
+        confirmButtonText: 'OK',
+      });
+    } catch (err) {
+      Swal.fire({
+        title: 'Erreur',
+        text: err instanceof Error ? err.message : 'L’envoi a échoué. Réessayez plus tard.',
+        icon: 'error',
+        confirmButtonText: 'OK',
+      });
+    } finally {
+      setSending(false);
+    }
+  };
     return(
         <>
             <div className="page-content">
@@ -94,22 +117,26 @@ const ContactUs = () =>{
                                         <h3 className="title m-b20">Écrivez-nous</h3>
                                     </div>
                                     <form className="dz-form dzForm" ref={form} onSubmit={sendEmail}>
-                                        <input type="hidden" className="form-control" name="dzToDo" defaultValue="Contact" />
-                                        <div className="dzFormMsg"></div>		
+                                        <div className="dzFormMsg"></div>
                                         <div className="input-group">
                                             <input required type="text" className="form-control" name="dzName" placeholder="Nom complet" />
                                         </div>
                                         <div className="input-group">
-                                            <input required type="text" className="form-control" name="dzEmail" placeholder="Adresse e-mail" />
+                                            <input required type="email" className="form-control" name="dzEmail" placeholder="Adresse e-mail" />
                                         </div>
                                         <div className="input-group">
-                                            <input required type="text" className="form-control" name="dzPhoneNumber" placeholder="Téléphone" />
+                                            <input type="text" className="form-control" name="dzSubject" placeholder="Sujet (ex. Je veux acheter un livre)" />
+                                        </div>
+                                        <div className="input-group">
+                                            <input type="tel" className="form-control" name="dzPhoneNumber" placeholder="Téléphone (optionnel)" />
                                         </div>
                                         <div className="input-group">
                                             <textarea required name="dzMessage" rows={5} className="form-control" placeholder="Votre message"></textarea>
                                         </div>
                                         <div>
-                                            <button name="submit" type="submit" value="submit" className="btn w-100 btn-primary btnhover">ENVOYER</button>
+                                            <button name="submit" type="submit" value="submit" className="btn w-100 btn-primary btnhover" disabled={sending}>
+                                                {sending ? 'Envoi en cours…' : 'ENVOYER'}
+                                            </button>
                                         </div>
                                     </form>
                                 </div>
