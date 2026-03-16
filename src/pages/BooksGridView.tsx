@@ -235,7 +235,7 @@ function BooksGridView() {
                                 <div className="col-book style-1" key={book.id}>
                                     <div className="dz-shop-card style-1">
                                         <div className="dz-media">
-                                            <img src={data.image} alt="book" />									
+                                            <Link to={`/books-detail/${data.id}`}><img src={data.image} alt={data.title} /></Link>
                                         </div>
                                         <div className="bookmark-btn style-2">
                                             <input className="form-check-input" type="checkbox" id={`flexCheckDefault${i+21}`} />
@@ -271,7 +271,7 @@ function BooksGridView() {
                                                       <span className="price-num text-muted">Prix à venir</span>
                                                     )}
                                                 </div>
-                                                <Link to={"/shop-cart"} className="btn btn-primary box-btn btnhover btnhover2"><i className="flaticon-shopping-cart-1 m-r10"></i> Add to cart</Link>
+                                                <Link to={`/books-detail/${data.id}`} className="btn btn-primary box-btn btnhover btnhover2"><i className="flaticon-shopping-cart-1 m-r10"></i> Voir le détail</Link>
                                             </div>
                                         </div>
                                     </div>

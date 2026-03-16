@@ -154,7 +154,7 @@ function BooksGridViewSidebar() {
                                         <div className="col-book style-2" key={book.id}>
                                             <div className="dz-shop-card style-1">
                                                 <div className="dz-media">
-                                                    <img src={img} alt={book.title} />
+                                                    <Link to={`/books-detail/${book.id}`}><img src={img} alt={book.title} /></Link>
                                                 </div>
                                                 <div className="dz-content">
                                                     <h5 className="title book-title-truncate" title={book.title}><Link to={`/books-detail/${book.id}`}>{book.title}</Link></h5>

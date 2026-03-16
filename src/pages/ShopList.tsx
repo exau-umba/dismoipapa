@@ -142,7 +142,7 @@ function ShopList() {
                                 <div className="col-md-12 col-sm-12" key={book.id}>
                                     <div className="dz-shop-card style-2">
                                         <div className="dz-media">
-                                            <img src={img} alt={book.title} />
+                                            <Link to={`/books-detail/${book.id}`}><img src={img} alt={book.title} /></Link>
                                         </div>
                                         <div className="dz-content">
                                             <div className="dz-header">

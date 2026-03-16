@@ -97,7 +97,8 @@ function Index() {
           <Route path="/activate-account" element={<ActivateAccount />} />
           <Route path="/shop-registration" element={<Registration />} />
           <Route path="/shop-checkout" element={<ProtectedRoute><ShopCheckout /></ProtectedRoute>} />
-          <Route path="/books-detail" element={<ShopDetail />} />
+          {/* <Route path="/books-detail" element={<ShopDetail />} /> */}
+          <Route path="/books-detail/:id" element={<ShopDetail />} />
           {/* <Route path="/blog-grid" element={<BlogGrid />} /> */}
           {/* <Route path="/blog-large-sidebar" element={<BlogLargeSidebar />} /> */}
           {/* <Route path="/blog-list-sidebar" element={<BlogListSidebar />} /> */}
