@@ -13,7 +13,6 @@ interface FormState {
   author: string;
   synopsis: string;
   sample_text: string;
-  genre: string;
   language: string;
   publication_date: string;
   price: string;
@@ -27,7 +26,6 @@ const emptyForm: FormState = {
   author: '',
   synopsis: '',
   sample_text: '',
-  genre: '',
   language: 'fr',
   publication_date: '',
   price: '',
@@ -51,12 +49,10 @@ export default function AdminBookForm() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isEdit) {
-      listCatalogs()
-        .then(setCatalogs)
-        .catch(() => setCatalogs([]));
-    }
-  }, [isEdit]);
+    listCatalogs()
+      .then(setCatalogs)
+      .catch(() => setCatalogs([]));
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -70,13 +66,13 @@ export default function AdminBookForm() {
     setError(null);
     getBook(id)
       .then((book: Book) => {
+        const catalogId = book.catalog ?? '';
         setForm({
-          catalog: '',
+          catalog: catalogId,
           title: book.title ?? '',
           author: book.author ?? '',
           synopsis: book.synopsis ?? '',
           sample_text: book.sample_text ?? '',
-          genre: book.genre ?? '',
           language: book.language ?? 'fr',
           publication_date: book.publication_date ? book.publication_date.slice(0, 10) : '',
           price: '',
@@ -93,7 +89,7 @@ export default function AdminBookForm() {
             format_type: (f.format_type === 'ebook' ? 'ebook' : 'physical') as 'physical' | 'ebook',
           }));
         }
-        const cover = (book as { cover_image?: string }).cover_image;
+        const cover = book.cover_image;
         if (cover) setExistingCoverUrl(cover);
       })
       .catch((err) => setError(getFriendlyErrorMessage(err)))
@@ -122,11 +118,11 @@ export default function AdminBookForm() {
         await updateBook(
           id,
           {
+            catalog: form.catalog || undefined,
             title: form.title,
             author: form.author,
             synopsis: form.synopsis || undefined,
             sample_text: form.sample_text || undefined,
-            genre: form.genre || undefined,
             language: form.language || undefined,
             publication_date: form.publication_date || undefined,
           },
@@ -150,7 +146,6 @@ export default function AdminBookForm() {
             author: form.author,
             synopsis: form.synopsis || undefined,
             sample_text: form.sample_text || undefined,
-            genre: form.genre || undefined,
             language: form.language || undefined,
             publication_date: form.publication_date || undefined,
             formats: [
@@ -188,14 +183,14 @@ export default function AdminBookForm() {
       )}
       <div className="admin-card">
         <Form onSubmit={handleSubmit}>
-          {!isEdit && catalogs.length > 0 && (
+          {catalogs.length > 0 && (
             <Form.Group className="mb-3">
               <Form.Label>Catalogue *</Form.Label>
               <Form.Select
                 name="catalog"
                 value={form.catalog}
                 onChange={handleChange}
-                required
+                required={!isEdit}
               >
                 <option value="">— Choisir un catalogue —</option>
                 {catalogs.map((c) => (
@@ -235,23 +230,13 @@ export default function AdminBookForm() {
               </Form.Group>
             </Col>
           </Row>
-          <Row>
-            <Col md={6}>
-              <Form.Group className="mb-3">
-                <Form.Label>Genre</Form.Label>
-                <Form.Control name="genre" value={form.genre} onChange={handleChange} placeholder="ex. Roman, Poésie" />
-              </Form.Group>
-            </Col>
-            <Col md={6}>
-              <Form.Group className="mb-3">
-                <Form.Label>Langue</Form.Label>
-                <Form.Select name="language" value={form.language} onChange={handleChange}>
-                  <option value="fr">Français</option>
-                  <option value="en">English</option>
-                </Form.Select>
-              </Form.Group>
-            </Col>
-          </Row>
+          <Form.Group className="mb-3">
+            <Form.Label>Langue</Form.Label>
+            <Form.Select name="language" value={form.language} onChange={handleChange}>
+              <option value="fr">Français</option>
+              <option value="en">English</option>
+            </Form.Select>
+          </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>Date de publication</Form.Label>
             <Form.Control type="date" name="publication_date" value={form.publication_date} onChange={handleChange} />

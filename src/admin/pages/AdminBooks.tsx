@@ -51,6 +51,7 @@ export default function AdminBooks() {
   };
 
   const mainFormat = (b: Book) => (b.formats && b.formats.length > 0 ? b.formats[0] : null);
+  const catalogLabel = (b: Book) => b.catalog || '—';
   const priceStr = (b: Book) => {
     const f = mainFormat(b);
     return f?.price ?? '—';
@@ -89,7 +90,7 @@ export default function AdminBooks() {
               <tr>
                 <th>Titre</th>
                 <th>Auteur</th>
-                <th>Genre</th>
+                <th>Catalogue</th>
                 <th>Prix (FC)</th>
                 <th>Stock</th>
                 <th className="text-end">Actions</th>
@@ -107,7 +108,7 @@ export default function AdminBooks() {
                   <tr key={b.id}>
                     <td>{b.title}</td>
                     <td>{b.author}</td>
-                    <td>{b.genre ?? '—'}</td>
+                    <td>{catalogLabel(b)}</td>
                     <td>{priceStr(b)}</td>
                     <td>
                       {stockNum(b) === 0 ? (
