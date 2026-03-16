@@ -3,7 +3,12 @@
  */
 import { getJson, postJson, patchJson, delJson, API_BASE_URL } from './client';
 
-function buildBookFormData(payload: Record<string, unknown>, coverImage?: File | null): FormData {
+function buildBookFormData(
+  payload: Record<string, unknown>,
+  coverImage?: File | null,
+  pdfFile?: File | null,
+  epubFile?: File | null
+): FormData {
   const form = new FormData();
   Object.entries(payload).forEach(([key, value]) => {
     if (value === undefined || value === null) return;
@@ -15,6 +20,12 @@ function buildBookFormData(payload: Record<string, unknown>, coverImage?: File |
   });
   if (coverImage) {
     form.append('cover_image', coverImage, coverImage.name || 'cover.jpg');
+  }
+  if (pdfFile) {
+    form.append('pdf_file', pdfFile, pdfFile.name || 'book.pdf');
+  }
+  if (epubFile) {
+    form.append('epub_file', epubFile, epubFile.name || 'book.epub');
   }
   return form;
 }
@@ -111,10 +122,17 @@ export interface CreateBookPayload {
 
 export function createBook(
   payload: CreateBookPayload,
-  coverImage?: File | null
+  coverImage?: File | null,
+  pdfFile?: File | null,
+  epubFile?: File | null
 ): Promise<{ id: string; [key: string]: unknown }> {
-  if (coverImage) {
-    const form = buildBookFormData(payload as unknown as Record<string, unknown>, coverImage);
+  if (coverImage || pdfFile || epubFile) {
+    const form = buildBookFormData(
+      payload as unknown as Record<string, unknown>,
+      coverImage,
+      pdfFile,
+      epubFile
+    );
     return postJson(`/api/catalog/books/`, form, { skipJsonHeader: true });
   }
   return postJson(`/api/catalog/books/`, payload);
@@ -138,6 +156,24 @@ export function deleteBook(id: string): Promise<void> {
 
 export function updateFormat(formatId: string, data: { price?: string; stock_quantity?: number }): Promise<unknown> {
   return patchJson(`/api/catalog/formats/${formatId}/`, data);
+}
+
+/** Met à jour un format avec éventuels fichiers PDF/EPUB (multipart). */
+export function updateFormatWithFile(
+  formatId: string,
+  data: { price?: string; stock_quantity?: number },
+  pdfFile?: File | null,
+  epubFile?: File | null
+): Promise<unknown> {
+  if (pdfFile || epubFile) {
+    const form = new FormData();
+    if (data.price !== undefined) form.append('price', data.price);
+    if (data.stock_quantity !== undefined) form.append('stock_quantity', String(data.stock_quantity));
+    if (pdfFile) form.append('pdf_file', pdfFile, pdfFile.name || 'book.pdf');
+    if (epubFile) form.append('epub_file', epubFile, epubFile.name || 'book.epub');
+    return patchJson(`/api/catalog/formats/${formatId}/`, form, { skipJsonHeader: true });
+  }
+  return updateFormat(formatId, data);
 }
 
 export function deleteFormat(formatId: string): Promise<void> {

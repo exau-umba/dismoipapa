@@ -3,7 +3,7 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import { Form, Button, Row, Col } from 'react-bootstrap';
 import { getBook } from '../../api/catalog';
 import type { Book } from '../../api/catalog';
-import { createBook, updateBook, updateFormat, listCatalogs, type Catalog } from '../../api/admin';
+import { createBook, updateBook, updateFormat, updateFormatWithFile, listCatalogs, type Catalog } from '../../api/admin';
 import { getFriendlyErrorMessage } from '../../utils/errorMessages';
 import ErrorMessage from '../../components/ErrorMessage';
 
@@ -44,6 +44,8 @@ export default function AdminBookForm() {
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const [coverPreviewUrl, setCoverPreviewUrl] = useState<string | null>(null);
   const [existingCoverUrl, setExistingCoverUrl] = useState<string | null>(null);
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [epubFile, setEpubFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(isEdit);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -109,6 +111,13 @@ export default function AdminBookForm() {
     if (file) setCoverPreviewUrl(URL.createObjectURL(file));
   };
 
+  const handlePdfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPdfFile(e.target.files?.[0] || null);
+  };
+  const handleEpubChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEpubFile(e.target.files?.[0] || null);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -128,11 +137,19 @@ export default function AdminBookForm() {
           },
           coverImage || undefined
         );
-        if (formatId && (form.price || form.stock_quantity !== '')) {
-          await updateFormat(formatId, {
-            price: form.price || undefined,
-            stock_quantity: form.stock_quantity !== '' ? parseInt(form.stock_quantity, 10) : undefined,
-          });
+        if (formatId) {
+          const hasFormatData = form.price || form.stock_quantity !== '' || pdfFile || epubFile;
+          if (hasFormatData) {
+            await updateFormatWithFile(
+              formatId,
+              {
+                price: form.price || undefined,
+                stock_quantity: form.stock_quantity !== '' ? parseInt(form.stock_quantity, 10) : undefined,
+              },
+              pdfFile || undefined,
+              epubFile || undefined
+            );
+          }
         }
       } else {
         if (!form.catalog) {
@@ -156,7 +173,9 @@ export default function AdminBookForm() {
               },
             ],
           },
-          coverImage || undefined
+          coverImage || undefined,
+          form.format_type === 'ebook' ? pdfFile || undefined : undefined,
+          form.format_type === 'ebook' ? epubFile || undefined : undefined
         );
       }
       navigate('/admin/livres');
@@ -273,6 +292,36 @@ export default function AdminBookForm() {
               </Form.Group>
             </Col>
           </Row>
+          {form.format_type === 'ebook' && (
+            <>
+              <h6 className="admin-card-title mt-3">Fichier(s) du livre</h6>
+              <p className="text-muted small mb-2">Ajoutez au moins un fichier PDF ou EPUB pour que le livre soit téléchargeable.</p>
+              <Row>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Fichier PDF</Form.Label>
+                    <Form.Control
+                      type="file"
+                      accept=".pdf,application/pdf"
+                      onChange={handlePdfChange}
+                    />
+                    {pdfFile && <small className="text-success d-block mt-1">{pdfFile.name}</small>}
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Fichier EPUB</Form.Label>
+                    <Form.Control
+                      type="file"
+                      accept=".epub,application/epub+zip"
+                      onChange={handleEpubChange}
+                    />
+                    {epubFile && <small className="text-success d-block mt-1">{epubFile.name}</small>}
+                  </Form.Group>
+                </Col>
+              </Row>
+            </>
+          )}
           <div className="admin-form-actions">
             <Button type="submit" className="btn-primary btnhover" disabled={submitting}>
               {submitting ? 'Enregistrement…' : isEdit ? 'Enregistrer' : 'Créer'}
