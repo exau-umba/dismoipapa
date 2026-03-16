@@ -78,7 +78,7 @@ export async function downloadLibraryBook(bookId: string): Promise<void> {
 
   const blob = await res.blob();
   const dispo = res.headers.get('content-disposition') || '';
-  const match = dispo.match(/filename\*?=(?:UTF-8''|\"?)([^\";]+)\"?/i);
+  const match = dispo.match(/filename\*?=(?:UTF-8''|"?)([^";]+)"?/i);
   const filename = (match?.[1] ? decodeURIComponent(match[1]) : null) || `livre-${bookId}`;
 
   const url = URL.createObjectURL(blob);

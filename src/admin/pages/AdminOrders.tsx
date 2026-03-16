@@ -40,17 +40,17 @@ function formatOrderTotal(o: AdminOrder): string {
   return String(t);
 }
 
-export default function AdminOrders() {
-  const [orders, setOrders] = useState<AdminOrder[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [useMock, setUseMock] = useState(false);
-
-  const mockOrders: AdminOrder[] = [
+const mockOrders: AdminOrder[] = [
     { id: '1001', created_at: '2025-02-08', user: 'Marie Dupont', total: '165 000 FC', status: 'Expédiée' },
     { id: '1002', created_at: '2025-02-07', user: 'Jean Martin', total: '130 000 FC', status: 'En préparation' },
     { id: '1003', created_at: '2025-02-06', user: 'Sophie Bernard', total: '220 000 FC', status: 'Livrée' },
     { id: '1004', created_at: '2025-02-05', user: 'Pierre Leroy', total: '95 000 FC', status: 'En attente' },
   ];
+
+export default function AdminOrders() {
+  const [orders, setOrders] = useState<AdminOrder[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [useMock, setUseMock] = useState(false);
 
   useEffect(() => {
     setLoading(true);

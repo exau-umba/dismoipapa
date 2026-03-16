@@ -188,7 +188,7 @@ export default function EpubReader({
       if (bookRef.current?.destroy) bookRef.current.destroy();
       bookRef.current = null;
     };
-  }, [epubUrl, availableHeight, themeCss.css]);
+  }, [epubUrl, availableHeight, themeCss.css, darkState, fontSizeState]);
 
   useEffect(() => {
     const r = renditionRef.current;
