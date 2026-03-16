@@ -47,26 +47,62 @@ function Auteur() {
                 <div className="about-content px-lg-4">
                   <div className="section-head style-1" style={{ textAlign: 'justify' }}>
                     <h2 className="title mb-3" style={{ borderBottom: '2px solid #1a1668' }}>{AUTHOR_NAME}</h2>
-                    <p className="mb-0 " >
+                    <p className="mb-0 ">
                       {/* {AUTHOR_BIO} */}
-                      Jean Richard MAMBUENI MABIALA est né à Matadi le 08 avril 1967. 
-Il a obtenu, après son diplôme d'État des Humanités littéraires à l'Institut Tomisa Luzingu à Matadi (1986), 
-un graduat en Anglais – Culture Africaine à l'Institut Supérieur Pédagogique de Mbanza Ngungu (1991),
-un graduat en Informatique de Gestion à l'Institut Supérieur de Navigation et de Pêche de Muanda (2007) et une Licence en Géologie à l'Université de Kinshasa (2015).
- Outre ces études, il a suivi 12 mois de Comptabilité au CIDEP/Matadi et a quitté l'Institut Supérieur de Commerce de Matadi lorsqu'il était en troisième année de Graduat/soir.
- <br /><br />
-Engagé comme inspecteur pétrolier à l'Office Congolais de Contrôle (OCC), Agence de Muanda en 2000, il est présentement Chef de Département Certification et Contrôle de la Production Locale Adjoint dans cet établissement public.
-<br /><br />
-Il a publié notamment :<br /><br />
-
-- « Les dangers de la sismique pétrolière dans une zone à risque volcanique » in Madose : Revue culturelle et scientifique, n° 083, Mwene Ditu, Novembre – Décembre 2022 ;<br />
-- Le canard : Recueil des poèmes et fables, Éditions Madose, Mwene Ditu, 2023 ;<br />
-- Gestion de stock des hydrocarbures liquides et/ou liquéfiés, Éditions Madose, Mwene Ditu, 2024 ;<br />
+                      Jean Richard MAMBUENI MABIALA est né à Matadi le 08 avril 1967.
+                      Il a obtenu, après son diplôme d'État des Humanités littéraires à l'Institut Tomisa Luzingu à Matadi (1986),
+                      un graduat en Anglais – Culture Africaine à l'Institut Supérieur Pédagogique de Mbanza Ngungu (1991),
+                      un graduat en Informatique de Gestion à l'Institut Supérieur de Navigation et de Pêche de Muanda (2007) et une Licence en Géologie à l'Université de Kinshasa (2015).
+                      Outre ces études, il a suivi 12 mois de Comptabilité au CIDEP/Matadi et a quitté l'Institut Supérieur de Commerce de Matadi lorsqu'il était en troisième année de Graduat/soir.
+                      <br /><br />
+                      Engagé comme inspecteur pétrolier à l'Office Congolais de Contrôle (OCC), Agence de Muanda en 2000, il est présentement Chef de Département Certification et Contrôle de la Production Locale Adjoint dans cet établissement public.
+                      <br /><br />
+                      Il a publié notamment :<br /><br />
+                      - « Les dangers de la sismique pétrolière dans une zone à risque volcanique » in Madose : Revue culturelle et scientifique, n° 083, Mwene Ditu, Novembre – Décembre 2022 ;<br />
+                      - Le canard : Recueil des poèmes et fables, Éditions Madose, Mwene Ditu, 2023 ;<br />
+                      - Gestion de stock des hydrocarbures liquides et/ou liquéfiés, Éditions Madose, Mwene Ditu, 2024 ;<br />
                     </p>
                   </div>
-                  <Link to="/contact-us" className="btn btn-primary btnhover shadow-primary mt-3">
-                    Contacter l'auteur
-                  </Link>
+                  <div className="dz-social-icon style-1 mt-3">
+                    <ul>
+                      <li>
+                        <a
+                          href="https://www.facebook.com/dismoipapa"
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <i className="fa-brands fa-facebook-f"></i>
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          href="https://www.youtube.com/@dismoipapa"
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <i className="fa-brands fa-youtube"></i>
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          href="https://www.linkedin.com/company/dismoipapa"
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <i className="fa-brands fa-linkedin"></i>
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          href="https://www.instagram.com/dismoipapa"
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <i className="fa-brands fa-instagram"></i>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
               </div>
             </div>

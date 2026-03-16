@@ -47,16 +47,17 @@ function AboutUs(){
                                         <div className="exp-bx aos-item" >
                                             <div className="exp-head">
                                                 <div className="counter-num">
-                                                    <h2><span className="counter"> <CountUp end={50} /></span><small>+</small></h2>
+                                                    <h2><span className="counter"> <CountUp end={26} /></span><small>+</small></h2>
                                                 </div>
                                                 <h6 className="title">Années d'expérience</h6>
                                             </div>
                                             <div className="exp-info">
                                                 <ul className="list-check primary">
-                                                    <li>BD & graphisme</li>
+                                                    <li>Romans</li>
                                                     <li>Biographie</li>
                                                     <li>Recueils littéraires</li>
-                                                    <li>Jeunesse fiction</li>
+                                                    <li>Poésie</li>
+                                                    <li>Fables</li>
                                                 </ul>
                                             </div>
                                         </div>
@@ -66,8 +67,10 @@ function AboutUs(){
                             <div className="col-lg-6 m-b30 aos-item">
                                 <div className="about-content px-lg-4">
                                     <div className="section-head style-1">
-                                        <h2 className="title">Votre librairie de référence</h2>
-                                        <p>Nous sélectionnons pour vous les meilleurs ouvrages, des classiques aux dernières sorties. Une équipe passionnée pour vous conseiller.</p>
+                                        <h2 className="title">À propos de Dis-moi Papa</h2>
+                                        <p>
+                                            Dis-moi Papa est une plateforme dédiée aux ouvrages de Jean Richard MAMBUENI MABIALA : découvrez ses livres, explorez les catalogues disponibles et commandez en toute simplicité.
+                                        </p>
                                     </div>
                                     <Link to={"/contact-us"} className="btn btn-primary btnhover shadow-primary">Nous contacter</Link>
                                 </div>

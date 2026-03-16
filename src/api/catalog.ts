@@ -27,3 +27,7 @@ export async function fetchBooks(): Promise<Book[]> {
   return getJson<Book[]>('/api/catalog/books/');
 }
 
+export async function getBook(id: string): Promise<Book> {
+  return getJson<Book>(`/api/catalog/books/${id}/`);
+}
+

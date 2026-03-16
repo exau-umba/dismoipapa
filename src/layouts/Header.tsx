@@ -562,10 +562,10 @@ function Header() {
                     </Link>
                   </li>
                 ) : (
-                  <li className="mt-2">
+                  <li className="d-block d-lg-none">
                     <Link
                       to="/shop-login"
-                      className="btn btn-primary btnhover btn-sm"
+                      className="btn btn-primary btnhover text-white"
                     >
                       {authLoading ? 'Connexion…' : 'Se connecter'}
                     </Link>
@@ -579,7 +579,7 @@ function Header() {
                       className="fab fa-facebook-f"
                       target="_blank"
                       rel="noreferrer"
-                      href="https://www.facebook.com/dexignzone"
+                      href="https://www.facebook.com/dismoipapa"
                     >
                       <span className="sr-only">Facebook</span>
                     </a>
@@ -589,7 +589,7 @@ function Header() {
                       className="fab fa-twitter"
                       target="_blank"
                       rel="noreferrer"
-                      href="https://twitter.com/dexignzones"
+                      href="https://twitter.com/dismoipapa"
                     >
                       <span className="sr-only">Twitter</span>
                     </a>
@@ -599,7 +599,7 @@ function Header() {
                       className="fab fa-linkedin-in"
                       target="_blank"
                       rel="noreferrer"
-                      href="https://www.linkedin.com/showcase/3686700/admin/"
+                      href="https://www.linkedin.com/company/dismoipapa"
                     >
                       <span className="sr-only">LinkedIn</span>
                     </a>
@@ -609,7 +609,7 @@ function Header() {
                       className="fab fa-instagram"
                       target="_blank"
                       rel="noreferrer"
-                      href="https://www.instagram.com/website_templates__/"
+                      href="https://www.instagram.com/dismoipapa"
                     >
                       <span className="sr-only">Instagram</span>
                     </a>
