@@ -29,6 +29,7 @@ import ShopDetail from './ShopDetail';
 import ContactUs from './ContactUs';
 import ActivateAccount from './ActivateAccount';
 import ProtectedRoute from '../components/ProtectedRoute';
+import BookReader from './BookReader';
 
 import ErrorPage from './ErrorPage';
 import UnderConstruction from './UnderConstruction';
@@ -39,10 +40,12 @@ import AdminLayout from '../admin/AdminLayout';
 import AdminDashboard from '../admin/pages/AdminDashboard';
 import AdminBooks from '../admin/pages/AdminBooks';
 import AdminBookForm from '../admin/pages/AdminBookForm';
+import AdminBookReader from '../admin/pages/AdminBookReader';
 import AdminOrders from '../admin/pages/AdminOrders';
 import AdminOrderDetail from '../admin/pages/AdminOrderDetail';
 import AdminUsers from '../admin/pages/AdminUsers';
 import AdminSettings from '../admin/pages/AdminSettings';
+import AdminCatalogs from '../admin/pages/AdminCatalogs';
 
 // images
 import logo from './../assets/images/logo.png';
@@ -57,9 +60,11 @@ function Index() {
         <Route path="/" element={<Home2 />} />
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
+          <Route path="catalogues" element={<AdminCatalogs />} />
           <Route path="livres" element={<AdminBooks />} />
           <Route path="livres/nouveau" element={<AdminBookForm />} />
           <Route path="livres/:id" element={<AdminBookForm />} />
+          <Route path="livres/lecture/:id" element={<AdminBookReader />} />
           <Route path="commandes" element={<AdminOrders />} />
           <Route path="commandes/:id" element={<AdminOrderDetail />} />
           <Route path="utilisateurs" element={<AdminUsers />} />
@@ -70,6 +75,7 @@ function Index() {
           <Route path="/auteur" element={<Auteur />} />
           <Route path="/my-profile" element={<ProtectedRoute><MyProfile /></ProtectedRoute>} />
           <Route path="/my-books" element={<ProtectedRoute><MyBooks /></ProtectedRoute>} />
+          <Route path="/reader/:id" element={<ProtectedRoute><BookReader /></ProtectedRoute>} />
           {/* <Route path="/services" element={<Services />} /> */}
           <Route path="/faq" element={<Faq />} />
           <Route path="/help-desk" element={<HelpDesk />} />

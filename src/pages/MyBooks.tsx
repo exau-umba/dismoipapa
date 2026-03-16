@@ -1,10 +1,11 @@
 // @ts-nocheck
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Nav, Tab, Card, Badge, Button, Modal, Form } from 'react-bootstrap';
+import { Nav, Tab, Card, Badge, Button } from 'react-bootstrap';
 import PageTitle from '../layouts/PageTitle';
 import NewsLetter from '../components/NewsLetter';
 import { bookImages } from '../constants/imageUrls';
+import { getLibraryBookReadUrl } from '../api/library';
 
 // Données mockées pour les livres achetés
 const purchasedBooks = [
@@ -93,15 +94,6 @@ Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, ad
 
 function MyBooks() {
   const [activeTab, setActiveTab] = useState('purchased');
-  const [showReader, setShowReader] = useState(false);
-  const [selectedBook, setSelectedBook] = useState(null);
-  const [fontSize, setFontSize] = useState(16);
-  const [darkMode, setDarkMode] = useState(false);
-
-  const handleReadBook = (book) => {
-    setSelectedBook(book);
-    setShowReader(true);
-  };
 
   const handleDownload = (book) => {
     // Simulation du téléchargement
@@ -114,6 +106,12 @@ function MyBooks() {
         <PageTitle childPage="Mes Livres" parentPage="Accueil" />
         <section className="content-inner-1 bg-light">
           <div className="container">
+            <div className="d-flex justify-content-end mb-3">
+              <Link to="/reader/demo" className="btn btn-sm btn-outline-secondary btnhover">
+                <i className="fa fa-book-open me-1" />
+                Tester le lecteur EPUB
+              </Link>
+            </div>
             <Tab.Container
               activeKey={activeTab}
               onSelect={(k) => setActiveTab(k || 'purchased')}
@@ -235,13 +233,12 @@ function MyBooks() {
                                   <i className="fa fa-download me-1"></i>
                                   Télécharger
                                 </Button>
-                                <Button
-                                  variant="outline-secondary"
-                                  className="btnhover"
-                                  onClick={() => handleReadBook(book)}
+                                <Link
+                                  to={`/reader/${book.id}`}
+                                  className="btn btn-outline-secondary btnhover"
                                 >
                                   <i className="fa fa-eye"></i>
-                                </Button>
+                                </Link>
                               </div>
                               <p className="text-muted small mt-2 mb-0">
                                 Acheté le {book.dateAchat}
@@ -342,7 +339,8 @@ function MyBooks() {
                               <Button
                                 variant="primary"
                                 className="btnhover w-100"
-                                onClick={() => handleReadBook(book)}
+                                as={Link}
+                                to={`/reader/${book.id}`}
                               >
                                 <i className="fa fa-book-open me-1"></i>
                                 Lire maintenant
@@ -359,87 +357,9 @@ function MyBooks() {
           </div>
         </section>
 
-        {/* Modal de lecture en ligne */}
-        <Modal
-          show={showReader}
-          onHide={() => setShowReader(false)}
-          fullscreen
-          style={{ zIndex: 9999 }}
-        >
-          <Modal.Header
-            closeButton
-            style={{
-              borderBottom: '1px solid #eee',
-              backgroundColor: darkMode ? '#1a1a1a' : '#fff',
-            }}
-          >
-            <Modal.Title
-              style={{ color: darkMode ? '#fff' : '#1a1668' }}
-            >
-              {selectedBook?.titre}
-            </Modal.Title>
-            <div className="d-flex gap-2 align-items-center">
-              <Form.Select
-                size="sm"
-                value={fontSize}
-                onChange={(e) => setFontSize(Number(e.target.value))}
-                style={{ width: 'auto' }}
-              >
-                <option value={12}>12px</option>
-                <option value={14}>14px</option>
-                <option value={16}>16px</option>
-                <option value={18}>18px</option>
-                <option value={20}>20px</option>
-                <option value={24}>24px</option>
-              </Form.Select>
-              <Button
-                variant={darkMode ? 'light' : 'dark'}
-                size="sm"
-                onClick={() => setDarkMode(!darkMode)}
-              >
-                <i className={`fa fa-${darkMode ? 'sun' : 'moon'}`}></i>
-              </Button>
-            </div>
-          </Modal.Header>
-          <Modal.Body
-            style={{
-              backgroundColor: darkMode ? '#1a1a1a' : '#fff',
-              color: darkMode ? '#e0e0e0' : '#333',
-              fontSize: `${fontSize}px`,
-              lineHeight: '1.8',
-              padding: '2rem',
-              maxWidth: '800px',
-              margin: '0 auto',
-              fontFamily: 'Georgia, serif',
-            }}
-          >
-            <div style={{ whiteSpace: 'pre-wrap', textAlign: 'justify' }}>
-              {mockBookContent}
-            </div>
-          </Modal.Body>
-          <Modal.Footer
-            style={{
-              borderTop: '1px solid #eee',
-              backgroundColor: darkMode ? '#1a1a1a' : '#fff',
-            }}
-          >
-            <div className="d-flex justify-content-between w-100 align-items-center">
-              <span className="text-muted small">Page 1 sur 10</span>
-              <div className="d-flex gap-2">
-                <Button variant="outline-secondary" size="sm">
-                  <i className="fa fa-chevron-left me-1"></i>
-                  Précédent
-                </Button>
-                <Button variant="outline-secondary" size="sm">
-                  Suivant
-                  <i className="fa fa-chevron-right ms-1"></i>
-                </Button>
-              </div>
-            </div>
-          </Modal.Footer>
-        </Modal>
+        {/* Lecture EPUB : via la page dédiée /reader/:id */}
 
-        <NewsLetter subscribeChange="" />
+        {/* <NewsLetter subscribeChange="" /> */}
       </div>
     </>
   );
