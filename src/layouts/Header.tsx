@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Dropdown } from 'react-bootstrap';
 import { cartBookImages } from '../constants/imageUrls';
 import { getCurrentUser, logoutUser, type UserProfile } from '../api/auth';
+import { listCatalogs, type Catalog } from '../api/admin';
 import LogoutConfirmModal from '../components/LogoutConfirmModal';
 
 import Collapse from 'react-bootstrap/Collapse';
@@ -11,6 +12,7 @@ import { MenuListArray2 } from './MenuListArray2';
 
 function Header() {
   const [selectBtn, setSelectBtn] = useState<string>('Catégorie');
+  const [catalogs, setCatalogs] = useState<Catalog[]>([]);
   const [searchValue, setSearchValue] = useState('');
   // for sticky header
   const [headerFix, setheaderFix] = React.useState<boolean>(false);
@@ -57,6 +59,12 @@ function Header() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    listCatalogs()
+      .then(setCatalogs)
+      .catch(() => setCatalogs([]));
+  }, []);
+
+  useEffect(() => {
     const token = localStorage.getItem('accessToken');
     if (!token) {
       setCurrentUser(null);
@@ -78,7 +86,16 @@ function Header() {
     e.preventDefault();
     const query = searchValue.trim();
     if (!query) return;
-    navigate(`/books-grid-view?q=${encodeURIComponent(query)}`);
+    const catalogId = catalogs.find((c) => c.name === selectBtn)?.id;
+    const params = new URLSearchParams();
+    params.set('q', query);
+    if (catalogId) params.set('catalog', catalogId);
+    navigate(`/books-grid-view?${params.toString()}`);
+  };
+
+  const handleCatalogSelect = (catalog: Catalog) => {
+    setSelectBtn(catalog.name);
+    navigate(`/books-grid-view?catalog=${catalog.id}`);
   };
 
   const handleLogoutConfirm = () => {
@@ -374,52 +391,27 @@ function Header() {
                     <i className="ms-4 font-10 fa-solid fa-chevron-down"></i>
                   </Dropdown.Toggle>
                   <Dropdown.Menu>
-                    <Dropdown.Item onClick={() => setSelectBtn('Category')}>
-                      Category
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => setSelectBtn('Photography')}>
-                      Photography
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => setSelectBtn('Arts')}>
-                      Arts
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => setSelectBtn('Adventure')}>
-                      Adventure
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => setSelectBtn('Action')}>
-                      Action
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => setSelectBtn('Games')}>
-                      Games
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => setSelectBtn('Movies')}>
-                      Movies
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => setSelectBtn('Comics')}>
-                      Comics
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => setSelectBtn('Biographies')}>
-                      Biographies
-                    </Dropdown.Item>
                     <Dropdown.Item
-                      onClick={() => setSelectBtn('Children’s Books')}
+                      onClick={() => {
+                        setSelectBtn('Catégorie');
+                        navigate('/books-grid-view');
+                      }}
                     >
-                      Children’s Books
+                      Toutes les catégories
                     </Dropdown.Item>
-                    <Dropdown.Item onClick={() => setSelectBtn('Historical')}>
-                      Historical
-                    </Dropdown.Item>
-                    <Dropdown.Item
-                      onClick={() => setSelectBtn('Contemporary')}
-                    >
-                      Contemporary
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => setSelectBtn('Classics')}>
-                      Classics
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => setSelectBtn('Education')}>
-                      Education
-                    </Dropdown.Item>
+                    {catalogs.map((c) => (
+                      <Dropdown.Item
+                        key={c.id}
+                        onClick={() => handleCatalogSelect(c)}
+                      >
+                        {c.name}
+                      </Dropdown.Item>
+                    ))}
+                    {catalogs.length === 0 && (
+                      <Dropdown.Item disabled>
+                        Aucun catalogue
+                      </Dropdown.Item>
+                    )}
                   </Dropdown.Menu>
                 </Dropdown>
                 <input
