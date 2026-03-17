@@ -89,7 +89,14 @@ export function listCatalogs(): Promise<Catalog[]> {
 
 /** Détail. GET /api/catalog/catalogs/{id}/ */
 export function getCatalog(id: string): Promise<Catalog> {
-  return getJson<Catalog>(`${CATALOGS_PATH}/${id}/`);
+  try {
+    return getJson<Catalog>(`${CATALOGS_PATH}/${id}/`);
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('404')) {
+      throw new Error('Catalogue non trouvé.');
+    }
+    throw error;
+  }
 }
 
 /** Création. POST /api/catalog/catalogs/ — body: { name, description } */

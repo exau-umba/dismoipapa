@@ -3,13 +3,14 @@ import { Link } from 'react-router-dom';
 import { Table, Button, Badge } from 'react-bootstrap';
 import { fetchBooks } from '../../api/catalog';
 import type { Book } from '../../api/catalog';
-import { deleteBook } from '../../api/admin';
+import { deleteBook, listCatalogs, type Catalog } from '../../api/admin';
 import { getFriendlyErrorMessage } from '../../utils/errorMessages';
 import ErrorMessage from '../../components/ErrorMessage';
 import ConfirmModal from '../../components/ConfirmModal';
 
 export default function AdminBooks() {
   const [books, setBooks] = useState<Book[]>([]);
+  const [catalogsById, setCatalogsById] = useState<Record<string, Catalog>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -32,6 +33,18 @@ export default function AdminBooks() {
     loadBooks();
   }, []);
 
+  useEffect(() => {
+    listCatalogs()
+      .then((list) => {
+        const map: Record<string, Catalog> = {};
+        list.forEach((c) => {
+          map[c.id] = c;
+        });
+        setCatalogsById(map);
+      })
+      .catch(() => setCatalogsById({}));
+  }, []);
+
   const handleDeleteClick = (b: Book) => {
     setConfirmDelete({ id: b.id, title: b.title || 'Ce livre' });
   };
@@ -51,7 +64,7 @@ export default function AdminBooks() {
   };
 
   const mainFormat = (b: Book) => (b.formats && b.formats.length > 0 ? b.formats[0] : null);
-  const catalogLabel = (b: Book) => b.catalog || '—';
+  const getCatalogLabel = (catalogId: string) => catalogsById[catalogId]?.name ?? '—';
   const priceStr = (b: Book) => {
     const f = mainFormat(b);
     return f?.price ?? '—';
@@ -108,7 +121,7 @@ export default function AdminBooks() {
                   <tr key={b.id}>
                     <td>{b.title}</td>
                     <td>{b.author}</td>
-                    <td>{catalogLabel(b)}</td>
+                    <td>{getCatalogLabel(b.catalog)}</td>
                     <td>{priceStr(b)}</td>
                     <td>
                       {stockNum(b) === 0 ? (
