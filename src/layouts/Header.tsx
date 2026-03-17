@@ -15,6 +15,8 @@ function Header() {
   const [catalogs, setCatalogs] = useState<Catalog[]>([]);
   const [searchValue, setSearchValue] = useState('');
   const { items: cartItems, totalItems: cartCount, removeItem: removeCartItem, subtotal: cartSubtotal } = useCart();
+  const formatLabel = (f: 'pdf' | 'epub' | null) => (f === 'pdf' ? 'PDF' : f === 'epub' ? 'EPUB' : '');
+  const productTypeLabel = (t: 'ebook' | 'physical') => (t === 'ebook' ? 'E-book' : 'Physique');
   // for sticky header
   const [headerFix, setheaderFix] = React.useState<boolean>(false);
 
@@ -178,7 +180,7 @@ function Header() {
                     ) : (
                       <>
                         {cartItems.map((item) => (
-                          <li key={item.bookId} className="cart-item">
+                          <li key={item.lineId} className="cart-item">
                             <div className="media">
                               <div className="media-left">
                                 <Link to={`/books-detail/${item.bookId}`}>
@@ -191,8 +193,12 @@ function Header() {
                                     {item.title}
                                   </Link>
                                 </h6>
-                                <span className="dz-price">{item.price} FC × {item.quantity}</span>
-                                <button type="button" className="item-close border-0 bg-transparent p-0" style={{ cursor: 'pointer' }} onClick={() => removeCartItem(item.bookId)} aria-label="Retirer">&times;</button>
+                                <span className="dz-price">
+                                  {item.price} FC × {item.quantity}
+                                  {` • ${productTypeLabel(item.productType)}`}
+                                  {item.productType === 'ebook' && item.fileFormat ? ` • ${formatLabel(item.fileFormat)}` : ''}
+                                </span>
+                                <button type="button" className="item-close border-0 bg-transparent p-0" style={{ cursor: 'pointer' }} onClick={() => removeCartItem(item.lineId)} aria-label="Retirer">&times;</button>
                               </div>
                             </div>
                           </li>
