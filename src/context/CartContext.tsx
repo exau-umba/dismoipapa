@@ -1,11 +1,17 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 
 export interface CartItem {
+  /** Identifiant de ligne panier (bookId + format) */
+  lineId: string;
   bookId: string;
   title: string;
   coverImage: string;
   price: string;
   quantity: number;
+  /** Format de fichier (recommandé: pdf). Null pour physique / non applicable. */
+  fileFormat: 'pdf' | 'epub' | null;
+  /** Type de produit choisi */
+  productType: 'ebook' | 'physical';
 }
 
 const STORAGE_KEY = 'livre-online-cart';
@@ -27,9 +33,10 @@ function saveCart(items: CartItem[]) {
 
 interface CartContextValue {
   items: CartItem[];
-  addItem: (item: Omit<CartItem, 'quantity'> & { quantity?: number }) => void;
-  removeItem: (bookId: string) => void;
-  updateQuantity: (bookId: string, quantity: number) => void;
+  addItem: (item: Omit<CartItem, 'quantity' | 'lineId'> & { quantity?: number }) => void;
+  removeItem: (lineId: string) => void;
+  updateQuantity: (lineId: string, quantity: number) => void;
+  updateFileFormat: (lineId: string, fileFormat: 'pdf' | 'epub' | null) => void;
   totalItems: number;
   subtotal: number;
 }
@@ -43,30 +50,62 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     saveCart(items);
   }, [items]);
 
-  const addItem = useCallback((item: Omit<CartItem, 'quantity'> & { quantity?: number }) => {
-    const qty = Math.max(1, item.quantity ?? 1);
+  const addItem = useCallback((item: Omit<CartItem, 'quantity' | 'lineId'> & { quantity?: number }) => {
+    const isEbook = item.productType === 'ebook';
+    const qty = isEbook ? 1 : Math.max(1, item.quantity ?? 1);
+    const effectiveFileFormat = isEbook ? item.fileFormat : null;
+    const lineId = `${item.bookId}:${item.productType}:${effectiveFileFormat ?? 'none'}`;
     setItems((prev) => {
-      const idx = prev.findIndex((i) => i.bookId === item.bookId);
+      const idx = prev.findIndex((i) => i.lineId === lineId);
       if (idx >= 0) {
         const next = [...prev];
-        next[idx] = { ...next[idx], quantity: next[idx].quantity + qty };
+        next[idx] = {
+          ...next[idx],
+          quantity: isEbook ? 1 : next[idx].quantity + qty,
+        };
         return next;
       }
-      return [...prev, { ...item, quantity: qty }];
+      return [...prev, { ...item, fileFormat: effectiveFileFormat, lineId, quantity: qty }];
     });
   }, []);
 
-  const removeItem = useCallback((bookId: string) => {
-    setItems((prev) => prev.filter((i) => i.bookId !== bookId));
+  const removeItem = useCallback((lineId: string) => {
+    setItems((prev) => prev.filter((i) => i.lineId !== lineId));
   }, []);
 
-  const updateQuantity = useCallback((bookId: string, quantity: number) => {
+  const updateQuantity = useCallback((lineId: string, quantity: number) => {
     const qty = Math.max(0, quantity);
     setItems((prev) => {
-      if (qty === 0) return prev.filter((i) => i.bookId !== bookId);
+      if (qty === 0) return prev.filter((i) => i.lineId !== lineId);
       const next = [...prev];
-      const idx = next.findIndex((i) => i.bookId === bookId);
-      if (idx >= 0) next[idx] = { ...next[idx], quantity: qty };
+      const idx = next.findIndex((i) => i.lineId === lineId);
+      if (idx >= 0) {
+        const item = next[idx];
+        next[idx] = { ...item, quantity: item.productType === 'ebook' ? 1 : qty };
+      }
+      return next;
+    });
+  }, []);
+
+  const updateFileFormat = useCallback((lineId: string, fileFormat: 'pdf' | 'epub' | null) => {
+    setItems((prev) => {
+      const idx = prev.findIndex((i) => i.lineId === lineId);
+      if (idx < 0) return prev;
+      const item = prev[idx];
+      if (item.productType !== 'ebook') return prev;
+      const nextLineId = `${item.bookId}:${item.productType}:${fileFormat ?? 'none'}`;
+
+      // Si une ligne existe déjà pour ce format, on fusionne les quantités
+      const existingIdx = prev.findIndex((i) => i.lineId === nextLineId);
+      if (existingIdx >= 0 && existingIdx !== idx) {
+        const next = [...prev];
+        next[existingIdx] = { ...next[existingIdx], quantity: next[existingIdx].quantity + item.quantity };
+        next.splice(idx, 1);
+        return next;
+      }
+
+      const next = [...prev];
+      next[idx] = { ...item, fileFormat, lineId: nextLineId };
       return next;
     });
   }, []);
@@ -79,6 +118,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     addItem,
     removeItem,
     updateQuantity,
+    updateFileFormat,
     totalItems,
     subtotal,
   };

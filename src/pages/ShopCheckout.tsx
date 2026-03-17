@@ -23,6 +23,8 @@ const SingleInput = ({title, ChangeClassName}: {title: string, ChangeClassName: 
 function ShopCheckout() {
     const [accordBtn, setAccordBtn] = useState(false);
     const { items: orderItems, subtotal } = useCart();
+    const formatLabel = (f: 'pdf' | 'epub' | null) => (f === 'pdf' ? 'PDF' : f === 'epub' ? 'EPUB' : '');
+    const hasPhysical = orderItems.some((i) => i.productType === 'physical');
     return (
         <>
             <div className="page-content">
@@ -35,56 +37,20 @@ function ShopCheckout() {
                                 <div className="col-lg-6 col-md-6">
                                     <div className="widget">
                                         <h4 className="widget-title">Adresse de facturation et livraison</h4>
-                                        <div className="form-group">
-                                            <Form.Select aria-label="Pays">
-                                                <option value="CD">République démocratique du Congo</option>
-                                                <option value="CG">République du Congo</option>
-                                                <option value="RW">Rwanda</option>
-                                                <option value="BI">Burundi</option>
-                                                <option value="UG">Ouganda</option>
-                                            </Form.Select>	
-                                        </div>
-                                        <div className="row">
-                                            <SingleInput ChangeClassName="col-md-6" title="Prénom" />
-                                            <SingleInput ChangeClassName="col-md-6" title="Nom" />
-                                        </div>
-                                        <SingleInput title="Société (optionnel)" ChangeClassName="" />
-                                        <SingleInput title="Adresse (rue, numéro...)" ChangeClassName="" />
-                                        {inputData.map((data, index)=>(
-                                            <div className="row" key={index}>
-                                                <div className="form-group col-md-6">
-                                                    <input type="text" className="form-control" placeholder={data.name1} />
-                                                </div>
-                                                <div className="form-group col-md-6">
-                                                    <input type="text" className="form-control" placeholder={data.name2} />
-                                                </div>
-                                            </div>
-                                        ))}                                        
-                                        <button className="btn btn-outline-primary btnhover mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#create-an-account">Créer un compte client <i className="fa fa-arrow-circle-o-down"></i></button>
-                                        <div id="create-an-account" className="collapse">
-                                            <p>Créez un compte en renseignant les informations ci-dessous. Déjà client ? Connectez-vous en haut de page.</p>
+                                        {!hasPhysical ? (
+                                          <p className="text-muted mb-0">
+                                            Votre panier contient uniquement des <strong>E-books</strong>. Aucune adresse de livraison n’est requise.
+                                          </p>
+                                        ) : (
+                                          <>
                                             <div className="form-group">
-                                                <input type="password" className="form-control" placeholder="Mot de passe" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="col-lg-6 col-md-6">
-                                    <button className="btn btn-primary btnhover mb-3" type="button" 
-                                        onClick={() => setAccordBtn(!accordBtn)}>Livrer à une autre adresse <i className="fa fa-arrow-circle-o-down"></i>
-                                    </button>
-                                    <Collapse in={accordBtn} >
-                                        <div>
-                                            <p>Déjà client ? Renseignez vos coordonnées ci-dessous. Nouveau client ? Passez à la section Facturation & Livraison.</p>
-                                            <div className="form-group">
-                                                
-                                                <Form.Select aria-label="Pays de livraison">
+                                                <Form.Select aria-label="Pays" required>
                                                     <option value="CD">République démocratique du Congo</option>
                                                     <option value="CG">République du Congo</option>
                                                     <option value="RW">Rwanda</option>
                                                     <option value="BI">Burundi</option>
                                                     <option value="UG">Ouganda</option>
-                                                </Form.Select>
+                                                </Form.Select>	
                                             </div>
                                             <div className="row">
                                                 <SingleInput ChangeClassName="col-md-6" title="Prénom" />
@@ -95,15 +61,56 @@ function ShopCheckout() {
                                             {inputData.map((data, index)=>(
                                                 <div className="row" key={index}>
                                                     <div className="form-group col-md-6">
-                                                        <input type="text" className="form-control" placeholder={data.name1} />
+                                                        <input type="text" className="form-control" placeholder={data.name1} required />
                                                     </div>
                                                     <div className="form-group col-md-6">
-                                                        <input type="text" className="form-control" placeholder={data.name2} />
+                                                        <input type="text" className="form-control" placeholder={data.name2} required />
                                                     </div>
                                                 </div>
-                                            ))}
-                                            
-                                            <p>Créez un compte en renseignant les informations ci-dessous. Déjà client ? Connectez-vous en haut de page.</p>
+                                            ))}                                        
+                                          </>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className="col-lg-6 col-md-6">
+                                    <button className="btn btn-primary btnhover mb-3" type="button" 
+                                        onClick={() => setAccordBtn(!accordBtn)}>Livrer à une autre adresse <i className="fa fa-arrow-circle-o-down"></i>
+                                    </button>
+                                    <Collapse in={accordBtn} >
+                                        <div>
+                                            {!hasPhysical ? (
+                                              <p className="text-muted mb-0">Aucune livraison pour les E-books.</p>
+                                            ) : (
+                                              <>
+                                                <p>Déjà client ? Renseignez vos coordonnées ci-dessous. Nouveau client ? Passez à la section Facturation & Livraison.</p>
+                                                <div className="form-group">
+                                                  <Form.Select aria-label="Pays de livraison">
+                                                    <option value="CD">République démocratique du Congo</option>
+                                                    <option value="CG">République du Congo</option>
+                                                    <option value="RW">Rwanda</option>
+                                                    <option value="BI">Burundi</option>
+                                                    <option value="UG">Ouganda</option>
+                                                  </Form.Select>
+                                                </div>
+                                                <div className="row">
+                                                  <SingleInput ChangeClassName="col-md-6" title="Prénom" />
+                                                  <SingleInput ChangeClassName="col-md-6" title="Nom" />
+                                                </div>
+                                                <SingleInput title="Société (optionnel)" ChangeClassName="" />
+                                                <SingleInput title="Adresse (rue, numéro...)" ChangeClassName="" />
+                                                {inputData.map((data, index)=>(
+                                                  <div className="row" key={index}>
+                                                    <div className="form-group col-md-6">
+                                                      <input type="text" className="form-control" placeholder={data.name1} />
+                                                    </div>
+                                                    <div className="form-group col-md-6">
+                                                      <input type="text" className="form-control" placeholder={data.name2} />
+                                                    </div>
+                                                  </div>
+                                                ))}
+                                                <p>Créez un compte en renseignant les informations ci-dessous. Déjà client ? Connectez-vous en haut de page.</p>
+                                              </>
+                                            )}
                                         </div>    
                                     </Collapse>
                                     <div className="form-group">
@@ -133,7 +140,12 @@ function ShopCheckout() {
                                                 orderItems.map((item) => (
                                                 <tr key={item.bookId}>
                                                     <td className="product-item-img"><img src={item.coverImage} alt="" style={{ maxWidth: 60, maxHeight: 90, objectFit: 'contain' }} /></td>
-                                                    <td className="product-item-name book-title-truncate" title={item.title}>{item.title} × {item.quantity}</td>
+                                                    <td className="product-item-name book-title-truncate" title={item.title}>
+                                                      {item.title}
+                                                      {item.productType === 'physical' ? ` × ${item.quantity}` : null}
+                                                      <span className="text-muted"> • {item.productType === 'ebook' ? 'E-book' : 'Physique'}</span>
+                                                      {item.productType === 'ebook' && item.fileFormat ? <span className="text-muted"> • {formatLabel(item.fileFormat)}</span> : null}
+                                                    </td>
                                                     <td className="product-price">{(parseFloat(item.price || '0') * item.quantity).toFixed(0)} FC</td>
                                                 </tr>
                                                 ))

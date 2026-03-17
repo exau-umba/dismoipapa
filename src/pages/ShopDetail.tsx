@@ -47,6 +47,8 @@ function ShopDetail() {
     const [error, setError] = useState<string | null>(null);
     const [count, setCount] = useState<number>(1);
     const { addItem } = useCart();
+    const [fileFormat, setFileFormat] = useState<'pdf' | 'epub' | null>(null);
+    const [productType, setProductType] = useState<'ebook' | 'physical'>('ebook');
 
     useEffect(() => {
         if (!id) {
@@ -62,6 +64,28 @@ function ShopDetail() {
     }, [id, navigate]);
 
     useEffect(() => {
+        const format = book?.formats?.[0];
+        const isEbook = (format?.format_type ?? '') === 'ebook';
+        const hasPdf = Boolean(format?.pdf_file);
+        const hasEpub = Boolean(format?.epub_file);
+        if (!isEbook) {
+            setFileFormat(null);
+            return;
+        }
+        // Recommandation : PDF par défaut si disponible
+        setFileFormat(hasPdf ? 'pdf' : hasEpub ? 'epub' : null);
+    }, [book]);
+
+    useEffect(() => {
+        const formats = book?.formats || [];
+        const hasEbook = formats.some((f) => (f.format_type ?? '') === 'ebook');
+        const hasPhysical = formats.some((f) => (f.format_type ?? '') === 'physical');
+        // Par défaut : ebook si dispo, sinon physique
+        setProductType(hasEbook ? 'ebook' : hasPhysical ? 'physical' : 'ebook');
+        setCount(1);
+    }, [book]);
+
+    useEffect(() => {
         fetchBooks().then((list) => {
             if (id) setRelatedBooks(list.filter((b) => b.id !== id).slice(0, 3));
             else setRelatedBooks(list.slice(0, 3));
@@ -73,8 +97,14 @@ function ShopDetail() {
     if (error || !book) return <div className="page-content bg-grey"><div className="container py-5"><ErrorMessage message={error || 'Livre non trouvé.'} onDismiss={() => navigate('/books-grid-view')} /><Link to="/books-grid-view" className="btn btn-primary mt-3">Retour aux livres</Link></div></div>;
 
     const coverUrl = (book.cover_image && (book.cover_image.startsWith('http') ? book.cover_image : `${API_BASE_URL.replace(/\/$/, '')}${book.cover_image.startsWith('/') ? '' : '/'}${book.cover_image}`)) || bookImages[0];
-    const price = book.formats?.[0]?.price ?? '';
     const publicationYear = book.publication_date ? book.publication_date.slice(0, 4) : '';
+    const ebookFormat = book.formats?.find((f) => (f.format_type ?? '') === 'ebook') ?? null;
+    const physicalFormat = book.formats?.find((f) => (f.format_type ?? '') === 'physical') ?? null;
+    const selectedFormat = productType === 'physical' ? physicalFormat : ebookFormat;
+    const price = selectedFormat?.price ?? '';
+    const isEbook = productType === 'ebook';
+    const hasPdf = Boolean(ebookFormat?.pdf_file);
+    const hasEpub = Boolean(ebookFormat?.epub_file);
 
     const tableDetail = [
         { tablehead: 'Titre', tabledata: book.title },
@@ -139,11 +169,41 @@ function ShopDetail() {
                                                     {price ? <><h5>{price} FC</h5></> : <h5 className="text-muted">Prix sur demande</h5>}
                                                 </div>
                                                 <div className="product-num">
-                                                    <div className="quantity btn-quantity style-1 me-3">
-                                                        <button className="btn btn-plus" type="button" onClick={() => setCount((prev) => prev + 1)}><i className="ti-plus"></i></button>
-                                                        <input className="quantity-input" type="text" value={count} name="demo_vertical2" readOnly />
-                                                        <button className="btn btn-minus" type="button" onClick={() => setCount((prev) => Math.max(0, prev - 1))}><i className="ti-minus"></i></button>
-                                                    </div>
+                                                    {(ebookFormat || physicalFormat) && (
+                                                        <div className="me-3" style={{ minWidth: 190 }}>
+                                                            <label className="d-block small text-muted mb-1">Type</label>
+                                                            <select
+                                                                className="form-select form-select-sm"
+                                                                value={productType}
+                                                                onChange={(e) => setProductType(e.target.value as 'ebook' | 'physical')}
+                                                            >
+                                                                {ebookFormat && <option value="ebook">E-book</option>}
+                                                                {physicalFormat && <option value="physical">Physique</option>}
+                                                            </select>
+                                                        </div>
+                                                    )}
+
+                                                    {productType === 'physical' && (
+                                                      <div className="quantity btn-quantity style-1 me-3">
+                                                          <button className="btn btn-plus" type="button" onClick={() => setCount((prev) => prev + 1)}><i className="ti-plus"></i></button>
+                                                          <input className="quantity-input" type="text" value={count} name="demo_vertical2" readOnly />
+                                                          <button className="btn btn-minus" type="button" onClick={() => setCount((prev) => Math.max(1, prev - 1))}><i className="ti-minus"></i></button>
+                                                      </div>
+                                                    )}
+
+                                                    {productType === 'ebook' && ebookFormat && (hasPdf || hasEpub) && (
+                                                        <div className="me-3" style={{ minWidth: 190 }}>
+                                                            <label className="d-block small text-muted mb-1">Format de téléchargement</label>
+                                                            <select
+                                                                className="form-select form-select-sm"
+                                                                value={fileFormat ?? ''}
+                                                                onChange={(e) => setFileFormat((e.target.value as 'pdf' | 'epub') || null)}
+                                                            >
+                                                                {hasPdf && <option value="pdf">PDF (recommandé)</option>}
+                                                                {hasEpub && <option value="epub">EPUB (lecture dans l'app)</option>}
+                                                            </select>
+                                                        </div>
+                                                    )}
                                                     <button
                                                         type="button"
                                                         className="btn btn-primary btnhover btnhover2"
@@ -153,7 +213,9 @@ function ShopDetail() {
                                                                 title: book.title,
                                                                 coverImage: coverUrl,
                                                                 price: price || '0',
-                                                                quantity: Math.max(1, count),
+                                                                quantity: productType === 'ebook' ? 1 : Math.max(1, count),
+                                                                fileFormat: productType === 'ebook' ? fileFormat : null,
+                                                                productType,
                                                             });
                                                             setCount(1);
                                                         }}

@@ -4,7 +4,9 @@ import PageTitle from '../layouts/PageTitle';
 import { useCart } from '../context/CartContext';
 
 function ShopCart() {
-  const { items, removeItem, updateQuantity, subtotal, totalItems } = useCart();
+  const { items, removeItem, updateQuantity, updateFileFormat, subtotal, totalItems } = useCart();
+  const formatLabel = (f: 'pdf' | 'epub' | null) => (f === 'pdf' ? 'PDF (recommandé)' : f === 'epub' ? 'EPUB' : '—');
+  const productTypeLabel = (t: 'ebook' | 'physical') => (t === 'ebook' ? 'E-book' : 'Physique');
 
   return (
     <>
@@ -24,7 +26,7 @@ function ShopCart() {
                 ) : (
                   <div className="table-responsive">
                     <table className="table check-tbl">
-                      <thead>
+                      <thead className='bg-primary'>
                         <tr>
                           <th>Produit</th>
                           <th>Nom du produit</th>
@@ -38,7 +40,7 @@ function ShopCart() {
                         {items.map((data) => {
                           const lineTotal = parseFloat(data.price || '0') * data.quantity;
                           return (
-                            <tr key={data.bookId}>
+                            <tr key={data.lineId}>
                               <td className="product-item-img">
                                 <Link to={`/books-detail/${data.bookId}`}>
                                   <img src={data.coverImage} alt={data.title} style={{ maxWidth: 80, maxHeight: 120, objectFit: 'contain' }} />
@@ -46,26 +48,49 @@ function ShopCart() {
                               </td>
                               <td className="product-item-name book-title-truncate text-primary" title={data.title}>
                                 <Link to={`/books-detail/${data.bookId}`}>{data.title}</Link>
+                                <div className="text-muted small mt-1">
+                                  Type: <strong>{productTypeLabel(data.productType)}</strong>
+                                  {data.productType === 'ebook' ? (
+                                    <> • Téléchargement: <strong>{formatLabel(data.fileFormat)}</strong></>
+                                  ) : null}
+                                </div>
+                                {data.productType === 'ebook' && data.fileFormat && (
+                                  <div className="mt-1">
+                                    <select
+                                      className="form-select form-select-sm"
+                                      value={data.fileFormat}
+                                      onChange={(e) => updateFileFormat(data.lineId, (e.target.value as 'pdf' | 'epub') ?? 'pdf')}
+                                      style={{ maxWidth: 220 }}
+                                    >
+                                      <option value="pdf">PDF (recommandé)</option>
+                                      <option value="epub">EPUB</option>
+                                    </select>
+                                  </div>
+                                )}
                               </td>
                               <td className="product-item-price text-primary">{data.price} FC</td>
                               <td className="product-item-quantity">
-                                <div className="quantity btn-quantity style-1 me-3">
-                                  <button
-                                    className="btn btn-plus"
-                                    type="button"
-                                    onClick={() => updateQuantity(data.bookId, data.quantity + 1)}
-                                  >
-                                    <i className="ti-plus"></i>
-                                  </button>
-                                  <input type="text" className="quantity-input text-primary" value={data.quantity} readOnly />
-                                  <button
-                                    className="btn btn-minus"
-                                    type="button"
-                                    onClick={() => updateQuantity(data.bookId, data.quantity - 1)}
-                                  >
-                                    <i className="ti-minus"></i>
-                                  </button>
-                                </div>
+                                {data.productType === 'ebook' ? (
+                                  <span className="text-muted">1</span>
+                                ) : (
+                                  <div className="quantity btn-quantity style-1 me-3">
+                                    <button
+                                      className="btn btn-plus"
+                                      type="button"
+                                      onClick={() => updateQuantity(data.lineId, data.quantity + 1)}
+                                    >
+                                      <i className="ti-plus"></i>
+                                    </button>
+                                    <input type="text" className="quantity-input text-primary" value={data.quantity} readOnly />
+                                    <button
+                                      className="btn btn-minus"
+                                      type="button"
+                                      onClick={() => updateQuantity(data.lineId, data.quantity - 1)}
+                                    >
+                                      <i className="ti-minus"></i>
+                                    </button>
+                                  </div>
+                                )}
                               </td>
                               <td className="product-item-totle text-primary">{lineTotal.toFixed(0)} FC</td>
                               <td className="product-item-close">
@@ -73,7 +98,7 @@ function ShopCart() {
                                   type="button"
                                   className="ti-close border-0 bg-transparent p-0 text-primary"
                                   style={{ cursor: 'pointer', fontSize: '1.2rem' }}
-                                  onClick={() => removeItem(data.bookId)}
+                                  onClick={() => removeItem(data.lineId)}
                                   aria-label="Supprimer"
                                 >
                                   {/* &times; */}
