@@ -49,10 +49,12 @@ import AdminCatalogs from '../admin/pages/AdminCatalogs';
 
 // images
 import logo from './../assets/images/logo.png';
+import { CartProvider } from '../context/CartContext';
 
 function Index() {
   return (
     <BrowserRouter basename="/">
+      <CartProvider>
       <Routes>
         <Route path="/error-404" element={<ErrorPage />} />
         <Route path="/under-construction" element={<UnderConstruction />} />
@@ -109,6 +111,7 @@ function Index() {
       </Routes>
       <ScrollToTop />
       <ScrollToTop2 className="styles_scroll-to-top__2A70v  fas fa-arrow-up scroltop" smooth />
+      </CartProvider>
     </BrowserRouter>
   );
 }

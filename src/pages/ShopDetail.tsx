@@ -6,6 +6,7 @@ import ClientsSlider from '../components/Home/ClientsSlider';
 import CounterSection from '../elements/CounterSection';
 import NewsLetter from '../components/NewsLetter';
 import ErrorMessage from '../components/ErrorMessage';
+import { useCart } from '../context/CartContext';
 import { bookImages } from '../constants/imageUrls';
 import profile2 from './../assets/images/profile2.jpg';
 import profile4 from './../assets/images/profile4.jpg';
@@ -44,7 +45,8 @@ function ShopDetail() {
     const [relatedBooks, setRelatedBooks] = useState<Book[]>([]);
     const [loading, setLoading] = useState(!!id);
     const [error, setError] = useState<string | null>(null);
-    const [count, setCount] = useState<number>(0);
+    const [count, setCount] = useState<number>(1);
+    const { addItem } = useCart();
 
     useEffect(() => {
         if (!id) {
@@ -142,7 +144,22 @@ function ShopDetail() {
                                                         <input className="quantity-input" type="text" value={count} name="demo_vertical2" readOnly />
                                                         <button className="btn btn-minus" type="button" onClick={() => setCount((prev) => Math.max(0, prev - 1))}><i className="ti-minus"></i></button>
                                                     </div>
-                                                    <Link to="/shop-cart" className="btn btn-primary btnhover btnhover2"><i className="flaticon-shopping-cart-1"></i> <span>Ajouter au panier</span></Link>
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-primary btnhover btnhover2"
+                                                        onClick={() => {
+                                                            addItem({
+                                                                bookId: book.id,
+                                                                title: book.title,
+                                                                coverImage: coverUrl,
+                                                                price: price || '0',
+                                                                quantity: Math.max(1, count),
+                                                            });
+                                                            setCount(1);
+                                                        }}
+                                                    >
+                                                        <i className="flaticon-shopping-cart-1"></i> <span>Ajouter au panier</span>
+                                                    </button>
                                                     <div className="bookmark-btn style-1 d-none d-sm-block">
                                                         <input className="form-check-input" type="checkbox" id="flexCheckDefault1" />
                                                         <label className="form-check-label" htmlFor="flexCheckDefault1"><i className="flaticon-heart"></i></label>

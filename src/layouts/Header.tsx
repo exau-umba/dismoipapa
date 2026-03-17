@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Dropdown } from 'react-bootstrap';
-import { cartBookImages } from '../constants/imageUrls';
 import { getCurrentUser, logoutUser, type UserProfile } from '../api/auth';
+import { useCart } from '../context/CartContext';
 import { listCatalogs, type Catalog } from '../api/admin';
 import LogoutConfirmModal from '../components/LogoutConfirmModal';
 
@@ -14,6 +14,7 @@ function Header() {
   const [selectBtn, setSelectBtn] = useState<string>('Catégorie');
   const [catalogs, setCatalogs] = useState<Catalog[]>([]);
   const [searchValue, setSearchValue] = useState('');
+  const { items: cartItems, totalItems: cartCount, removeItem: removeCartItem, subtotal: cartSubtotal } = useCart();
   // for sticky header
   const [headerFix, setheaderFix] = React.useState<boolean>(false);
 
@@ -167,101 +168,44 @@ function Header() {
                       <path d="M0 0h24v24H0V0z" fill="none" />
                       <path d="M15.55 13c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.37-.66-.11-1.48-.87-1.48H5.21l-.94-2H1v2h2l3.6 7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7l1.1-2h7.45zM6.16 6h12.15l-2.76 5H8.53L6.16 6zM7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z" />
                     </svg>
-                    <span className="badge">5</span>
+                    <span className="badge">{cartCount}</span>
                   </Dropdown.Toggle>
                   <Dropdown.Menu as="ul" className="dropdown-menu cart-list">
-                    <li className="cart-item">
-                      <div className="media">
-                        <div className="media-left">
-                          <Link to={'/books-detail'}>
-                            <img
-                              alt=""
-                              className="media-object"
-                              src={cartBookImages[0]}
-                            />
-                          </Link>
-                        </div>
-                        <div className="media-body">
-                          <h6 className="dz-title">
-                            <Link
-                              to={'/books-detail'}
-                              className="media-heading"
-                            >
-                              Real Life
-                            </Link>
-                          </h6>
-                          <span className="dz-price">55 000 FC</span>
-                          <span className="item-close">&times;</span>
-                        </div>
-                      </div>
-                    </li>
-                    <li className="cart-item">
-                      <div className="media">
-                        <div className="media-left">
-                          <Link to={'/books-detail'}>
-                            <img
-                              alt=""
-                              className="media-object"
-                              src={cartBookImages[1]}
-                            />
-                          </Link>
-                        </div>
-                        <div className="media-body">
-                          <h6 className="dz-title">
-                            <Link
-                              to={'/books-detail'}
-                              className="media-heading"
-                            >
-                              Home
-                            </Link>
-                          </h6>
-                          <span className="dz-price">65 000 FC</span>
-                          <span className="item-close">&times;</span>
-                        </div>
-                      </div>
-                    </li>
-                    <li className="cart-item">
-                      <div className="media">
-                        <div className="media-left">
-                          <Link to={'/books-detail'}>
-                            <img
-                              alt=""
-                              className="media-object"
-                              src={cartBookImages[2]}
-                            />
-                          </Link>
-                        </div>
-                        <div className="media-body">
-                          <h6 className="dz-title">
-                            <Link
-                              to={'/books-detail'}
-                              className="media-heading"
-                            >
-                              Such a fun age
-                            </Link>
-                          </h6>
-                          <span className="dz-price">50 000 FC</span>
-                          <span className="item-close">&times;</span>
-                        </div>
-                      </div>
-                    </li>
-                    <li className="cart-item text-center">
-                      <h6 className="text-secondary">Total = 170 000 FC</h6>
-                    </li>
-                    <li className="text-center d-flex">
-                      <Link
-                        to={'/shop-cart'}
-                        className="btn btn-sm btn-primary me-2 btnhover w-100"
-                      >
-                        Voir le panier
-                      </Link>
-                      <Link
-                        to={'/shop-checkout'}
-                        className="btn btn-sm btn-outline-primary btnhover w-100"
-                      >
-                        Paiement
-                      </Link>
-                    </li>
+                    {cartItems.length === 0 ? (
+                      <li className="cart-item text-center py-3 text-muted">
+                        <small>Panier vide</small>
+                      </li>
+                    ) : (
+                      <>
+                        {cartItems.map((item) => (
+                          <li key={item.bookId} className="cart-item">
+                            <div className="media">
+                              <div className="media-left">
+                                <Link to={`/books-detail/${item.bookId}`}>
+                                  <img alt="" className="media-object" src={item.coverImage} style={{ maxWidth: 50, maxHeight: 70, objectFit: 'contain' }} />
+                                </Link>
+                              </div>
+                              <div className="media-body">
+                                <h6 className="dz-title">
+                                  <Link to={`/books-detail/${item.bookId}`} className="media-heading book-title-truncate" title={item.title}>
+                                    {item.title}
+                                  </Link>
+                                </h6>
+                                <span className="dz-price">{item.price} FC × {item.quantity}</span>
+                                <button type="button" className="item-close border-0 bg-transparent p-0" style={{ cursor: 'pointer' }} onClick={() => removeCartItem(item.bookId)} aria-label="Retirer">&times;</button>
+                              </div>
+                            </div>
+                          </li>
+                        ))}
+                        <li className="cart-item text-center">
+                          <h6 className="text-secondary">Total = {cartSubtotal.toFixed(0)} FC</h6>
+                        </li>
+                        <li className="text-center d-flex">
+                          <Link to="/shop-cart" className="btn btn-sm btn-primary me-2 btnhover w-100">Voir le panier</Link>
+                          <Link to="/shop-checkout" className="btn btn-sm btn-outline-primary btnhover w-100">Paiement</Link>
+                        </li>
+                      </>
+                    )}
                   </Dropdown.Menu>
                 </Dropdown>
                 {currentUser ? (
