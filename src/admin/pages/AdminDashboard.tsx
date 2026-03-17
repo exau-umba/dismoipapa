@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
 import { Bar, Line, Doughnut } from 'react-chartjs-2';
 import { Card, Table, Badge, Row, Col } from 'react-bootstrap';
 import { fetchBooks } from '../../api/catalog';
-import { listUsers, listOrders } from '../../api/admin';
+import { listUsers, listOrders, listCatalogs, type Catalog } from '../../api/admin';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend, ArcElement);
 
@@ -28,36 +28,30 @@ const chartData = {
   ],
 };
 
-const revenueData = {
-  labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'],
-  datasets: [
-    {
-      label: 'Revenus (×1000 FC)',
-      data: [450, 520, 480, 580, 550, 620],
-      borderColor: '#029e76',
-      backgroundColor: 'rgba(2, 158, 118, 0.1)',
-      tension: 0.4,
-      fill: true,
-    },
-  ],
-};
+function formatMonthLabelFR(d: Date) {
+  return d.toLocaleDateString('fr-FR', { month: 'short' }).replace('.', '');
+}
 
-const categoryData = {
-  labels: ['Poésie', 'Roman', 'Technique', 'Autre'],
-  datasets: [
-    {
-      data: [35, 30, 25, 10],
-      backgroundColor: [
-        'rgba(0, 102, 204, 0.8)',
-        'rgba(26, 22, 104, 0.8)',
-        'rgba(2, 158, 118, 0.8)',
-        'rgba(0, 174, 255, 0.8)',
-      ],
-      borderWidth: 2,
-      borderColor: '#fff',
-    },
-  ],
-};
+function parseOrderTotal(total: string | number | undefined): number {
+  if (total == null) return 0;
+  if (typeof total === 'number') return Number.isFinite(total) ? total : 0;
+  // ex: "165 000 FC", "165000", "165000.00"
+  const cleaned = total.replace(/[^\d.,-]/g, '').replace(/\s+/g, '');
+  if (!cleaned) return 0;
+  // si virgule décimale -> remplacer par point
+  const normalized = cleaned.includes(',') && !cleaned.includes('.') ? cleaned.replace(',', '.') : cleaned;
+  const n = parseFloat(normalized);
+  return Number.isFinite(n) ? n : 0;
+}
+
+const CATEGORY_COLORS = [
+  'rgba(0, 102, 204, 0.8)',
+  'rgba(26, 22, 104, 0.8)',
+  'rgba(2, 158, 118, 0.8)',
+  'rgba(0, 174, 255, 0.8)',
+  'rgba(255, 159, 64, 0.8)',
+  'rgba(153, 102, 255, 0.8)',
+];
 
 const chartOptions = {
   responsive: true,
@@ -81,17 +75,35 @@ export default function AdminDashboard() {
   const [booksCount, setBooksCount] = useState<number | null>(null);
   const [usersCount, setUsersCount] = useState<number | null>(null);
   const [recentOrders, setRecentOrders] = useState<{ id: string | number; client: string; montant: string; date: string; statut: string }[]>([]);
+  const [orders, setOrders] = useState<Awaited<ReturnType<typeof listOrders>>>([]);
+  const [catalogs, setCatalogs] = useState<Catalog[]>([]);
+  const [books, setBooks] = useState<Awaited<ReturnType<typeof fetchBooks>>>([]);
 
   useEffect(() => {
-    fetchBooks().then((data) => setBooksCount(data.length)).catch(() => setBooksCount(0));
+    fetchBooks()
+      .then((data) => {
+        setBooksCount(data.length);
+        setBooks(data);
+      })
+      .catch(() => {
+        setBooksCount(0);
+        setBooks([]);
+      });
     listUsers()
       .then((data) => setUsersCount(data.length))
       .catch(() => setUsersCount(0));
   }, []);
 
   useEffect(() => {
+    listCatalogs()
+      .then((data) => setCatalogs(data))
+      .catch(() => setCatalogs([]));
+  }, []);
+
+  useEffect(() => {
     listOrders()
       .then((data) => {
+        setOrders(Array.isArray(data) ? data : []);
         const list = Array.isArray(data) ? data.slice(0, 4) : [];
         setRecentOrders(
           list.map((o) => ({
@@ -104,6 +116,7 @@ export default function AdminDashboard() {
         );
       })
       .catch(() => {
+        setOrders([]);
         setRecentOrders([
           { id: 1001, client: 'Marie Dupont', montant: '165 000 FC', date: '08/02/2025', statut: 'Expédiée' },
           { id: 1002, client: 'Jean Martin', montant: '130 000 FC', date: '07/02/2025', statut: 'En préparation' },
@@ -113,12 +126,94 @@ export default function AdminDashboard() {
       });
   }, []);
 
+  const revenueData = useMemo(() => {
+    // 6 derniers mois (inclus mois courant)
+    const now = new Date();
+    const months = Array.from({ length: 6 }, (_, i) => {
+      const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
+      return { key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`, date: d };
+    });
+
+    const sums: Record<string, number> = {};
+    months.forEach((m) => { sums[m.key] = 0; });
+
+    orders.forEach((o) => {
+      if (!o.created_at) return;
+      const d = new Date(o.created_at);
+      if (Number.isNaN(d.getTime())) return;
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      if (!(key in sums)) return;
+      sums[key] += parseOrderTotal(o.total);
+    });
+
+    const labels = months.map((m) => formatMonthLabelFR(m.date));
+    const values = months.map((m) => sums[m.key]);
+
+    return {
+      labels,
+      datasets: [
+        {
+          label: 'Revenus (FC)',
+          data: values,
+          borderColor: '#029e76',
+          backgroundColor: 'rgba(2, 158, 118, 0.1)',
+          tension: 0.4,
+          fill: true,
+        },
+      ],
+    };
+  }, [orders]);
+
+  const categoryData = useMemo(() => {
+    const byId: Record<string, Catalog> = {};
+    catalogs.forEach((c) => {
+      byId[c.id] = c;
+    });
+
+    const counts: Record<string, number> = {};
+    books.forEach((b) => {
+      const id = b.catalog || 'unknown';
+      counts[id] = (counts[id] || 0) + 1;
+    });
+
+    const entries = Object.entries(counts)
+      .map(([catalogId, count]) => ({
+        catalogId,
+        count,
+        name:
+          catalogId === 'unknown'
+            ? 'Sans catalogue'
+            : byId[catalogId]?.name || 'Catalogue inconnu',
+      }))
+      .sort((a, b) => b.count - a.count);
+
+    const top = entries.slice(0, 4);
+    const restTotal = entries.slice(4).reduce((acc, e) => acc + e.count, 0);
+
+    const labels = top.map((e) => e.name).concat(restTotal > 0 ? ['Autre'] : []);
+    const data = top.map((e) => e.count).concat(restTotal > 0 ? [restTotal] : []);
+
+    const colors = labels.map((_, i) => CATEGORY_COLORS[i % CATEGORY_COLORS.length]);
+
+    return {
+      labels,
+      datasets: [
+        {
+          data,
+          backgroundColor: colors,
+          borderWidth: 2,
+          borderColor: '#fff',
+        },
+      ],
+    };
+  }, [books, catalogs]);
+
   const stats = [
-    { label: 'Commandes du mois', value: '128', icon: 'fa-shopping-cart', type: 'primary' as const, change: '+12%' },
+    { label: 'Total les commandes', value: '128', icon: 'fa-shopping-cart', type: 'primary' as const, change: '+12%' },
     { label: 'Livres en catalogue', value: booksCount !== null ? String(booksCount) : '—', icon: 'fa-book', type: 'success' as const, change: '' },
     { label: 'Utilisateurs', value: usersCount !== null ? String(usersCount) : '—', icon: 'fa-users', type: 'info' as const, change: '' },
-    { label: "Chiffre d'affaires (FC)", value: '2 450 000', icon: 'fa-euro-sign', type: 'warning' as const, change: '+18%' },
-    { label: 'Abonnements actifs', value: '892', icon: 'fa-star', type: 'success' as const, change: '+45' },
+    // { label: "Chiffre d'affaires (FC)", value: '2 450 000', icon: 'fa-euro-sign', type: 'warning' as const, change: '+18%' },
+    // { label: 'Abonnements actifs', value: '892', icon: 'fa-star', type: 'success' as const, change: '+45' },
     { label: 'Livres téléchargés', value: '2 134', icon: 'fa-download', type: 'primary' as const, change: '+234' },
   ];
 
