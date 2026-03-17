@@ -1,19 +1,8 @@
-import React,{useState} from 'react';
-//import {Link} from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Collapse, Form } from 'react-bootstrap';
-
-//Components 
 import PageTitle from '../layouts/PageTitle';
-
-import { bookImages, bookTitles } from '../constants/imageUrls';
-
-const orderItem = [
-    { image: bookImages[0], title: bookTitles[0], price:'28.00' },
-    { image: bookImages[1], title: bookTitles[1], price:'26.00' },
-    { image: bookImages[2], title: bookTitles[2], price:'30.00' },
-    { image: bookImages[0], title: bookTitles[0], price:'36.00' },
-    { image: bookImages[1], title: bookTitles[1], price:'27.00' }
-];
+import { useCart } from '../context/CartContext';
 
 const inputData = [
     {name1: 'Appartement, bâtiment, etc.', name2:'Ville'},
@@ -31,9 +20,10 @@ const SingleInput = ({title, ChangeClassName}: {title: string, ChangeClassName: 
     )
 }
 
-function ShopCheckout(){
-    const [accordBtn, setAccordBtn] = useState<boolean>(false);
-    return(
+function ShopCheckout() {
+    const [accordBtn, setAccordBtn] = useState(false);
+    const { items: orderItems, subtotal } = useCart();
+    return (
         <>
             <div className="page-content">
                 <PageTitle  parentPage="Boutique" childPage="Paiement" />               
@@ -137,13 +127,17 @@ function ShopCheckout(){
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {orderItem.map((item, ind)=>(
-                                                <tr key={ind}>
-                                                    <td className="product-item-img"><img src={item.image} alt="" /></td>
-                                                    <td className="product-item-name book-title-truncate" title={item.title}>{item.title}</td>
-                                                    <td className="product-price">{item.price} FC</td>
+                                            {orderItems.length === 0 ? (
+                                                <tr><td colSpan={3} className="text-center text-muted py-3">Panier vide. <Link to="/books-grid-view">Voir les livres</Link></td></tr>
+                                            ) : (
+                                                orderItems.map((item) => (
+                                                <tr key={item.bookId}>
+                                                    <td className="product-item-img"><img src={item.coverImage} alt="" style={{ maxWidth: 60, maxHeight: 90, objectFit: 'contain' }} /></td>
+                                                    <td className="product-item-name book-title-truncate" title={item.title}>{item.title} × {item.quantity}</td>
+                                                    <td className="product-price">{(parseFloat(item.price || '0') * item.quantity).toFixed(0)} FC</td>
                                                 </tr>
-                                            ))}
+                                                ))
+                                            )}
                                         </tbody>
                                     </table>
                                 </div>
@@ -155,19 +149,15 @@ function ShopCheckout(){
                                         <tbody>
                                             <tr>
                                                 <td>Sous-total</td>
-                                                <td className="product-price">125 960 FC</td>
+                                                <td className="product-price">{subtotal.toFixed(0)} FC</td>
                                             </tr>
                                             <tr>
                                                 <td>Livraison</td>
-                                                <td>Livraison gratuite</td>
+                                                <td>À préciser</td>
                                             </tr>
                                             <tr>
-                                                <td>Code promo</td>
-                                                <td className="product-price">28 000 FC</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Total</td>
-                                                <td className="product-price-total">506 000 FC</td>
+                                                <td><strong>Total</strong></td>
+                                                <td className="product-price-total"><strong>{subtotal.toFixed(0)} FC</strong></td>
                                             </tr>
                                         </tbody>
                                     </table>
