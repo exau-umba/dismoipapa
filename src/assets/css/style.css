@@ -22990,7 +22990,7 @@ pre {
           width: 20px;
           height: 20px; }
           .filter-area .grid-area .nav .nav-item .nav-link svg path {
-            fill: var(--secondary); }
+            fill: var(--primary); }
         .filter-area .grid-area .nav .nav-item .nav-link.active {
           color: var(--secondary); }
         .filter-area .grid-area .nav .nav-item .nav-link:hover {
