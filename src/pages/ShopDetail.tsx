@@ -183,14 +183,14 @@ function ShopDetail() {
                                             {book.sample_text && (
                                               <ExpandableText style={{textAlign: 'justify', whiteSpace: 'pre-wrap'}} text={book.sample_text} maxChars={40} className="text-2" />
                                             )}
-                                            <div className="book-footer">
+                                            <div className="book-footer d-flex flex-column justify-content-between">
                                                 <div className="price">
                                                     {price ? <><h5>{price} FC</h5></> : <h5 className="text-muted">Prix sur demande</h5>}
                                                 </div>
                                                 <div className="product-num">
                                                     {(ebookFormat || physicalFormat) && (
                                                         <div className="me-3 row" style={{ minWidth: 190 }}>
-                                                            <label className="d-block small text-muted mb-1">Type</label>
+                                                            {/* <label className="d-block small text-muted mb-1">Type</label> */}
                                                             <select
                                                                 className="form-select form-select-sm"
                                                                 value={productType}

@@ -39,8 +39,6 @@ export default function AdminBookReader() {
       setError(null);
       try {
         const url = await getBooksEpubPreviewUrl(id);
-        console.log("Url epub", url);
-        console.log("ID livre epub", id);
         if (!cancelled) {
           setPreviewUrl(url);
           setTitle('Lecture du livre');

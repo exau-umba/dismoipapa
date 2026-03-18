@@ -89,17 +89,17 @@ function ShopList() {
                             </div>
                             <div className="category">
                                 <div className="filter-category">
-                                    <Link to={"#"} data-bs-toggle="collapse"  
+                                    <Link to={"#"} className="text-primary" data-bs-toggle="collapse"  
                                         onClick={() => setAccordBtn((prev) => !prev)}
                                     >
-                                        <i className="fas fa-list me-2"></i>
+                                        <i className="fas fa-list me-2 text-primary"></i>
                                         Categories
                                     </Link>
                                 </div>
                                 <div className="form-group">
-                                    <i className="fas fa-sort-amount-down me-2 text-secondary"></i>                                   
+                                    <i className="fas fa-sort-amount-down me-2 text-primary"></i>                                   
                                     <Dropdown>
-                                        <Dropdown.Toggle  className="i-false">{selectBtn} <i className="ms-4 font-14 fa-solid fa-caret-down" /></Dropdown.Toggle>
+                                        <Dropdown.Toggle  className="i-false text-primary">{selectBtn} <i className="ms-4 font-14 fa-solid fa-caret-down" /></Dropdown.Toggle>
                                         <Dropdown.Menu>
                                             <Dropdown.Item onClick={()=>setSelectBtn('Newest')}>Newest</Dropdown.Item>
                                             <Dropdown.Item onClick={()=>setSelectBtn('1 Days')}>1 Days</Dropdown.Item>
