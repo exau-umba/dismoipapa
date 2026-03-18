@@ -139,7 +139,7 @@ function Header() {
           <div className="extra-nav">
             <div className="extra-cell">
               <ul className="navbar-nav header-right">
-                <li className="nav-item">
+                {/* <li className="nav-item">
                   <Link to={'/wishlist'} className="nav-link">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -153,7 +153,7 @@ function Header() {
                     </svg>
                     <span className="badge">21</span>
                   </Link>
-                </li>
+                </li> */}
                 <Dropdown as="li" className="nav-item">
                   <Dropdown.Toggle
                     as="button"

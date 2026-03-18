@@ -21,7 +21,7 @@ import ShopList from './ShopList';
 import BooksGridViewSidebar from './BooksGridViewSidebar';
 import BooksListViewSidebar from './BooksListViewSidebar';
 import ShopCart from './ShopCart';
-import Wishlist from './Wishlist';
+// import Wishlist from './Wishlist';
 import Login from './Login';
 import Registration from './Registration';
 import ShopCheckout from './ShopCheckout';
@@ -94,7 +94,7 @@ function Index() {
             element={<BooksListViewSidebar />}
           />
           <Route path="/shop-cart" element={<ProtectedRoute><ShopCart /></ProtectedRoute>} />
-          <Route path="/wishlist" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
+          {/* <Route path="/wishlist" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} /> */}
           <Route path="/shop-login" element={<Login />} />
           <Route path="/activate-account" element={<ActivateAccount />} />
           <Route path="/shop-registration" element={<Registration />} />
