@@ -6,6 +6,7 @@ import ClientsSlider from '../components/Home/ClientsSlider';
 import CounterSection from '../elements/CounterSection';
 import NewsLetter from '../components/NewsLetter';
 import ErrorMessage from '../components/ErrorMessage';
+import ExpandableText from '../components/ExpandableText';
 import { useCart } from '../context/CartContext';
 import { bookImages } from '../constants/imageUrls';
 import profile2 from './../assets/images/profile2.jpg';
@@ -120,14 +121,30 @@ function ShopDetail() {
                     <div className="container">
                         <div className="row book-grid-row style-4 m-b60">
                             <div className="col">
-                                <div className="dz-box">
-                                    <div className="dz-media" style={{ maxWidth: 220, aspectRatio: '210/297' }}>
+                                <div className="dz-box d-flex flex-row align-items-start">
+                                    <div
+                                      className="dz-media"
+                                      style={{
+                                        maxWidth: 220,
+                                        aspectRatio: '210/297',
+                                        position: 'sticky',
+                                        top: 90,
+                                        alignSelf: 'flex-start',
+                                        flex: '0 0 auto',
+                                      }}
+                                    >
                                         <img src={coverUrl} alt={book.title} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                                     </div>
-                                    <div className="dz-content">
+                                    <div className="dz-content" style={{ minWidth: 0, flex: '1 1 auto' }}>
                                         <div className="dz-header">
-                                            <h3 className="title book-title-truncate" title={book.title}>{book.title}</h3>
-                                            <div className="shop-item-rating">
+                                            <h3
+                                                className="title"
+                                                title={book.title}
+                                                style={{ wordBreak: 'break-word', whiteSpace: 'normal' }}
+                                            >
+                                                {book.title}
+                                            </h3>
+                                            {/* <div className="shop-item-rating">
                                                 <div className="d-lg-flex d-sm-inline-flex d-flex align-items-center">
                                                     <ul className="dz-rating">
                                                         <li><i className="flaticon-star text-primary"></i></li>
@@ -146,31 +163,33 @@ function ShopDetail() {
                                                         <li><a href="https://www.google.com/intl/en-GB/gmail/about/" target="_blank" rel="noreferrer"><i className="fa-solid fa-envelope"></i></a></li>
                                                     </ul>
                                                 </div>
-                                            </div>
+                                            </div> */}
                                         </div>
                                         <div className="dz-body">
                                             <div className="book-detail">
                                                 <ul className="book-info text-primary">
                                                     <li>
                                                         <div className="writer-info">
-                                                            <img src={profile2} alt="book" />
+                                                            {/* <img src={profile2} alt="book" /> */}
                                                             <div>
-                                                                <span>Écrit par </span>{book.author}
+                                                                <span className="text-muted">Écrit par </span> <span className="text-primary">{book.author}</span>
                                                             </div>
                                                         </div>
                                                     </li>
-                                                    <li><span className="text-primary">Année</span>{publicationYear || '—'}</li>
+                                                    <li><span className="text-muted">Année</span> <span className="text-primary">{publicationYear || '—'}</span></li>
                                                 </ul>
                                             </div>
                                             <p className="text-1" style={{textAlign: 'justify'}}>{book.synopsis || 'Aucun résumé disponible.'}</p>
-                                            {book.sample_text && <p className="text-2">{book.sample_text}</p>}
+                                            {book.sample_text && (
+                                              <ExpandableText style={{textAlign: 'justify', whiteSpace: 'pre-wrap'}} text={book.sample_text} maxChars={40} className="text-2" />
+                                            )}
                                             <div className="book-footer">
                                                 <div className="price">
                                                     {price ? <><h5>{price} FC</h5></> : <h5 className="text-muted">Prix sur demande</h5>}
                                                 </div>
                                                 <div className="product-num">
                                                     {(ebookFormat || physicalFormat) && (
-                                                        <div className="me-3" style={{ minWidth: 190 }}>
+                                                        <div className="me-3 row" style={{ minWidth: 190 }}>
                                                             <label className="d-block small text-muted mb-1">Type</label>
                                                             <select
                                                                 className="form-select form-select-sm"
@@ -191,7 +210,7 @@ function ShopDetail() {
                                                       </div>
                                                     )}
 
-                                                    {productType === 'ebook' && ebookFormat && (hasPdf || hasEpub) && (
+                                                    {/* {productType === 'ebook' && ebookFormat && (hasPdf || hasEpub) && (
                                                         <div className="me-3" style={{ minWidth: 190 }}>
                                                             <label className="d-block small text-muted mb-1">Format de téléchargement</label>
                                                             <select
@@ -203,7 +222,7 @@ function ShopDetail() {
                                                                 {hasEpub && <option value="epub">EPUB (lecture dans l'app)</option>}
                                                             </select>
                                                         </div>
-                                                    )}
+                                                    )} */}
                                                     <button
                                                         type="button"
                                                         className="btn btn-primary btnhover btnhover2"
@@ -222,10 +241,10 @@ function ShopDetail() {
                                                     >
                                                         <i className="flaticon-shopping-cart-1"></i> <span>Ajouter au panier</span>
                                                     </button>
-                                                    <div className="bookmark-btn style-1 d-none d-sm-block">
+                                                    {/* <div className="bookmark-btn style-1 d-none d-sm-block">
                                                         <input className="form-check-input" type="checkbox" id="flexCheckDefault1" />
                                                         <label className="form-check-label" htmlFor="flexCheckDefault1"><i className="flaticon-heart"></i></label>
-                                                    </div>
+                                                    </div> */}
                                                 </div>
                                             </div>
                                         </div>
@@ -237,9 +256,9 @@ function ShopDetail() {
                             <div className="col-xl-8">
                                 <Tab.Container defaultActiveKey="details">
                                     <div className="product-description tabs-site-button">
-                                        <Nav as="ul" className="nav nav-tabs">
-                                            <Nav.Item as="li"><Nav.Link  eventKey="details">Détails du produit</Nav.Link></Nav.Item>
-                                            <Nav.Item as="li"><Nav.Link  eventKey="review">Avis clients</Nav.Link></Nav.Item>
+                                        <Nav as="ul" className="nav nav-tabs bg-primary text-white">
+                                            <Nav.Item as="li"><Nav.Link className="text-white" eventKey="details">Détails du produit</Nav.Link></Nav.Item>
+                                            {/* <Nav.Item as="li"><Nav.Link  eventKey="review">Avis clients</Nav.Link></Nav.Item> */}
                                         </Nav>
                                         <Tab.Content>
                                             <Tab.Pane eventKey="details">
