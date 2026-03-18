@@ -150,7 +150,7 @@ function ShopDetail() {
                                         </div>
                                         <div className="dz-body">
                                             <div className="book-detail">
-                                                <ul className="book-info">
+                                                <ul className="book-info text-primary">
                                                     <li>
                                                         <div className="writer-info">
                                                             <img src={profile2} alt="book" />
@@ -159,10 +159,10 @@ function ShopDetail() {
                                                             </div>
                                                         </div>
                                                     </li>
-                                                    <li><span>Année</span>{publicationYear || '—'}</li>
+                                                    <li><span className="text-primary">Année</span>{publicationYear || '—'}</li>
                                                 </ul>
                                             </div>
-                                            <p className="text-1">{book.synopsis || 'Aucun résumé disponible.'}</p>
+                                            <p className="text-1" style={{textAlign: 'justify'}}>{book.synopsis || 'Aucun résumé disponible.'}</p>
                                             {book.sample_text && <p className="text-2">{book.sample_text}</p>}
                                             <div className="book-footer">
                                                 <div className="price">

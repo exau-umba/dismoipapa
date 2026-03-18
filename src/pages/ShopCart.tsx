@@ -26,14 +26,14 @@ function ShopCart() {
                 ) : (
                   <div className="table-responsive">
                     <table className="table check-tbl">
-                      <thead className='bg-primary'>
+                      <thead>
                         <tr>
-                          <th>Produit</th>
-                          <th>Nom du produit</th>
-                          <th>Prix unitaire</th>
-                          <th>Quantité</th>
-                          <th>Total</th>
-                          <th className="text-end">Supprimer</th>
+                          <th style={{ background: 'var(--primary)', color: '#fff' }}>Produit</th>
+                          <th style={{ background: 'var(--primary)', color: '#fff' }}>Nom du produit</th>
+                          <th style={{ background: 'var(--primary)', color: '#fff' }}>Prix unitaire</th>
+                          <th style={{ background: 'var(--primary)', color: '#fff' }}>Quantité</th>
+                          <th style={{ background: 'var(--primary)', color: '#fff' }}>Total</th>
+                          <th className="text-end" style={{ background: 'var(--primary)', color: '#fff' }}>Supprimer</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -123,19 +123,19 @@ function ShopCart() {
                 <div className="col-lg-6">
                   <div className="widget">
                     <h4 className="widget-title">Récapitulatif du panier</h4>
-                    <table className="table-bordered check-tbl m-b25">
+                    <table className="table-bordered check-tbl m-b25 text-primary">
                       <tbody>
                         <tr>
-                          <td>Sous-total ({totalItems} article{totalItems > 1 ? 's' : ''})</td>
-                          <td>{subtotal.toFixed(0)} FC</td>
+                          <td className="text-primary">Sous-total ({totalItems} article{totalItems > 1 ? 's' : ''})</td>
+                          <td className="text-primary">{subtotal.toFixed(0)} FC</td>
                         </tr>
                         <tr>
-                          <td>Livraison</td>
-                          <td>À préciser à l&apos;étape suivante</td>
+                          <td className="text-primary">Livraison</td>
+                          <td className="text-primary">À préciser à l&apos;étape suivante</td>
                         </tr>
                         <tr>
-                          <td><strong>Total</strong></td>
-                          <td><strong>{subtotal.toFixed(0)} FC</strong></td>
+                          <td className="text-primary"><strong>Total</strong></td>
+                          <td className="text-primary"><strong>{subtotal.toFixed(0)} FC</strong></td>
                         </tr>
                       </tbody>
                     </table>
