@@ -1,6 +1,7 @@
 /**
  * API admin (papa_dis_moi.json) : users, catalog CRUD, orders.
  */
+import { getBook } from './catalog';
 import { getJson, postJson, patchJson, delJson, API_BASE_URL } from './client';
 
 function buildBookFormData(
@@ -198,6 +199,16 @@ export async function getCatalogBookPreviewUrl(bookId: string): Promise<string> 
   if (!res.ok) throw new Error(res.status === 404 ? 'Prévisualisation non disponible pour ce livre.' : 'Impossible de charger la prévisualisation.');
   const blob = await res.blob();
   return URL.createObjectURL(blob);
+}
+
+export async function getBooksEpubPreviewUrl(bookId: string): Promise<string> {
+  // const token = localStorage.getItem('accessToken');
+  return getBook(bookId).then((book) => {
+    if (book.formats?.[0]?.format_type === 'ebook') {
+      return book.formats[0].epub_file;
+    }
+    return null;
+  });
 }
 
 // --- Orders (GET /api/orders/ liste des commandes utilisateur ; admin peut avoir toutes si le backend le permet) ---

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
-import { getCatalogBookPreviewUrl } from '../../api/admin';
+import { getBooksEpubPreviewUrl } from '../../api/admin';
 import { getFriendlyErrorMessage } from '../../utils/errorMessages';
 import ErrorMessage from '../../components/ErrorMessage';
 import EpubReader from '../../components/EpubReader';
@@ -38,7 +38,9 @@ export default function AdminBookReader() {
       setLoading(true);
       setError(null);
       try {
-        const url = await getCatalogBookPreviewUrl(id);
+        const url = await getBooksEpubPreviewUrl(id);
+        console.log("Url epub", url);
+        console.log("ID livre epub", id);
         if (!cancelled) {
           setPreviewUrl(url);
           setTitle('Lecture du livre');
@@ -84,7 +86,8 @@ export default function AdminBookReader() {
         return;
       }
       if (!id) return;
-      const url = await getCatalogBookPreviewUrl(id);
+      const url = await getBooksEpubPreviewUrl(id);
+      if (!url) return;
       const a = document.createElement('a');
       a.href = url;
       a.download = `livre-${id}.epub`;
