@@ -12,6 +12,7 @@ import AboutUs from './AboutUs';
 import Auteur from './Auteur';
 import MyProfile from './MyProfile';
 import MyBooks from './MyBooks';
+import MyOrders from './MyOrders';
 import Faq from './Faq';
 import HelpDesk from './HelpDesk';
 // import Pricing from './Pricing';
@@ -77,6 +78,7 @@ function Index() {
           <Route path="/auteur" element={<Auteur />} />
           <Route path="/my-profile" element={<ProtectedRoute><MyProfile /></ProtectedRoute>} />
           <Route path="/my-books" element={<ProtectedRoute><MyBooks /></ProtectedRoute>} />
+          <Route path="/my-orders" element={<ProtectedRoute><MyOrders /></ProtectedRoute>} />
           <Route path="/reader/:id" element={<ProtectedRoute><BookReader /></ProtectedRoute>} />
           {/* <Route path="/services" element={<Services />} /> */}
           <Route path="/faq" element={<Faq />} />
