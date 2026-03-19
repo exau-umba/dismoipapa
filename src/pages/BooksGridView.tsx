@@ -237,12 +237,12 @@ function BooksGridView() {
                                         <div className="dz-media">
                                             <Link to={`/books-detail/${data.id}`}><img src={data.image} alt={data.title} /></Link>
                                         </div>
-                                        <div className="bookmark-btn style-2">
+                                        {/* <div className="bookmark-btn style-2">
                                             <input className="form-check-input" type="checkbox" id={`flexCheckDefault${i+21}`} />
                                             <label className="form-check-label" htmlFor={`flexCheckDefault${i+21}`}>
                                                 <i className="flaticon-heart"></i>
                                             </label>
-                                        </div> 
+                                        </div>  */}
                                         <div className="dz-content">
                                             <h5 className="title book-title-truncate" title={data.title}><Link to={`/books-detail/${data.id}`}>{data.title}</Link></h5>
                                             <ul className="dz-tags">
@@ -253,19 +253,19 @@ function BooksGridView() {
                                                   <li><Link to={"/books-grid-view"}>{data.subtitle2}</Link></li>
                                                 )}
                                             </ul>
-                                            <ul className="dz-rating">
+                                            {/* <ul className="dz-rating">
                                                 <li><i className="flaticon-star text-primary"></i></li>	
                                                 <li><i className="flaticon-star text-primary"></i></li>	
                                                 <li><i className="flaticon-star text-primary"></i></li>	
                                                 <li><i className="flaticon-star text-primary"></i></li>		
                                                 <li><i className="flaticon-star text-primary"></i></li>		
-                                            </ul>
+                                            </ul> */}
                                             <div className="book-footer">
                                                 <div className="price">
                                                     {data.price1 ? (
                                                       <>
-                                                        <span className="price-num">{data.price1} FC</span>
-                                                        {data.price2 && <del>{data.price2} FC</del>}
+                                                        <span className="price-num">{data.price1} $</span>
+                                                        {data.price2 && <del>{data.price2} $</del>}
                                                       </>
                                                     ) : (
                                                       <span className="price-num text-muted">Prix à venir</span>
@@ -280,7 +280,7 @@ function BooksGridView() {
                             })}   
                              
                         </div>
-                        <div className="row page mt-0">
+                        {/* <div className="row page mt-0">
                             <div className="col-md-6">
                                 <p className="page-text">Showing 12 from 50 data</p>
                             </div>
@@ -295,7 +295,7 @@ function BooksGridView() {
                                     </ul>
                                 </nav>
                             </div>
-                        </div>    
+                        </div>     */}
                     </div>
                 </section>
                 {/* <div className="bg-white py-5">

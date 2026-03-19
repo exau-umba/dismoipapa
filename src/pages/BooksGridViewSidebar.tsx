@@ -165,7 +165,7 @@ function BooksGridViewSidebar() {
                                                     )}
                                                     <div className="book-footer">
                                                         <div className="price">
-                                                            {price ? <span className="price-num">{price} FC</span> : <span className="price-num text-muted">—</span>}
+                                                            {price ? <span className="price-num">{price} $</span> : <span className="price-num text-muted">—</span>}
                                                         </div>
                                                         <Link to={`/books-detail/${book.id}`} className="btn btn-secondary box-btn btnhover btnhover2"><i className="flaticon-shopping-cart-1 m-r10"></i> Voir</Link>
                                                     </div>

@@ -136,8 +136,8 @@ function BooksListViewSidebar(){
                                                     <h4 className="title mb-0 book-title-truncate" title={data.title}><Link to={"books-list-view-sidebar"}>{data.title}</Link></h4>
                                                 </div>
                                                 <div className="price">
-                                                    <span className="price-num text-primary">{data.price1} FC</span>
-                                                    <del>{data.price2} FC</del>
+                                                    <span className="price-num text-primary">{data.price1} $</span>
+                                                    <del>{data.price2} $</del>
                                                 </div>
                                             </div>
                                             
