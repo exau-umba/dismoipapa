@@ -49,7 +49,7 @@ function ShopDetail() {
     const [count, setCount] = useState<number>(1);
     const { addItem } = useCart();
     const [fileFormat, setFileFormat] = useState<'pdf' | 'epub' | null>(null);
-    const [productType, setProductType] = useState<'ebook' | 'physical'>('ebook');
+    const [productType, setProductType] = useState<'ebook' | 'physical' | ''>('');
 
     useEffect(() => {
         if (!id) {
@@ -81,8 +81,9 @@ function ShopDetail() {
         const formats = book?.formats || [];
         const hasEbook = formats.some((f) => (f.format_type ?? '') === 'ebook');
         const hasPhysical = formats.some((f) => (f.format_type ?? '') === 'physical');
-        // Par défaut : ebook si dispo, sinon physique
-        setProductType(hasEbook ? 'ebook' : hasPhysical ? 'physical' : 'ebook');
+        // Si les 2 formats existent, le client doit choisir explicitement avant ajout panier.
+        if (hasEbook && hasPhysical) setProductType('');
+        else setProductType(hasEbook ? 'ebook' : hasPhysical ? 'physical' : '');
         setCount(1);
     }, [book]);
 
@@ -101,17 +102,17 @@ function ShopDetail() {
     const publicationYear = book.publication_date ? book.publication_date.slice(0, 4) : '';
     const ebookFormat = book.formats?.find((f) => (f.format_type ?? '') === 'ebook') ?? null;
     const physicalFormat = book.formats?.find((f) => (f.format_type ?? '') === 'physical') ?? null;
-    const selectedFormat = productType === 'physical' ? physicalFormat : ebookFormat;
+    const selectedFormat = productType === 'physical' ? physicalFormat : productType === 'ebook' ? ebookFormat : null;
     const price = selectedFormat?.price ?? '';
-    const isEbook = productType === 'ebook';
     const hasPdf = Boolean(ebookFormat?.pdf_file);
     const hasEpub = Boolean(ebookFormat?.epub_file);
+    const canAddToCart = Boolean(productType) && (productType !== 'ebook' || fileFormat !== null);
 
     const tableDetail = [
         { tablehead: 'Titre', tabledata: book.title },
         { tablehead: 'Auteur', tabledata: book.author },
         { tablehead: 'Langue', tabledata: book.language === 'en' ? 'English' : book.language === 'fr' ? 'Français' : book.language || '—' },
-        { tablehead: 'Date de publication', tabledata: book.publication_date ? new Date(book.publication_date).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long' }) : '—' },
+        { tablehead: 'Année publication', tabledata: book.publication_date ? new Date(book.publication_date).toLocaleDateString('fr-FR', { year: 'numeric'}) : '—' },
     ];
 
     return (
@@ -194,8 +195,14 @@ function ShopDetail() {
                                                             <select
                                                                 className="form-select form-select-sm"
                                                                 value={productType}
-                                                                onChange={(e) => setProductType(e.target.value as 'ebook' | 'physical')}
+                                                                onChange={(e) => {
+                                                                    const next = e.target.value as 'ebook' | 'physical' | '';
+                                                                    setProductType(next);
+                                                                    if (next !== 'ebook') setFileFormat(null);
+                                                                    if (next === 'ebook') setFileFormat(hasPdf ? 'pdf' : hasEpub ? 'epub' : null);
+                                                                }}
                                                             >
+                                                                <option value="" disabled>Choisir un format</option>
                                                                 {ebookFormat && <option value="ebook">E-book</option>}
                                                                 {physicalFormat && <option value="physical">Physique</option>}
                                                             </select>
@@ -210,9 +217,9 @@ function ShopDetail() {
                                                       </div>
                                                     )}
 
-                                                    {/* {productType === 'ebook' && ebookFormat && (hasPdf || hasEpub) && (
+                                                    {productType === 'ebook' && ebookFormat && (hasPdf || hasEpub) && (
                                                         <div className="me-3" style={{ minWidth: 190 }}>
-                                                            <label className="d-block small text-muted mb-1">Format de téléchargement</label>
+                                                            <label className="d-block small text-muted mb-1">Format du fichier</label>
                                                             <select
                                                                 className="form-select form-select-sm"
                                                                 value={fileFormat ?? ''}
@@ -222,11 +229,13 @@ function ShopDetail() {
                                                                 {hasEpub && <option value="epub">EPUB (lecture dans l'app)</option>}
                                                             </select>
                                                         </div>
-                                                    )} */}
+                                                    )}
                                                     <button
                                                         type="button"
                                                         className="btn btn-primary btnhover btnhover2"
+                                                        disabled={!canAddToCart}
                                                         onClick={() => {
+                                                            if (!canAddToCart || !productType) return;
                                                             addItem({
                                                                 bookId: book.id,
                                                                 title: book.title,
@@ -234,7 +243,7 @@ function ShopDetail() {
                                                                 price: price || '0',
                                                                 quantity: productType === 'ebook' ? 1 : Math.max(1, count),
                                                                 fileFormat: productType === 'ebook' ? fileFormat : null,
-                                                                productType,
+                                                                productType: productType as 'ebook' | 'physical',
                                                             });
                                                             setCount(1);
                                                         }}

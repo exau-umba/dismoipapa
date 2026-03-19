@@ -15,9 +15,12 @@ interface FormState {
   sample_text: string;
   language: string;
   publication_date: string;
-  price: string;
-  stock_quantity: string;
-  format_type: 'physical' | 'ebook';
+  ebook_enabled: boolean;
+  ebook_price: string;
+  ebook_stock_quantity: string;
+  physical_enabled: boolean;
+  physical_price: string;
+  physical_stock_quantity: string;
 }
 
 const emptyForm: FormState = {
@@ -28,9 +31,12 @@ const emptyForm: FormState = {
   sample_text: '',
   language: 'fr',
   publication_date: '',
-  price: '',
-  stock_quantity: '0',
-  format_type: 'physical',
+  ebook_enabled: true,
+  ebook_price: '',
+  ebook_stock_quantity: '0',
+  physical_enabled: false,
+  physical_price: '',
+  physical_stock_quantity: '0',
 };
 
 export default function AdminBookForm() {
@@ -39,7 +45,8 @@ export default function AdminBookForm() {
   const isEdit = Boolean(id);
 
   const [form, setForm] = useState<FormState>(emptyForm);
-  const [formatId, setFormatId] = useState<string | null>(null);
+  const [ebookFormatId, setEbookFormatId] = useState<string | null>(null);
+  const [physicalFormatId, setPhysicalFormatId] = useState<string | null>(null);
   const [catalogs, setCatalogs] = useState<Catalog[]>([]);
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const [coverPreviewUrl, setCoverPreviewUrl] = useState<string | null>(null);
@@ -77,20 +84,26 @@ export default function AdminBookForm() {
           sample_text: book.sample_text ?? '',
           language: book.language ?? 'fr',
           publication_date: book.publication_date ? book.publication_date.slice(0, 10) : '',
-          price: '',
-          stock_quantity: '',
-          format_type: 'physical',
+          ebook_enabled: false,
+          ebook_price: '',
+          ebook_stock_quantity: '0',
+          physical_enabled: false,
+          physical_price: '',
+          physical_stock_quantity: '0',
         });
-        const f = book.formats?.[0];
-        if (f) {
-          setFormatId(f.id);
-          setForm((prev) => ({
-            ...prev,
-            price: f.price ?? '',
-            stock_quantity: String(f.stock_quantity ?? 0),
-            format_type: (f.format_type === 'ebook' ? 'ebook' : 'physical') as 'physical' | 'ebook',
-          }));
-        }
+        const ebookFormat = book.formats?.find((f) => f.format_type === 'ebook');
+        const physicalFormat = book.formats?.find((f) => f.format_type === 'physical');
+        setEbookFormatId(ebookFormat?.id ?? null);
+        setPhysicalFormatId(physicalFormat?.id ?? null);
+        setForm((prev) => ({
+          ...prev,
+          ebook_enabled: Boolean(ebookFormat),
+          ebook_price: ebookFormat?.price ?? '',
+          ebook_stock_quantity: String(ebookFormat?.stock_quantity ?? 0),
+          physical_enabled: Boolean(physicalFormat),
+          physical_price: physicalFormat?.price ?? '',
+          physical_stock_quantity: String(physicalFormat?.stock_quantity ?? 0),
+        }));
         const cover = book.cover_image;
         if (cover) setExistingCoverUrl(cover);
       })
@@ -101,6 +114,10 @@ export default function AdminBookForm() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+  };
+  const handleCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target;
+    setForm((prev) => ({ ...prev, [name]: checked }));
   };
 
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -123,6 +140,26 @@ export default function AdminBookForm() {
     setError(null);
     setSubmitting(true);
     try {
+      const formatsToCreate: { format_type: 'ebook' | 'physical'; price: string; stock_quantity: number }[] = [];
+      if (form.ebook_enabled) {
+        formatsToCreate.push({
+          format_type: 'ebook',
+          price: form.ebook_price || '0',
+          stock_quantity: parseInt(form.ebook_stock_quantity, 10) || 0,
+        });
+      }
+      if (form.physical_enabled) {
+        formatsToCreate.push({
+          format_type: 'physical',
+          price: form.physical_price || '0',
+          stock_quantity: parseInt(form.physical_stock_quantity, 10) || 0,
+        });
+      }
+      if (formatsToCreate.length === 0) {
+        setError('Veuillez activer au moins un format (E-book ou Physique).');
+        return;
+      }
+
       if (isEdit && id) {
         await updateBook(
           id,
@@ -137,19 +174,22 @@ export default function AdminBookForm() {
           },
           coverImage || undefined
         );
-        if (formatId) {
-          const hasFormatData = form.price || form.stock_quantity !== '' || pdfFile || epubFile;
-          if (hasFormatData) {
-            await updateFormatWithFile(
-              formatId,
-              {
-                price: form.price || undefined,
-                stock_quantity: form.stock_quantity !== '' ? parseInt(form.stock_quantity, 10) : undefined,
-              },
-              pdfFile || undefined,
-              epubFile || undefined
-            );
-          }
+        if (form.ebook_enabled && ebookFormatId) {
+          await updateFormatWithFile(
+            ebookFormatId,
+            {
+              price: form.ebook_price || undefined,
+              stock_quantity: form.ebook_stock_quantity !== '' ? parseInt(form.ebook_stock_quantity, 10) : undefined,
+            },
+            pdfFile || undefined,
+            epubFile || undefined
+          );
+        }
+        if (form.physical_enabled && physicalFormatId) {
+          await updateFormat(physicalFormatId, {
+            price: form.physical_price || undefined,
+            stock_quantity: form.physical_stock_quantity !== '' ? parseInt(form.physical_stock_quantity, 10) : undefined,
+          });
         }
       } else {
         if (!form.catalog) {
@@ -165,17 +205,11 @@ export default function AdminBookForm() {
             sample_text: form.sample_text || undefined,
             language: form.language || undefined,
             publication_date: form.publication_date || undefined,
-            formats: [
-              {
-                format_type: form.format_type,
-                price: form.price || '0',
-                stock_quantity: parseInt(form.stock_quantity, 10) || 0,
-              },
-            ],
+            formats: formatsToCreate,
           },
           coverImage || undefined,
-          form.format_type === 'ebook' ? pdfFile || undefined : undefined,
-          form.format_type === 'ebook' ? epubFile || undefined : undefined
+          form.ebook_enabled ? pdfFile || undefined : undefined,
+          form.ebook_enabled ? epubFile || undefined : undefined
         );
       }
       navigate('/admin/livres');
@@ -268,31 +302,94 @@ export default function AdminBookForm() {
             <Form.Label>Extrait (sample_text)</Form.Label>
             <Form.Control as="textarea" rows={2} name="sample_text" value={form.sample_text} onChange={handleChange} />
           </Form.Group>
-          <h6 className="admin-card-title mt-3">Format et tarif</h6>
+          <h6 className="admin-card-title mt-3">Formats et tarifs</h6>
           <Row>
-            <Col md={4}>
+            <Col md={6}>
               <Form.Group className="mb-3">
-                <Form.Label>Type de format</Form.Label>
-                <Form.Select name="format_type" value={form.format_type} onChange={handleChange} disabled={!!formatId}>
-                  <option value="physical">Physique</option>
-                  <option value="ebook">E-book</option>
-                </Form.Select>
+                <Form.Check
+                  type="switch"
+                  id="ebook-enabled"
+                  name="ebook_enabled"
+                  label="Activer le format E-book"
+                  checked={form.ebook_enabled}
+                  onChange={handleCheck}
+                />
               </Form.Group>
             </Col>
-            <Col md={4}>
+            <Col md={6}>
               <Form.Group className="mb-3">
-                <Form.Label>Prix ($) *</Form.Label>
-                <Form.Control type="text" name="price" value={form.price} onChange={handleChange} placeholder="45000" required />
-              </Form.Group>
-            </Col>
-            <Col md={4}>
-              <Form.Group className="mb-3">
-                <Form.Label>Stock</Form.Label>
-                <Form.Control type="number" min={0} name="stock_quantity" value={form.stock_quantity} onChange={handleChange} />
+                <Form.Check
+                  type="switch"
+                  id="physical-enabled"
+                  name="physical_enabled"
+                  label="Activer le format Physique"
+                  checked={form.physical_enabled}
+                  onChange={handleCheck}
+                />
               </Form.Group>
             </Col>
           </Row>
-          {form.format_type === 'ebook' && (
+
+          <Row>
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Prix E-book ($)</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="ebook_price"
+                  value={form.ebook_price}
+                  onChange={handleChange}
+                  placeholder="45000"
+                  disabled={!form.ebook_enabled}
+                  required={form.ebook_enabled}
+                />
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Stock E-book</Form.Label>
+                <Form.Control
+                  type="number"
+                  min={0}
+                  name="ebook_stock_quantity"
+                  value={form.ebook_stock_quantity}
+                  onChange={handleChange}
+                  disabled={!form.ebook_enabled}
+                />
+              </Form.Group>
+            </Col>
+          </Row>
+
+          <Row>
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Prix Physique ($)</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="physical_price"
+                  value={form.physical_price}
+                  onChange={handleChange}
+                  placeholder="60000"
+                  disabled={!form.physical_enabled}
+                  required={form.physical_enabled}
+                />
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Stock Physique</Form.Label>
+                <Form.Control
+                  type="number"
+                  min={0}
+                  name="physical_stock_quantity"
+                  value={form.physical_stock_quantity}
+                  onChange={handleChange}
+                  disabled={!form.physical_enabled}
+                />
+              </Form.Group>
+            </Col>
+          </Row>
+          {form.ebook_enabled && (
             <>
               <h6 className="admin-card-title mt-3">Fichier(s) du livre</h6>
               <p className="text-muted small mb-2">Ajoutez au moins un fichier PDF ou EPUB pour que le livre soit téléchargeable.</p>
