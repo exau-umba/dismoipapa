@@ -154,8 +154,8 @@ export default function AdminOrderDetail() {
                       <td>{l.livre}</td>
                       <td>{l.ref}</td>
                       <td className="text-center">{l.qte}</td>
-                      <td className="text-end">{l.prixUnitaire.toFixed(2)} FC</td>
-                      <td className="text-end">{l.total.toFixed(2)} FC</td>
+                      <td className="text-end">{l.prixUnitaire.toFixed(2)} $</td>
+                      <td className="text-end">{l.total.toFixed(2)} $</td>
                     </tr>
                   ))}
                 </tbody>
@@ -169,22 +169,22 @@ export default function AdminOrderDetail() {
               <h5 className="admin-card-title">Résumé</h5>
               <div className="d-flex justify-content-between mb-2">
                 <span>Sous-total</span>
-                <span>{order.sousTotal.toFixed(2)} FC</span>
+                <span>{order.sousTotal.toFixed(2)} $</span>
               </div>
               <div className="d-flex justify-content-between mb-2">
                 <span>Livraison</span>
-                <span>{(order.fraisLivraison || 0).toFixed(2)} FC</span>
+                <span>{(order.fraisLivraison || 0).toFixed(2)} $</span>
               </div>
               {order.remise > 0 && (
                 <div className="d-flex justify-content-between mb-2 text-success">
                   <span>Remise</span>
-                  <span>-{order.remise.toFixed(2)} FC</span>
+                  <span>-{order.remise.toFixed(2)} $</span>
                 </div>
               )}
               <hr />
               <div className="d-flex justify-content-between fw-bold">
                 <span>Total</span>
-                <span>{order.total.toFixed(2)} FC</span>
+                <span>{order.total.toFixed(2)} $</span>
               </div>
               <p className="text-muted small mb-0 mt-2">{order.modePaiement}</p>
             </Card.Body>

@@ -78,8 +78,8 @@ export default function HomeMainSlider() {
 												</ul>
 												<p className="text mb-0" data-swiper-parallax="-40">Découvrez des ouvrages qui ont marqué des générations. Des classiques du développement personnel et du business.</p>
 												<div className="price" data-swiper-parallax="-50">
-													<span className="price-num">{data.price} FC</span>
-													<del>{data.mainprice} FC</del>
+													<span className="price-num">{data.price} $</span>
+													<del>{data.mainprice} $</del>
 													<span className="badge badge-danger">-{data.offer}</span>
 												</div>
 												<div className="content-btn" data-swiper-parallax="-60">
@@ -148,7 +148,7 @@ export default function HomeMainSlider() {
 								</div>
 								<div className="book-footer">
 									<div className="price">
-										<span className="price-num">{data.price} FC</span>
+										<span className="price-num">{data.price} $</span>
 									</div>
 									<div className="rate">
 										<i className="flaticon-star text-primary"></i>

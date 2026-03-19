@@ -68,7 +68,7 @@ function ShopCart() {
                                   </div>
                                 )}
                               </td>
-                              <td className="product-item-price text-primary">{data.price} FC</td>
+                              <td className="product-item-price text-primary">{data.price} $</td>
                               <td className="product-item-quantity">
                                 {data.productType === 'ebook' ? (
                                   <span className="text-muted">1</span>
@@ -92,7 +92,7 @@ function ShopCart() {
                                   </div>
                                 )}
                               </td>
-                              <td className="product-item-totle text-primary">{lineTotal.toFixed(0)} FC</td>
+                              <td className="product-item-totle text-primary">{lineTotal.toFixed(0)} $</td>
                               <td className="product-item-close">
                                 <button
                                   type="button"
@@ -127,7 +127,7 @@ function ShopCart() {
                       <tbody>
                         <tr>
                           <td className="text-primary">Sous-total ({totalItems} article{totalItems > 1 ? 's' : ''})</td>
-                          <td className="text-primary">{subtotal.toFixed(0)} FC</td>
+                          <td className="text-primary">{subtotal.toFixed(0)} $</td>
                         </tr>
                         <tr>
                           <td className="text-primary">Livraison</td>
@@ -135,7 +135,7 @@ function ShopCart() {
                         </tr>
                         <tr>
                           <td className="text-primary"><strong>Total</strong></td>
-                          <td className="text-primary"><strong>{subtotal.toFixed(0)} FC</strong></td>
+                          <td className="text-primary"><strong>{subtotal.toFixed(0)} $</strong></td>
                         </tr>
                       </tbody>
                     </table>

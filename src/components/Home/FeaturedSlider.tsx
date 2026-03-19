@@ -68,8 +68,8 @@ function FeaturedSlider() {
                                 </ul>
                                 <p className="text">Des ouvrages incontournables pour développer votre esprit et votre réussite. Une lecture essentielle pour tous.</p>
                                 <div className="price">
-                                    <span className="price-num">{45 + ind * 5}.0 FC</span>
-                                    <del>{55 + ind * 5} FC</del>
+                                    <span className="price-num">{45 + ind * 5}.0 $</span>
+                                    <del>{55 + ind * 5} $</del>
                                     <span className="badge">-20 %</span>
                                 </div>
                                 <div className="bookcard-footer">

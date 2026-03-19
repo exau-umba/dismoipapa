@@ -127,7 +127,7 @@ export default function HomeMainSlider() {
 																</ul>
 															</div>
 															<div className="price">
-																<span className="price-num">{price ? `${price} FC` : '—'}</span>
+																<span className="price-num">{price ? `${price} $` : '—'}</span>
 															</div>
 														</div>
 													</div>

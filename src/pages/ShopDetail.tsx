@@ -185,7 +185,7 @@ function ShopDetail() {
                                             )}
                                             <div className="book-footer d-flex flex-column justify-content-between">
                                                 <div className="price">
-                                                    {price ? <><h5>{price} FC</h5></> : <h5 className="text-muted">Prix sur demande</h5>}
+                                                    {price ? <><h5>{price} $</h5></> : <h5 className="text-muted">Prix sur demande</h5>}
                                                 </div>
                                                 <div className="product-num">
                                                     {(ebookFormat || physicalFormat) && (
@@ -343,7 +343,7 @@ function ShopDetail() {
                                                         <h5 className="subtitle book-title-truncate" title={related.title}><Link to={`/books-detail/${related.id}`}>{related.title}</Link></h5>
                                                         <p className="small text-muted">par {related.author}</p>
                                                         <div className="price">
-                                                            <span className="price-num">{relPrice ? `${relPrice} FC` : '—'}</span>
+                                                            <span className="price-num">{relPrice ? `${relPrice} $` : '—'}</span>
                                                         </div>
                                                         <Link to={`/books-detail/${related.id}`} className="btn btn-outline-primary btn-sm btnhover btnhover2">Voir le détail</Link>
                                                     </div>

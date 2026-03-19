@@ -104,7 +104,7 @@ export default function AdminBooks() {
                 <th>Titre</th>
                 <th>Auteur</th>
                 <th>Catalogue</th>
-                <th>Prix (FC)</th>
+                <th>Prix ($)</th>
                 <th>Stock</th>
                 <th className="text-end">Actions</th>
               </tr>

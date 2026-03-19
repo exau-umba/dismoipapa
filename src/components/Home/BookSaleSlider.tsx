@@ -87,8 +87,8 @@ function BookSaleSlider() {
                                         <i className="flaticon-star"></i> {ind+1}.8
                                     </div>
                                     <div className="price">
-                                        <span className="price-num">{ind+2},5 FC</span>
-                                        <del>12 FC</del>
+                                        <span className="price-num">{ind+2},5 $</span>
+                                        <del>12 $</del>
                                     </div>
                                 </div>
                             </div>

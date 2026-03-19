@@ -10,13 +10,13 @@ import { bookImages, bookTitles } from '../../constants/imageUrls';
 import { Autoplay } from "swiper";
 
 const dataBlog = [
-	{ image: bookImages[0], title: bookTitles[0], price:'18 780 FC' },
-	{ image: bookImages[1], title: bookTitles[1], price:'20 500 FC' },
-	{ image: bookImages[2], title: bookTitles[2], price:'25 500 FC' },
-	{ image: bookImages[3], title: bookTitles[0], price:'16 700 FC' },
-	{ image: bookImages[4], title: bookTitles[1], price:'19 250 FC' },
-	{ image: bookImages[5], title: bookTitles[2], price:'27 300 FC' },
-	{ image: bookImages[6], title: bookTitles[0], price:'24 890 FC' },
+	{ image: bookImages[0], title: bookTitles[0], price:'18 780 $' },
+	{ image: bookImages[1], title: bookTitles[1], price:'20 500 $' },
+	{ image: bookImages[2], title: bookTitles[2], price:'25 500 $' },
+	{ image: bookImages[3], title: bookTitles[0], price:'16 700 $' },
+	{ image: bookImages[4], title: bookTitles[1], price:'19 250 $' },
+	{ image: bookImages[5], title: bookTitles[2], price:'27 300 $' },
+	{ image: bookImages[6], title: bookTitles[0], price:'24 890 $' },
 ];
 
 export default function RecomendedSlider() {

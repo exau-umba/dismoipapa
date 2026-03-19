@@ -150,7 +150,7 @@ function ShopList() {
                                                     <h4 className="title mb-0 book-title-truncate" title={book.title}><Link to={`/books-detail/${book.id}`}>{book.title}</Link></h4>
                                                 </div>
                                                 <div className="price">
-                                                    {price ? <><span className="price-num text-primary">{price} FC</span></> : <span className="price-num text-muted">Prix à venir</span>}
+                                                    {price ? <><span className="price-num text-primary">{price} $</span></> : <span className="price-num text-muted">Prix à venir</span>}
                                                 </div>
                                             </div>
                                             <div className="dz-body">

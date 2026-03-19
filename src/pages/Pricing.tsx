@@ -58,7 +58,7 @@ function Pricing() {
                       </div>
                       <div className="pricingtable-price">
                         <h2 className="pricingtable-bx">
-                          {data.price} FC
+                          {data.price} $
                           <small className="pricingtable-type">/mois</small>
                         </h2>
                       </div>

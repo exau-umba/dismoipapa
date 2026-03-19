@@ -19,7 +19,7 @@ const chartData = {
       borderWidth: 1,
     },
     {
-      label: 'Ventes (×1000 FC)',
+      label: 'Ventes (×1000 $)',
       data: [450, 520, 480, 580, 550, 620],
       backgroundColor: 'rgba(26, 22, 104, 0.5)',
       borderColor: '#1a1668',
@@ -35,7 +35,7 @@ function formatMonthLabelFR(d: Date) {
 function parseOrderTotal(total: string | number | undefined): number {
   if (total == null) return 0;
   if (typeof total === 'number') return Number.isFinite(total) ? total : 0;
-  // ex: "165 000 FC", "165000", "165000.00"
+  // ex: "165 000 $", "165000", "165000.00"
   const cleaned = total.replace(/[^\d.,-]/g, '').replace(/\s+/g, '');
   if (!cleaned) return 0;
   // si virgule décimale -> remplacer par point
@@ -109,7 +109,7 @@ export default function AdminDashboard() {
           list.map((o) => ({
             id: o.id,
             client: typeof o.user === 'string' ? o.user : (o as { client?: string }).client ?? '—',
-            montant: typeof o.total === 'number' ? `${o.total} FC` : String(o.total ?? '—'),
+            montant: typeof o.total === 'number' ? `${o.total} $` : String(o.total ?? '—'),
             date: o.created_at ? new Date(o.created_at).toLocaleDateString('fr-FR') : '—',
             statut: (o.status as string) ?? '—',
           }))
@@ -118,10 +118,10 @@ export default function AdminDashboard() {
       .catch(() => {
         setOrders([]);
         setRecentOrders([
-          { id: 1001, client: 'Marie Dupont', montant: '165 000 FC', date: '08/02/2025', statut: 'Expédiée' },
-          { id: 1002, client: 'Jean Martin', montant: '130 000 FC', date: '07/02/2025', statut: 'En préparation' },
-          { id: 1003, client: 'Sophie Bernard', montant: '220 000 FC', date: '06/02/2025', statut: 'Livrée' },
-          { id: 1004, client: 'Pierre Leroy', montant: '95 000 FC', date: '05/02/2025', statut: 'En attente' },
+          { id: 1001, client: 'Marie Dupont', montant: '165 000 $', date: '08/02/2025', statut: 'Expédiée' },
+          { id: 1002, client: 'Jean Martin', montant: '130 000 $', date: '07/02/2025', statut: 'En préparation' },
+          { id: 1003, client: 'Sophie Bernard', montant: '220 000 $', date: '06/02/2025', statut: 'Livrée' },
+          { id: 1004, client: 'Pierre Leroy', montant: '95 000 $', date: '05/02/2025', statut: 'En attente' },
         ]);
       });
   }, []);
@@ -153,7 +153,7 @@ export default function AdminDashboard() {
       labels,
       datasets: [
         {
-          label: 'Revenus (FC)',
+          label: 'Revenus ($)',
           data: values,
           borderColor: '#029e76',
           backgroundColor: 'rgba(2, 158, 118, 0.1)',
@@ -212,7 +212,7 @@ export default function AdminDashboard() {
     { label: 'Total les commandes', value: '128', icon: 'fa-shopping-cart', type: 'primary' as const, change: '+12%' },
     { label: 'Livres en catalogue', value: booksCount !== null ? String(booksCount) : '—', icon: 'fa-book', type: 'success' as const, change: '' },
     { label: 'Utilisateurs', value: usersCount !== null ? String(usersCount) : '—', icon: 'fa-users', type: 'info' as const, change: '' },
-    // { label: "Chiffre d'affaires (FC)", value: '2 450 000', icon: 'fa-euro-sign', type: 'warning' as const, change: '+18%' },
+    // { label: "Chiffre d'affaires ($)", value: '2 450 000', icon: 'fa-euro-sign', type: 'warning' as const, change: '+18%' },
     // { label: 'Abonnements actifs', value: '892', icon: 'fa-star', type: 'success' as const, change: '+45' },
     { label: 'Livres téléchargés', value: '2 134', icon: 'fa-download', type: 'primary' as const, change: '+234' },
   ];

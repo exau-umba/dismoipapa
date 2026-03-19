@@ -63,7 +63,7 @@ export default function AdminSettings() {
           <Row>
             <Col md={4}>
               <Form.Group className="mb-3">
-                <Form.Label>Seuil livraison gratuite (FC)</Form.Label>
+                <Form.Label>Seuil livraison gratuite ($)</Form.Label>
                 <Form.Control type="number" name="livraisonGratuite" value={settings.livraisonGratuite} onChange={handleChange} />
               </Form.Group>
             </Col>

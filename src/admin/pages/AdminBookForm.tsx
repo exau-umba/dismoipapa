@@ -281,7 +281,7 @@ export default function AdminBookForm() {
             </Col>
             <Col md={4}>
               <Form.Group className="mb-3">
-                <Form.Label>Prix (FC) *</Form.Label>
+                <Form.Label>Prix ($) *</Form.Label>
                 <Form.Control type="text" name="price" value={form.price} onChange={handleChange} placeholder="45000" required />
               </Form.Group>
             </Col>

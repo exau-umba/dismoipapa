@@ -194,7 +194,7 @@ function Header() {
                                   </Link>
                                 </h6>
                                 <span className="dz-price">
-                                  {item.price} FC × {item.quantity}
+                                  {item.price} $ × {item.quantity}
                                   {` • ${productTypeLabel(item.productType)}`}
                                   {item.productType === 'ebook' && item.fileFormat ? ` • ${formatLabel(item.fileFormat)}` : ''}
                                 </span>
@@ -204,7 +204,7 @@ function Header() {
                           </li>
                         ))}
                         <li className="cart-item text-center">
-                          <h6 className="text-secondary">Total = {cartSubtotal.toFixed(0)} FC</h6>
+                          <h6 className="text-secondary">Total = {cartSubtotal.toFixed(0)} $</h6>
                         </li>
                         <li className="text-center d-flex">
                           <Link to="/shop-cart" className="btn btn-sm btn-primary me-2 btnhover w-100">Voir le panier</Link>

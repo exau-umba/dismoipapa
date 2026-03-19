@@ -68,7 +68,7 @@ function Wishlist(){
                                                 <tr key={index}>
                                                     <td className="product-item-img"><img src={data.image} alt="" /></td>
                                                     <td className="product-item-name book-title-truncate" title={data.title}>{data.title}</td>
-                                                    <td className="product-item-price">{data.price} FC</td>
+                                                    <td className="product-item-price">{data.price} $</td>
                                                     <td className="product-item-quantity">
                                                         <div className="quantity btn-quantity style-1 me-3">
                                                             <button className="btn btn-plus" type="button" 

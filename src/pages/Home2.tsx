@@ -191,7 +191,7 @@ function Home2(){
                                                 <h3 className="title">{data.title}</h3>
                                             </div>
                                             <div className="pricingtable-price"> 
-                                                <h2 className="pricingtable-bx">{data.price} FC<small className="pricingtable-type">/mois</small></h2>
+                                                <h2 className="pricingtable-bx">{data.price} $<small className="pricingtable-type">/mois</small></h2>
                                             </div>
                                             <p className="text">{data.desc}</p>
                                             <ul className="pricingtable-features">

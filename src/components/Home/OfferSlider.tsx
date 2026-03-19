@@ -86,7 +86,7 @@ function OfferSlider() {
                                 <div className="bookcard-footer">
                                     <Link to={"/shop-cart"} className="btn btn-primary m-t15 btnhover btnhover2"><i className="flaticon-shopping-cart-1 m-r10"></i> Ajouter au panier</Link>
                                     <div className="price-details">
-                                        50 000 FC <del>62 500 FC</del>
+                                        50 000 $ <del>62 500 $</del>
                                     </div>
                                 </div>
                             </div>
