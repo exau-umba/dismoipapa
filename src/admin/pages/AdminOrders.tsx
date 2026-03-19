@@ -5,19 +5,25 @@ import { listOrders } from '../../api/admin';
 import type { AdminOrder } from '../../api/admin';
 
 const statutVariant: Record<string, string> = {
-  'En attente': 'warning',
-  'pending': 'warning',
-  'En préparation': 'info',
-  'preparation': 'info',
-  'Expédiée': 'primary',
-  'shipped': 'primary',
-  'Livrée': 'success',
-  'delivered': 'success',
+  // payment_status
+  'Paid': 'success',
   'paid': 'success',
+  'Failed': 'danger',
+  'failed': 'danger',
+  'Pending': 'warning',
+  'pending': 'warning',
+  // shipping_status (ou anciens états backend)
+  'En attente': 'warning',
+  'En préparation': 'info',
+  'Expédiée': 'primary',
+  'Livrée': 'success',
+  'preparation': 'info',
+  'shipped': 'primary',
+  'delivered': 'success',
 };
 
 function formatOrderDate(o: AdminOrder): string {
-  const raw = o.created_at ?? (o as { date?: string }).date;
+  const raw = o.order_date ?? o.created_at ?? (o as { date?: string }).date;
   if (!raw) return '—';
   try {
     return new Date(raw).toLocaleDateString('fr-FR');
@@ -34,18 +40,22 @@ function formatOrderClient(o: AdminOrder): string {
 }
 
 function formatOrderTotal(o: AdminOrder): string {
-  const t = o.total;
+  const t = o.total_amount ?? o.total;
   if (t === undefined || t === null) return '—';
   if (typeof t === 'number') return `${t} $`;
   return String(t);
 }
 
 const mockOrders: AdminOrder[] = [
-    { id: '1001', created_at: '2025-02-08', user: 'Marie Dupont', total: '165 000 $', status: 'Expédiée' },
-    { id: '1002', created_at: '2025-02-07', user: 'Jean Martin', total: '130 000 $', status: 'En préparation' },
-    { id: '1003', created_at: '2025-02-06', user: 'Sophie Bernard', total: '220 000 $', status: 'Livrée' },
-    { id: '1004', created_at: '2025-02-05', user: 'Pierre Leroy', total: '95 000 $', status: 'En attente' },
-  ];
+  {
+    id: '1001',
+    order_date: '2025-02-08',
+    user: 'Marie Dupont',
+    total_amount: '165 000 $',
+    payment_status: 'Paid',
+    shipping_status: 'Livrée',
+  },
+];
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState<AdminOrder[]>([]);
@@ -67,7 +77,6 @@ export default function AdminOrders() {
   }, []);
 
   const displayOrders = orders.length > 0 ? orders : mockOrders;
-  const statusKey = (o: AdminOrder) => (o.status ?? '').toLowerCase();
 
   return (
     <>
@@ -95,8 +104,9 @@ export default function AdminOrders() {
                 <th>N° commande</th>
                 <th>Date</th>
                 <th>Client</th>
-                <th>Total</th>
-                <th>Statut</th>
+                  <th>Paiement</th>
+                  <th>Livraison</th>
+                  <th>Total</th>
                 <th className="text-end">Actions</th>
               </tr>
             </thead>
@@ -106,12 +116,17 @@ export default function AdminOrders() {
                   <td><strong>#CMD-{o.id}</strong></td>
                   <td>{formatOrderDate(o)}</td>
                   <td>{formatOrderClient(o)}</td>
-                  <td>{formatOrderTotal(o)}</td>
                   <td>
-                    <Badge bg={statutVariant[o.status ?? ''] || statutVariant[statusKey(o)] || 'secondary'}>
-                      {o.status ?? '—'}
+                    <Badge bg={statutVariant[String(o.payment_status ?? '')] || 'secondary'}>
+                      {o.payment_status || '—'}
                     </Badge>
                   </td>
+                  <td>
+                    <Badge bg={statutVariant[String(o.shipping_status ?? '')] || 'secondary'}>
+                      {o.shipping_status || '—'}
+                    </Badge>
+                  </td>
+                  <td>{formatOrderTotal(o)}</td>
                   <td className="text-end">
                     <Link to={`/admin/commandes/${o.id}`} className="btn btn-sm btn-outline-primary">
                       Détail

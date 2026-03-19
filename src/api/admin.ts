@@ -215,15 +215,23 @@ export async function getBooksEpubPreviewUrl(bookId: string): Promise<string> {
 export interface OrderItem {
   format: string;
   quantity: number;
+  unit_price?: string;
+  book_title?: string;
+  format_name?: string;
+  [key: string]: unknown;
 }
 
 export interface AdminOrder {
   id: string;
-  user?: string;
   shipping_address?: string;
-  status?: string;
-  total?: string | number;
-  created_at?: string;
+  order_date?: string;
+  total_amount?: string | number;
+  payment_status?: string | null;
+  shipping_status?: string | null;
+  user?: string | { email?: string };
+  created_at?: string; // fallback
+  total?: string | number; // fallback
+  status?: string; // fallback
   items?: OrderItem[];
   [key: string]: unknown;
 }

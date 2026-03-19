@@ -1,6 +1,72 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Card, Table, Form, Row, Col, Button } from 'react-bootstrap';
+import { getOrder, type AdminOrder, type OrderItem } from '../../api/admin';
+import { getFriendlyErrorMessage } from '../../utils/errorMessages';
+
+function parseMoneyToNumber(v: unknown): number {
+  if (typeof v === 'number') return Number.isFinite(v) ? v : 0;
+  if (typeof v === 'string') {
+    const cleaned = v.replace(/[^\d.,-]/g, '').replace(/\s+/g, '');
+    if (!cleaned) return 0;
+    const normalized = cleaned.includes(',') && !cleaned.includes('.') ? cleaned.replace(',', '.') : cleaned;
+    const n = parseFloat(normalized);
+    return Number.isFinite(n) ? n : 0;
+  }
+  return 0;
+}
+
+function normalizeStatusToUiOption(status: unknown): string {
+  if (!status) return 'En attente';
+  const s = String(status).toLowerCase();
+  if (s.includes('livr')) return 'Livrée';
+  if (s.includes('exp') || s.includes('shipped')) return 'Expédiée';
+  if (s.includes('prépa') || s.includes('prepar')) return 'En préparation';
+  return 'En attente';
+}
+
+function mapApiOrderToOrderDetail(apiOrder: AdminOrder): OrderDetail {
+  const items = (apiOrder.items ?? []) as OrderItem[];
+  const lignes: OrderLine[] = items.map((it) => {
+    const unit = parseMoneyToNumber((it as { unit_price?: string }).unit_price);
+    const quantity = Number.isFinite(it.quantity) ? it.quantity : 1;
+    return {
+      livre: (it.book_title ?? 'Livre') as string,
+      ref: (it.format_name ?? it.format ?? '—') as string,
+      qte: quantity,
+      prixUnitaire: unit,
+      total: unit * quantity,
+    };
+  });
+
+  const total = parseMoneyToNumber(apiOrder.total_amount ?? apiOrder.total);
+  const orderDate = apiOrder.order_date ?? apiOrder.created_at ?? '';
+  const shippingAddress = apiOrder.shipping_address ?? '—';
+  const paymentStatus = apiOrder.payment_status ?? apiOrder.status ?? '—';
+
+  return {
+    id: Number(apiOrder.id) || 0,
+    numero: `#CMD-${apiOrder.id}`,
+    date: orderDate ? new Date(orderDate).toLocaleDateString('fr-FR') : '—',
+    statut: normalizeStatusToUiOption(apiOrder.shipping_status ?? apiOrder.payment_status ?? paymentStatus),
+    client: { nom: '—', email: '—', tel: '—' },
+    adresseLivraison: {
+      adresse: shippingAddress,
+      complement: '',
+      codePostal: '',
+      ville: '',
+      pays: '',
+    },
+    facturation: { adresse: shippingAddress, codePostal: '', ville: '' },
+    lignes,
+    sousTotal: total,
+    fraisLivraison: 0,
+    remise: 0,
+    total,
+    modePaiement: paymentStatus,
+    note: '',
+  };
+}
 
 interface OrderLine {
   livre: string;
@@ -110,13 +176,58 @@ const statutOptions = ['En attente', 'En préparation', 'Expédiée', 'Livrée']
 
 export default function AdminOrderDetail() {
   const { id } = useParams<{ id: string }>();
-  const order = id ? mockOrdersDetail[Number(id)] : undefined;
-  const [statut, setStatut] = useState(order ? order.statut : 'En attente');
+  const [order, setOrder] = useState<OrderDetail | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [statut, setStatut] = useState('En attente');
 
-  if (!order) {
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      if (!id) {
+        setError('Commande introuvable.');
+        setLoading(false);
+        return;
+      }
+      setLoading(true);
+      setError(null);
+      try {
+        const apiOrder = await getOrder(id);
+        if (cancelled) return;
+        const mapped = mapApiOrderToOrderDetail(apiOrder);
+        setOrder(mapped);
+        setStatut(mapped.statut);
+      } catch (err) {
+        if (cancelled) return;
+        const fallback = mockOrdersDetail[Number(id)];
+        if (fallback) {
+          setOrder(fallback);
+          setStatut(fallback.statut);
+        } else {
+          setError(getFriendlyErrorMessage(err));
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="page-content bg-grey">
+        <div className="container py-5 text-center">Chargement de la commande…</div>
+      </div>
+    );
+  }
+
+  if (error || !order) {
     return (
       <div className="admin-card">
-        <p>Commande introuvable.</p>
+        <p>{error || 'Commande introuvable.'}</p>
         <Link to="/admin/commandes">Retour à la liste</Link>
       </div>
     );
