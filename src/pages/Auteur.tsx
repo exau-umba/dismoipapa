@@ -36,7 +36,7 @@ function Auteur() {
                   <div className="rounded overflow-hidden shadow-sm d-inline-block">
                     <img
                       // src={profileImages[0]}
-                      src="/images/jrmm.png"
+                      src="/images/jrmm.jpg"
                       alt={AUTHOR_NAME}
                       style={{ maxWidth: '420px', width: '100%', height: 'auto', objectFit: 'cover' }}
                     />
@@ -56,25 +56,30 @@ function Auteur() {
                       Outre ces études, il a suivi 12 mois de Comptabilité au CIDEP/Matadi et a quitté l'Institut Supérieur de Commerce de Matadi lorsqu'il était en troisième année de Graduat/soir.
                       <br /><br />
                       Engagé comme inspecteur pétrolier à l'Office Congolais de Contrôle (OCC), Agence de Muanda en 2000, il est présentement Chef de Département Certification et Contrôle de la Production Locale Adjoint dans cet établissement public.
-                      <br /><br />
-                      Il a publié notamment :<br /><br />
-                      - « Les dangers de la sismique pétrolière dans une zone à risque volcanique » in Madose : Revue culturelle et scientifique, n° 083, Mwene Ditu, Novembre – Décembre 2022 ;<br />
-                      - Le canard : Recueil des poèmes et fables, Éditions Madose, Mwene Ditu, 2023 ;<br />
-                      - Gestion de stock des hydrocarbures liquides et/ou liquéfiés, Éditions Madose, Mwene Ditu, 2024 ;<br />
+
                     </p>
                   </div>
                   <div className="dz-social-icon style-1 mt-3">
                     <ul>
                       <li>
                         <a
-                          href="https://www.facebook.com/dismoipapa"
+                          href="mailto:richemambueni@yahoo.com"
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <i className="flaticon-email"></i>
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          href="https://facebook.com/jeanrichard.mambuenimabiala"
                           target="_blank"
                           rel="noreferrer"
                         >
                           <i className="fa-brands fa-facebook-f"></i>
                         </a>
                       </li>
-                      <li>
+                      {/* <li>
                         <a
                           href="https://www.youtube.com/@dismoipapa"
                           target="_blank"
@@ -82,8 +87,8 @@ function Auteur() {
                         >
                           <i className="fa-brands fa-youtube"></i>
                         </a>
-                      </li>
-                      <li>
+                      </li> */}
+                      {/* <li>
                         <a
                           href="https://www.linkedin.com/company/dismoipapa"
                           target="_blank"
@@ -91,8 +96,17 @@ function Auteur() {
                         >
                           <i className="fa-brands fa-linkedin"></i>
                         </a>
-                      </li>
+                      </li> */}
                       <li>
+                        <a
+                          href="tel:+243898370893"
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <i className="flaticon-phone"></i>
+                        </a>
+                      </li>
+                      {/* <li>
                         <a
                           href="https://www.instagram.com/dismoipapa"
                           target="_blank"
@@ -100,7 +114,7 @@ function Auteur() {
                         >
                           <i className="fa-brands fa-instagram"></i>
                         </a>
-                      </li>
+                      </li> */}
                     </ul>
                   </div>
                 </div>

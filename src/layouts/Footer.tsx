@@ -244,7 +244,7 @@ function Footer({ footerChange = '', logoImage }: FooterProps) {
                     <li>
                       <i className="flaticon-phone"></i>
                       <span>
-                        +243 999 999 999
+                      +243 89 83 70 893
                       </span>
                     </li>
                     <li>
