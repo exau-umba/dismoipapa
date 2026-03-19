@@ -19393,7 +19393,7 @@ ul a.rsswidget {
   background: var(--primary);
   padding: 0;
   display: inline-block;
-  padding: 15px 30px;
+  padding: 5px 10px;
   border-radius: var(--border-radius-base); }
   .breadcrumb-row ul li {
     padding: 0;
