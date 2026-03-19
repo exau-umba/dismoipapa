@@ -17,7 +17,6 @@ interface FormState {
   publication_date: string;
   ebook_enabled: boolean;
   ebook_price: string;
-  ebook_stock_quantity: string;
   physical_enabled: boolean;
   physical_price: string;
   physical_stock_quantity: string;
@@ -33,7 +32,6 @@ const emptyForm: FormState = {
   publication_date: '',
   ebook_enabled: true,
   ebook_price: '',
-  ebook_stock_quantity: '0',
   physical_enabled: false,
   physical_price: '',
   physical_stock_quantity: '0',
@@ -86,7 +84,6 @@ export default function AdminBookForm() {
           publication_date: book.publication_date ? book.publication_date.slice(0, 10) : '',
           ebook_enabled: false,
           ebook_price: '',
-          ebook_stock_quantity: '0',
           physical_enabled: false,
           physical_price: '',
           physical_stock_quantity: '0',
@@ -99,7 +96,6 @@ export default function AdminBookForm() {
           ...prev,
           ebook_enabled: Boolean(ebookFormat),
           ebook_price: ebookFormat?.price ?? '',
-          ebook_stock_quantity: String(ebookFormat?.stock_quantity ?? 0),
           physical_enabled: Boolean(physicalFormat),
           physical_price: physicalFormat?.price ?? '',
           physical_stock_quantity: String(physicalFormat?.stock_quantity ?? 0),
@@ -145,7 +141,8 @@ export default function AdminBookForm() {
         formatsToCreate.push({
           format_type: 'ebook',
           price: form.ebook_price || '0',
-          stock_quantity: parseInt(form.ebook_stock_quantity, 10) || 0,
+          // Pas de gestion de stock pour les E-books
+          stock_quantity: 0,
         });
       }
       if (form.physical_enabled) {
@@ -179,7 +176,8 @@ export default function AdminBookForm() {
             ebookFormatId,
             {
               price: form.ebook_price || undefined,
-              stock_quantity: form.ebook_stock_quantity !== '' ? parseInt(form.ebook_stock_quantity, 10) : undefined,
+              // Pas de gestion de stock pour les E-books
+              stock_quantity: undefined,
             },
             pdfFile || undefined,
             epubFile || undefined
@@ -342,19 +340,6 @@ export default function AdminBookForm() {
                   placeholder="45000"
                   disabled={!form.ebook_enabled}
                   required={form.ebook_enabled}
-                />
-              </Form.Group>
-            </Col>
-            <Col md={6}>
-              <Form.Group className="mb-3">
-                <Form.Label>Stock E-book</Form.Label>
-                <Form.Control
-                  type="number"
-                  min={0}
-                  name="ebook_stock_quantity"
-                  value={form.ebook_stock_quantity}
-                  onChange={handleChange}
-                  disabled={!form.ebook_enabled}
                 />
               </Form.Group>
             </Col>

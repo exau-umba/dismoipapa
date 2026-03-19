@@ -8,7 +8,7 @@ import { getCurrentUser, loginUser, requestPasswordReset } from '../api/auth';
 import { getFriendlyErrorMessage } from '../utils/errorMessages';
 
 /** Chemins internes autorisés pour la redirection après connexion */
-const ALLOWED_NEXT_PATHS = ['/my-profile', '/my-books', '/shop-cart', '/wishlist', '/shop-checkout', '/admin'];
+const ALLOWED_NEXT_PATHS = ['/my-profile', '/my-books', '/my-orders', '/shop-cart', '/wishlist', '/shop-checkout', '/admin'];
 
 function getRedirectPath(next: string | null): string {
   if (!next) return '/my-profile';

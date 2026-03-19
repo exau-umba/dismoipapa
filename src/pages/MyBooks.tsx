@@ -1,103 +1,47 @@
-// @ts-nocheck
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Nav, Tab, Card, Badge, Button } from 'react-bootstrap';
 import PageTitle from '../layouts/PageTitle';
-import NewsLetter from '../components/NewsLetter';
 import { bookImages } from '../constants/imageUrls';
-import { getLibraryBookReadUrl } from '../api/library';
-
-// Données mockées pour les livres achetés
-const purchasedBooks = [
-  {
-    id: 1,
-    titre: 'Le canard',
-    auteur: 'Jean Richard MAMBWENI MABIALA',
-    image: bookImages[0],
-    dateAchat: '15/01/2025',
-    prix: '45 000 $',
-    format: 'PDF',
-    taille: '2.4 MB',
-    disponible: true,
-  },
-  {
-    id: 2,
-    titre: 'Gestion de stock des hydrocarbures liquides et/ou liquéfiés',
-    auteur: 'Jean Richard MAMBWENI MABIALA',
-    image: bookImages[1],
-    dateAchat: '10/01/2025',
-    prix: '65 000 $',
-    format: 'EPUB',
-    taille: '1.8 MB',
-    disponible: true,
-  },
-  {
-    id: 3,
-    titre: 'Volkan devait vite se marier',
-    auteur: 'Jean Richard MAMBWENI MABIALA',
-    image: bookImages[2],
-    dateAchat: '05/01/2025',
-    prix: '55 000 $',
-    format: 'PDF',
-    taille: '3.1 MB',
-    disponible: true,
-  },
-];
-
-// Données mockées pour les livres disponibles via abonnement
-const subscriptionBooks = [
-  {
-    id: 4,
-    titre: 'Le canard',
-    auteur: 'Jean Richard MAMBWENI MABIALA',
-    image: bookImages[0],
-    categorie: 'Poésie',
-    pages: 120,
-    disponible: true,
-  },
-  {
-    id: 5,
-    titre: 'Gestion de stock des hydrocarbures liquides et/ou liquéfiés',
-    auteur: 'Jean Richard MAMBWENI MABIALA',
-    image: bookImages[1],
-    categorie: 'Technique',
-    pages: 450,
-    disponible: true,
-  },
-  {
-    id: 6,
-    titre: 'Volkan devait vite se marier',
-    auteur: 'Jean Richard MAMBWENI MABIALA',
-    image: bookImages[2],
-    categorie: 'Roman',
-    pages: 320,
-    disponible: true,
-  },
-];
-
-// Mock du contenu du livre pour la lecture en ligne
-const mockBookContent = `
-Chapitre 1 : Le début
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-
-Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.
-
-Chapitre 2 : Le développement
-
-Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.
-
-Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.
-`;
+import { downloadLibraryBook, listLibraryEntries, type LibraryEntry } from '../api/library';
+import { getFriendlyErrorMessage } from '../utils/errorMessages';
+import ErrorMessage from '../components/ErrorMessage';
 
 function MyBooks() {
   const [activeTab, setActiveTab] = useState('purchased');
+  const [entries, setEntries] = useState<LibraryEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [downloadingBookId, setDownloadingBookId] = useState<string | null>(null);
 
-  const handleDownload = (book) => {
-    // Simulation du téléchargement
-    alert(`Téléchargement de "${book.titre}" en cours...`);
+  useEffect(() => {
+    setLoading(true);
+    setError(null);
+    listLibraryEntries()
+      .then(setEntries)
+      .catch((err) => setError(getFriendlyErrorMessage(err)))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const purchasedBooks = useMemo(
+    () => entries.filter((e) => e.access_type === 'purchase'),
+    [entries]
+  );
+  const subscriptionBooks = useMemo(
+    () => entries.filter((e) => e.access_type !== 'purchase'),
+    [entries]
+  );
+
+  const handleDownload = async (bookId: string) => {
+    setError(null);
+    setDownloadingBookId(bookId);
+    try {
+      await downloadLibraryBook(bookId);
+    } catch (err) {
+      setError(getFriendlyErrorMessage(err));
+    } finally {
+      setDownloadingBookId(null);
+    }
   };
 
   return (
@@ -106,12 +50,7 @@ function MyBooks() {
         <PageTitle childPage="Mes Livres" parentPage="Accueil" />
         <section className="content-inner-1 bg-light">
           <div className="container">
-            <div className="d-flex justify-content-end mb-3">
-              <Link to="/reader/demo" className="btn btn-sm btn-outline-secondary btnhover">
-                <i className="fa fa-book-open me-1" />
-                Tester le lecteur EPUB
-              </Link>
-            </div>
+            {error && <ErrorMessage message={error} onDismiss={() => setError(null)} className="mb-3" />}
             <Tab.Container
               activeKey={activeTab}
               onSelect={(k) => setActiveTab(k || 'purchased')}
@@ -135,7 +74,7 @@ function MyBooks() {
                     Livres achetés ({purchasedBooks.length})
                   </Nav.Link>
                 </Nav.Item>
-                <Nav.Item>
+                {/* <Nav.Item>
                   <Nav.Link
                     eventKey="subscription"
                     style={{
@@ -148,13 +87,17 @@ function MyBooks() {
                     <i className="fa fa-star me-2"></i>
                     Abonnement ({subscriptionBooks.length})
                   </Nav.Link>
-                </Nav.Item>
+                </Nav.Item> */}
               </Nav>
 
               <Tab.Content>
                 <Tab.Pane eventKey="purchased">
                   <div className="row">
-                    {purchasedBooks.length === 0 ? (
+                    {loading ? (
+                      <div className="col-12 text-center py-5">
+                        <p className="text-muted">Chargement de votre bibliothèque…</p>
+                      </div>
+                    ) : purchasedBooks.length === 0 ? (
                       <div className="col-12 text-center py-5">
                         <i
                           className="fa fa-book-open"
@@ -195,8 +138,8 @@ function MyBooks() {
                               }}
                             >
                               <img
-                                src={book.image}
-                                alt={book.titre}
+                                src={book.book_cover || bookImages[0]}
+                                alt={book.book_title}
                                 style={{
                                   width: '100%',
                                   height: '100%',
@@ -213,35 +156,36 @@ function MyBooks() {
                                   marginBottom: '0.5rem',
                                 }}
                               >
-                                {book.titre}
+                                {book.book_title}
                               </h5>
                               <p className="text-muted small mb-2">
-                                {book.auteur}
+                                {book.book_author}
                               </p>
                               <div className="d-flex justify-content-between align-items-center mb-3">
-                                <Badge bg="success">{book.format}</Badge>
+                                <Badge bg="success">Achat</Badge>
                                 <span className="text-muted small">
-                                  {book.taille}
+                                  {book.ebook_epub_url ? 'EPUB' : 'PDF'}
                                 </span>
                               </div>
                               <div className="d-flex gap-2">
                                 <Button
                                   variant="primary"
                                   className="btnhover flex-fill"
-                                  onClick={() => handleDownload(book)}
+                                  onClick={() => handleDownload(book.book)}
+                                  disabled={downloadingBookId === book.book}
                                 >
                                   <i className="fa fa-download me-1"></i>
-                                  Télécharger
+                                  {downloadingBookId === book.book ? 'Téléchargement…' : 'Télécharger'}
                                 </Button>
                                 <Link
-                                  to={`/reader/${book.id}`}
+                                  to={`/reader/${book.book}`}
                                   className="btn btn-outline-secondary btnhover"
                                 >
                                   <i className="fa fa-eye"></i>
                                 </Link>
                               </div>
                               <p className="text-muted small mt-2 mb-0">
-                                Acheté le {book.dateAchat}
+                                Acheté le {new Date(book.added_at).toLocaleDateString('fr-FR')}
                               </p>
                             </Card.Body>
                           </Card>
@@ -253,7 +197,11 @@ function MyBooks() {
 
                 <Tab.Pane eventKey="subscription">
                   <div className="row">
-                    {subscriptionBooks.length === 0 ? (
+                    {loading ? (
+                      <div className="col-12 text-center py-5">
+                        <p className="text-muted">Chargement de votre bibliothèque…</p>
+                      </div>
+                    ) : subscriptionBooks.length === 0 ? (
                       <div className="col-12 text-center py-5">
                         <i
                           className="fa fa-star"
@@ -266,12 +214,7 @@ function MyBooks() {
                         <p className="text-muted">
                           Aucun livre disponible via votre abonnement.
                         </p>
-                        <Link
-                          to="/pricing"
-                          className="btn btn-primary btnhover"
-                        >
-                          Voir les abonnements
-                        </Link>
+                        <Link to="/books-grid-view" className="btn btn-primary btnhover">Voir la boutique</Link>
                       </div>
                     ) : (
                       subscriptionBooks.map((book) => (
@@ -295,8 +238,8 @@ function MyBooks() {
                               }}
                             >
                               <img
-                                src={book.image}
-                                alt={book.titre}
+                                src={book.book_cover || bookImages[0]}
+                                alt={book.book_title}
                                 style={{
                                   width: '100%',
                                   height: '100%',
@@ -325,26 +268,24 @@ function MyBooks() {
                                   marginBottom: '0.5rem',
                                 }}
                               >
-                                {book.titre}
+                                {book.book_title}
                               </h5>
                               <p className="text-muted small mb-2">
-                                {book.auteur}
+                                {book.book_author}
                               </p>
                               <div className="d-flex justify-content-between align-items-center mb-3">
-                                <Badge bg="info">{book.categorie}</Badge>
+                                <Badge bg="info">Abonnement</Badge>
                                 <span className="text-muted small">
-                                  {book.pages} pages
+                                  {book.book_language?.toUpperCase() || '—'}
                                 </span>
                               </div>
-                              <Button
-                                variant="primary"
-                                className="btnhover w-100"
-                                as={Link}
-                                to={`/reader/${book.id}`}
+                              <Link
+                                to={`/reader/${book.book}`}
+                                className="btn btn-primary btnhover w-100"
                               >
                                 <i className="fa fa-book-open me-1"></i>
                                 Lire maintenant
-                              </Button>
+                              </Link>
                             </Card.Body>
                           </Card>
                         </div>
@@ -356,10 +297,6 @@ function MyBooks() {
             </Tab.Container>
           </div>
         </section>
-
-        {/* Lecture EPUB : via la page dédiée /reader/:id */}
-
-        {/* <NewsLetter subscribeChange="" /> */}
       </div>
     </>
   );

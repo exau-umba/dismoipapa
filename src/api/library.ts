@@ -1,9 +1,39 @@
 /**
  * API bibliothèque utilisateur (livres achetés / abonnement) - papa_dis_moi.json
+ * GET /api/library/ → liste des livres possédés
  * GET /api/library/books/{book_id}/read/ → lecture EPUB
  * GET /api/library/books/{book_id}/download/ → téléchargement PDF/Word
  */
-import { API_BASE_URL } from './client';
+import { API_BASE_URL, getJson } from './client';
+
+export interface LibraryEntry {
+  id: string;
+  book: string;
+  book_title: string;
+  book_author: string;
+  book_cover: string | null;
+  book_language: string | null;
+  book_publication_date: string | null;
+  ebook_pdf_url: string | null;
+  ebook_epub_url: string | null;
+  access_type: 'purchase' | 'subscription' | string;
+  added_at: string;
+}
+
+function normalizeLibraryList(
+  data: LibraryEntry[] | { results?: LibraryEntry[] } | null | undefined
+): LibraryEntry[] {
+  if (!data) return [];
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data.results)) return data.results;
+  return [];
+}
+
+/** GET /api/library/ - Liste des entrées de bibliothèque de l'utilisateur */
+export async function listLibraryEntries(): Promise<LibraryEntry[]> {
+  const data = await getJson<LibraryEntry[] | { results?: LibraryEntry[] } | null>('/api/library/');
+  return normalizeLibraryList(data);
+}
 
 /**
  * Récupère l'EPUB d'un livre de la bibliothèque (authentifié) et retourne une URL blob.

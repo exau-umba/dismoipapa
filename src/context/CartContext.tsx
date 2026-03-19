@@ -37,6 +37,7 @@ interface CartContextValue {
   removeItem: (lineId: string) => void;
   updateQuantity: (lineId: string, quantity: number) => void;
   updateFileFormat: (lineId: string, fileFormat: 'pdf' | 'epub' | null) => void;
+  clearCart: () => void;
   totalItems: number;
   subtotal: number;
 }
@@ -110,6 +111,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  const clearCart = useCallback(() => {
+    setItems([]);
+  }, []);
+
   const totalItems = items.reduce((acc, i) => acc + i.quantity, 0);
   const subtotal = items.reduce((acc, i) => acc + parseFloat(i.price || '0') * i.quantity, 0);
 
@@ -119,6 +124,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     removeItem,
     updateQuantity,
     updateFileFormat,
+    clearCart,
     totalItems,
     subtotal,
   };
