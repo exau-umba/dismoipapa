@@ -8,6 +8,7 @@ import { getFriendlyErrorMessage } from '../utils/errorMessages';
 import { fetchBooks, Book } from '../api/catalog';
 import { listCatalogs, type Catalog } from '../api/admin';
 import { API_BASE_URL } from '../api/client';
+import { useCart } from '../context/CartContext';
 
 function mapBackendBookToCard(book: Book, index: number) {
     const fallbackImg = bookImages[index % bookImages.length];
@@ -16,8 +17,10 @@ function mapBackendBookToCard(book: Book, index: number) {
         : fallbackImg;
     const title = book.title || bookTitles[index % bookTitles.length] || 'Livre';
     const tags = bookTags[index % bookTags.length] || [];
-    const mainFormat = book.formats && book.formats.length > 0 ? book.formats[0] : undefined;
-    const price = mainFormat?.price ?? '';
+    const ebookFormat = book.formats?.find((f) => (f.format_type ?? '') === 'ebook');
+    const physicalFormat = book.formats?.find((f) => (f.format_type ?? '') === 'physical');
+    const ebookPrice = ebookFormat?.price ?? '';
+    const physicalPrice = physicalFormat?.price ?? '';
 
     return {
         id: book.id,
@@ -25,8 +28,8 @@ function mapBackendBookToCard(book: Book, index: number) {
         title,
         subtitle1: tags[0] || '',
         subtitle2: tags[1] || '',
-        price1: price || '',
-        price2: '',
+        ebookPrice,
+        physicalPrice,
     };
 }
 
@@ -38,6 +41,8 @@ function BooksGridView() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [searchParams, setSearchParams] = useSearchParams();
+    const [selections, setSelections] = useState<Record<string, { productType: 'ebook' | 'physical' | ''; fileFormat: 'pdf' | 'epub' | null }>>({});
+    const { addItem } = useCart();
     const searchTerm = (searchParams.get('q') || '').trim().toLowerCase();
     const catalogId = (searchParams.get('catalog') || '').trim();
 
@@ -239,9 +244,26 @@ function BooksGridView() {
                             )}
                             {!loading && !error && filteredBooks.map((book, i) => {
                               const data = mapBackendBookToCard(book, i);
+                              const ebookFormat = book.formats?.find((f) => (f.format_type ?? '') === 'ebook') ?? null;
+                              const physicalFormat = book.formats?.find((f) => (f.format_type ?? '') === 'physical') ?? null;
+                              const hasPdf = Boolean(ebookFormat?.pdf_file);
+                              const hasEpub = Boolean(ebookFormat?.epub_file);
+                              const hasBoth = Boolean(ebookFormat && physicalFormat);
+                              const defaultSelection = {
+                                productType: (hasBoth ? '' : ebookFormat ? 'ebook' : physicalFormat ? 'physical' : '') as 'ebook' | 'physical' | '',
+                                fileFormat: (ebookFormat ? (hasPdf ? 'pdf' : hasEpub ? 'epub' : null) : null) as 'pdf' | 'epub' | null,
+                              };
+                              const selection = selections[book.id] ?? defaultSelection;
+                              const selectedPrice = selection.productType === 'ebook'
+                                ? data.ebookPrice
+                                : selection.productType === 'physical'
+                                ? data.physicalPrice
+                                : '';
+                              const ebookRequiresFileChoice = selection.productType === 'ebook' && (hasPdf || hasEpub);
+                              const canAddToCart = Boolean(selection.productType) && (!ebookRequiresFileChoice || selection.fileFormat !== null);
                               return (
                                 <div className="col-book style-1" key={book.id}>
-                                    <div className="dz-shop-card style-1">
+                                    <div className="dz-shop-card style-1 cart-actions-static">
                                         <div className="dz-media">
                                             <Link to={`/books-detail/${data.id}`}><img src={data.image} alt={data.title} /></Link>
                                         </div>
@@ -253,14 +275,10 @@ function BooksGridView() {
                                         </div>  */}
                                         <div className="dz-content">
                                             <h5 className="title book-title-truncate" title={data.title}><Link to={`/books-detail/${data.id}`}>{data.title}</Link></h5>
-                                            {data.price1 ? (
-                                                      <>
-                                                        <span className="price-num text-primary">{data.price1} $</span>
-                                                        {data.price2 && <del>{data.price2} $</del>}
-                                                      </>
-                                                    ) : (
-                                                      <span className="price-num text-muted">Prix à venir</span>
-                                                    )}
+                                            <div className="small mb-2">
+                                                <div className="text-muted">Physique: <span className="text-primary">{data.physicalPrice ? `${data.physicalPrice} $` : '—'}</span></div>
+                                                <div className="text-muted">E-book: <span className="text-primary">{data.ebookPrice ? `${data.ebookPrice} $` : '—'}</span></div>
+                                            </div>
                                             {/* <ul className="dz-tags">
                                                 {data.subtitle1 && (
                                                   <li><Link to={"/books-grid-view"}>{data.subtitle1}{data.subtitle2 ? ',' : ''}</Link></li>
@@ -278,16 +296,75 @@ function BooksGridView() {
                                             </ul> */}
                                             <div className="book-footer">
                                                 <div className="price">
-                                                    {data.price1 ? (
+                                                    {selectedPrice ? (
                                                       <>
-                                                        <span className="price-num">{data.price1} $</span>
-                                                        {data.price2 && <del>{data.price2} $</del>}
+                                                        <span className="price-num">{selectedPrice} $</span>
                                                       </>
                                                     ) : (
-                                                      <span className="price-num text-muted">Prix à venir</span>
+                                                      <span className="price-num text-muted">{selection.productType ? 'Prix à venir' : 'Choisir un format'}</span>
                                                     )}
                                                 </div>
-                                                <Link to={`/books-detail/${data.id}`} className="btn btn-primary box-btn btnhover btnhover2"><i className="flaticon-shopping-cart-1 m-r10"></i> Voir le détail</Link>
+                                                <div className="d-flex flex-column gap-2" style={{ minWidth: 180 }}>
+                                                    {(ebookFormat || physicalFormat) && (
+                                                        <select
+                                                            className="form-select form-select-sm"
+                                                            value={selection.productType}
+                                                            onChange={(e) => {
+                                                                const nextType = e.target.value as 'ebook' | 'physical' | '';
+                                                                setSelections((prev) => ({
+                                                                    ...prev,
+                                                                    [book.id]: {
+                                                                        productType: nextType,
+                                                                        fileFormat: nextType === 'ebook' ? (hasPdf ? 'pdf' : hasEpub ? 'epub' : null) : null,
+                                                                    },
+                                                                }));
+                                                            }}
+                                                        >
+                                                            <option value="" disabled>Choisir un format</option>
+                                                            {physicalFormat && <option value="physical">Physique</option>}
+                                                            {ebookFormat && <option value="ebook">E-book</option>}
+                                                        </select>
+                                                    )}
+                                                    {selection.productType === 'ebook' && ebookFormat && (hasPdf || hasEpub) && (
+                                                        <select
+                                                            className="form-select form-select-sm"
+                                                            value={selection.fileFormat ?? ''}
+                                                            onChange={(e) => {
+                                                                const nextFile = (e.target.value as 'pdf' | 'epub') || null;
+                                                                setSelections((prev) => ({
+                                                                    ...prev,
+                                                                    [book.id]: {
+                                                                        ...selection,
+                                                                        fileFormat: nextFile,
+                                                                    },
+                                                                }));
+                                                            }}
+                                                        >
+                                                            {hasPdf && <option value="pdf">PDF</option>}
+                                                            {hasEpub && <option value="epub">EPUB</option>}
+                                                        </select>
+                                                    )}
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-primary box-btn btnhover btnhover2"
+                                                        disabled={!canAddToCart || !selectedPrice}
+                                                        onClick={() => {
+                                                            if (!canAddToCart || !selection.productType || !selectedPrice) return;
+                                                            addItem({
+                                                                bookId: book.id,
+                                                                title: data.title,
+                                                                coverImage: data.image,
+                                                                price: selectedPrice,
+                                                                quantity: 1,
+                                                                fileFormat: selection.productType === 'ebook' && (hasPdf || hasEpub) ? selection.fileFormat : null,
+                                                                productType: selection.productType,
+                                                            });
+                                                        }}
+                                                    >
+                                                        <i className="flaticon-shopping-cart-1 m-r10"></i> Ajouter
+                                                    </button>
+                                                    <Link to={`/books-detail/${data.id}`} className="btn btn-outline-primary box-btn btnhover btnhover2">Voir le détail</Link>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

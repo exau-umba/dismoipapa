@@ -228,7 +228,7 @@ function BooksGridViewSidebar() {
                                         const canAddToCart = Boolean(selection.productType) && (!ebookRequiresFileChoice || selection.fileFormat !== null);
                                         return (
                                         <div className="col-book style-2" key={book.id}>
-                                            <div className="dz-shop-card style-1">
+                                            <div className="dz-shop-card style-1 cart-actions-static">
                                                 <div className="dz-media">
                                                     <Link to={`/books-detail/${book.id}`}><img src={img} alt={book.title} /></Link>
                                                 </div>

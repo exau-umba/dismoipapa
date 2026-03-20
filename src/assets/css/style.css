@@ -24854,6 +24854,21 @@ body.woo-variation-swatches .variable-items-wrapper .variable-item:not(.radio-va
   min-width: 0;
 }
 
+/* Card "Autres livres" : appliquer l'ellipsis sur le lien interne */
+.dz-shop-card.style-5 .dz-content {
+  min-width: 0;
+}
+.dz-shop-card.style-5 .dz-content .book-title-truncate {
+  width: 100%;
+}
+.dz-shop-card.style-5 .dz-content .book-title-truncate a {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* Cartes livres : même hauteur d'image (canard = même taille que les autres) */
 .dz-shop-card.style-1 .dz-media,
 .books-card.style-1 .dz-media,
