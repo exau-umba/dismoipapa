@@ -1,32 +1,23 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  PointElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+} from 'chart.js';
 import { Bar, Line, Doughnut } from 'react-chartjs-2';
 import { Card, Table, Badge, Row, Col } from 'react-bootstrap';
 import { fetchBooks } from '../../api/catalog';
-import { listUsers, listOrders, listCatalogs, type Catalog } from '../../api/admin';
+import { listUsers, listOrders, listCatalogs, type Catalog, type AdminOrder } from '../../api/admin';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend, ArcElement);
-
-const chartData = {
-  labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'],
-  datasets: [
-    {
-      label: 'Commandes',
-      data: [65, 78, 90, 81, 96, 128],
-      backgroundColor: 'rgba(0, 102, 204, 0.7)',
-      borderColor: '#0066cc',
-      borderWidth: 1,
-    },
-    {
-      label: 'Ventes (×1000 $)',
-      data: [450, 520, 480, 580, 550, 620],
-      backgroundColor: 'rgba(26, 22, 104, 0.5)',
-      borderColor: '#1a1668',
-      borderWidth: 1,
-    },
-  ],
-};
 
 function formatMonthLabelFR(d: Date) {
   return d.toLocaleDateString('fr-FR', { month: 'short' }).replace('.', '');
@@ -35,13 +26,57 @@ function formatMonthLabelFR(d: Date) {
 function parseOrderTotal(total: string | number | undefined): number {
   if (total == null) return 0;
   if (typeof total === 'number') return Number.isFinite(total) ? total : 0;
-  // ex: "165 000 $", "165000", "165000.00"
   const cleaned = total.replace(/[^\d.,-]/g, '').replace(/\s+/g, '');
   if (!cleaned) return 0;
-  // si virgule décimale -> remplacer par point
   const normalized = cleaned.includes(',') && !cleaned.includes('.') ? cleaned.replace(',', '.') : cleaned;
   const n = parseFloat(normalized);
   return Number.isFinite(n) ? n : 0;
+}
+
+function formatOrderDate(o: AdminOrder): string {
+  const raw = o.order_date ?? o.created_at ?? (o as { date?: string }).date;
+  if (!raw) return '—';
+  try {
+    return new Date(raw).toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  } catch {
+    return String(raw);
+  }
+}
+
+function formatOrderClient(o: AdminOrder): string {
+  const u = o.user;
+  if (typeof u === 'object' && u && 'email' in u) return (u as { email?: string }).email ?? '—';
+  if (typeof u === 'string') return u;
+  return (o as { client?: string }).client ?? '—';
+}
+
+function formatOrderTotalDisplay(o: AdminOrder): string {
+  const t = o.total_amount ?? o.total;
+  if (t === undefined || t === null) return '—';
+  const n = typeof t === 'number' ? t : Number(String(t).replace(/[^\d.,-]/g, '').replace(',', '.'));
+  if (!Number.isNaN(n)) {
+    return `${n.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} $`;
+  }
+  return `${String(t)}`;
+}
+
+function formatOrderStatus(o: AdminOrder): string {
+  if (o.shipping_status) return String(o.shipping_status);
+  if (o.payment_status) return String(o.payment_status);
+  return String(o.status ?? '—');
+}
+
+function getOrderTimestamp(o: AdminOrder): number {
+  const raw = o.order_date ?? o.created_at;
+  if (!raw) return 0;
+  const t = new Date(raw).getTime();
+  return Number.isNaN(t) ? 0 : t;
 }
 
 const CATEGORY_COLORS = [
@@ -65,17 +100,35 @@ const chartOptions = {
 };
 
 const statutVariant: Record<string, string> = {
+  Paid: 'success',
+  paid: 'success',
+  Failed: 'danger',
+  failed: 'danger',
+  Pending: 'warning',
+  pending: 'warning',
   'En attente': 'warning',
   'En préparation': 'info',
-  'Expédiée': 'primary',
-  'Livrée': 'success',
+  Expédiée: 'primary',
+  Livrée: 'success',
+  preparation: 'info',
+  shipped: 'primary',
+  delivered: 'success',
+};
+
+type RecentOrderRow = {
+  id: string;
+  client: string;
+  montant: string;
+  date: string;
+  statut: string;
 };
 
 export default function AdminDashboard() {
   const [booksCount, setBooksCount] = useState<number | null>(null);
   const [usersCount, setUsersCount] = useState<number | null>(null);
-  const [recentOrders, setRecentOrders] = useState<{ id: string | number; client: string; montant: string; date: string; statut: string }[]>([]);
-  const [orders, setOrders] = useState<Awaited<ReturnType<typeof listOrders>>>([]);
+  const [recentOrders, setRecentOrders] = useState<RecentOrderRow[]>([]);
+  const [orders, setOrders] = useState<AdminOrder[]>([]);
+  const [ordersLoaded, setOrdersLoaded] = useState(false);
   const [catalogs, setCatalogs] = useState<Catalog[]>([]);
   const [books, setBooks] = useState<Awaited<ReturnType<typeof fetchBooks>>>([]);
 
@@ -103,66 +156,98 @@ export default function AdminDashboard() {
   useEffect(() => {
     listOrders()
       .then((data) => {
-        setOrders(Array.isArray(data) ? data : []);
-        const list = Array.isArray(data) ? data.slice(0, 4) : [];
+        const list = Array.isArray(data) ? data : [];
+        setOrders(list);
+        const sorted = [...list].sort((a, b) => getOrderTimestamp(b) - getOrderTimestamp(a));
         setRecentOrders(
-          list.map((o) => ({
-            id: o.id,
-            client: typeof o.user === 'string' ? o.user : (o as { client?: string }).client ?? '—',
-            montant: typeof o.total === 'number' ? `${o.total} $` : String(o.total ?? '—'),
-            date: o.created_at ? new Date(o.created_at).toLocaleDateString('fr-FR') : '—',
-            statut: (o.status as string) ?? '—',
+          sorted.slice(0, 10).map((o) => ({
+            id: String(o.id),
+            client: formatOrderClient(o),
+            montant: formatOrderTotalDisplay(o),
+            date: formatOrderDate(o),
+            statut: formatOrderStatus(o),
           }))
         );
       })
       .catch(() => {
         setOrders([]);
-        setRecentOrders([
-          { id: 1001, client: 'Marie Dupont', montant: '165 000 $', date: '08/02/2025', statut: 'Expédiée' },
-          { id: 1002, client: 'Jean Martin', montant: '130 000 $', date: '07/02/2025', statut: 'En préparation' },
-          { id: 1003, client: 'Sophie Bernard', montant: '220 000 $', date: '06/02/2025', statut: 'Livrée' },
-          { id: 1004, client: 'Pierre Leroy', montant: '95 000 $', date: '05/02/2025', statut: 'En attente' },
-        ]);
-      });
+        setRecentOrders([]);
+      })
+      .finally(() => setOrdersLoaded(true));
   }, []);
 
-  const revenueData = useMemo(() => {
-    // 6 derniers mois (inclus mois courant)
+  const monthlyStats = useMemo(() => {
     const now = new Date();
     const months = Array.from({ length: 6 }, (_, i) => {
       const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
       return { key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`, date: d };
     });
 
-    const sums: Record<string, number> = {};
-    months.forEach((m) => { sums[m.key] = 0; });
+    const revenue: Record<string, number> = {};
+    const counts: Record<string, number> = {};
+    months.forEach((m) => {
+      revenue[m.key] = 0;
+      counts[m.key] = 0;
+    });
 
     orders.forEach((o) => {
-      if (!o.created_at) return;
-      const d = new Date(o.created_at);
+      const raw = o.order_date ?? o.created_at;
+      if (!raw) return;
+      const d = new Date(raw);
       if (Number.isNaN(d.getTime())) return;
       const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-      if (!(key in sums)) return;
-      sums[key] += parseOrderTotal(o.total);
+      if (!(key in revenue)) return;
+      revenue[key] += parseOrderTotal(String(o.total_amount ?? o.total ?? 0));
+      counts[key] += 1;
     });
 
     const labels = months.map((m) => formatMonthLabelFR(m.date));
-    const values = months.map((m) => sums[m.key]);
-
     return {
       labels,
+      revenueValues: months.map((m) => revenue[m.key]),
+      orderCounts: months.map((m) => counts[m.key]),
+    };
+  }, [orders]);
+
+  const barChartData = useMemo(
+    () => ({
+      labels: monthlyStats.labels,
+      datasets: [
+        {
+          label: 'Nombre de commandes',
+          data: monthlyStats.orderCounts,
+          backgroundColor: 'rgba(0, 102, 204, 0.7)',
+          borderColor: '#0066cc',
+          borderWidth: 1,
+        },
+        {
+          label: 'Revenus ($)',
+          data: monthlyStats.revenueValues,
+          backgroundColor: 'rgba(26, 22, 104, 0.5)',
+          borderColor: '#1a1668',
+          borderWidth: 1,
+        },
+      ],
+    }),
+    [monthlyStats]
+  );
+
+  const revenueLineData = useMemo(
+    () => ({
+      labels: monthlyStats.labels,
       datasets: [
         {
           label: 'Revenus ($)',
-          data: values,
+          data: monthlyStats.revenueValues,
           borderColor: '#029e76',
           backgroundColor: 'rgba(2, 158, 118, 0.1)',
           tension: 0.4,
           fill: true,
         },
       ],
-    };
-  }, [orders]);
+    }),
+    [monthlyStats]
+  );
 
   const categoryData = useMemo(() => {
     const byId: Record<string, Catalog> = {};
@@ -208,14 +293,39 @@ export default function AdminDashboard() {
     };
   }, [books, catalogs]);
 
-  const stats = [
-    { label: 'Total les commandes', value: '128', icon: 'fa-shopping-cart', type: 'primary' as const, change: '+12%' },
-    { label: 'Livres en catalogue', value: booksCount !== null ? String(booksCount) : '—', icon: 'fa-book', type: 'success' as const, change: '' },
-    { label: 'Utilisateurs', value: usersCount !== null ? String(usersCount) : '—', icon: 'fa-users', type: 'info' as const, change: '' },
-    // { label: "Chiffre d'affaires ($)", value: '2 450 000', icon: 'fa-euro-sign', type: 'warning' as const, change: '+18%' },
-    // { label: 'Abonnements actifs', value: '892', icon: 'fa-star', type: 'success' as const, change: '+45' },
-    { label: 'Livres téléchargés', value: '2 134', icon: 'fa-download', type: 'primary' as const, change: '+234' },
-  ];
+  const stats = useMemo(
+    () => [
+      {
+        label: 'Total des commandes',
+        value: ordersLoaded ? String(orders.length) : '—',
+        icon: 'fa-shopping-cart',
+        type: 'primary' as const,
+        change: '',
+      },
+      {
+        label: 'Livres en catalogue',
+        value: booksCount !== null ? String(booksCount) : '—',
+        icon: 'fa-book',
+        type: 'success' as const,
+        change: '',
+      },
+      {
+        label: 'Utilisateurs',
+        value: usersCount !== null ? String(usersCount) : '—',
+        icon: 'fa-users',
+        type: 'info' as const,
+        change: '',
+      },
+      {
+        label: 'Livres téléchargés',
+        value: '—',
+        icon: 'fa-download',
+        type: 'primary' as const,
+        change: '',
+      },
+    ],
+    [orders.length, ordersLoaded, booksCount, usersCount]
+  );
 
   return (
     <>
@@ -230,8 +340,12 @@ export default function AdminDashboard() {
               <div className="admin-stat-value">{s.value}</div>
               <div className="admin-stat-label">{s.label}</div>
               {s.change && (
-                <div className="admin-stat-change" style={{ fontSize: '0.75rem', color: '#029e76', marginTop: '0.25rem' }}>
-                  <i className="fa fa-arrow-up me-1"></i>{s.change}
+                <div
+                  className="admin-stat-change"
+                  style={{ fontSize: '0.75rem', color: '#029e76', marginTop: '0.25rem' }}
+                >
+                  <i className="fa fa-arrow-up me-1"></i>
+                  {s.change}
                 </div>
               )}
             </div>
@@ -243,8 +357,8 @@ export default function AdminDashboard() {
         <Col lg={8}>
           <Card className="admin-card">
             <Card.Body>
-              <h5 className="admin-card-title">Évolution des ventes</h5>
-              <Bar data={chartData} options={chartOptions} />
+              <h5 className="admin-card-title">Commandes et revenus (6 derniers mois)</h5>
+              <Bar data={barChartData} options={chartOptions} />
             </Card.Body>
           </Card>
         </Col>
@@ -258,57 +372,77 @@ export default function AdminDashboard() {
         </Col>
       </Row>
 
-      <Row className="mb-3">
+      <Row className="mb-4">
         <Col lg={12}>
           <Card className="admin-card">
             <Card.Body>
               <div className="d-flex justify-content-between align-items-center mb-3">
                 <h5 className="admin-card-title mb-0">Évolution des revenus</h5>
               </div>
-              <Line data={revenueData} options={{ responsive: true, plugins: { legend: { display: false } } }} />
+              <Line data={revenueLineData} options={{ responsive: true, plugins: { legend: { display: false } } }} />
             </Card.Body>
           </Card>
         </Col>
       </Row>
 
-      <Row>
+      <Row className="mt-2 mb-4">
         <Col lg={12}>
-          <Card className="admin-card">
+          <Card className="admin-card admin-dashboard-recent-orders">
             <Card.Body>
-              <div className="d-flex justify-content-between align-items-center mb-3">
-                <h5 className="admin-card-title mb-0">Commandes récentes</h5>
+              <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 pb-2 border-bottom">
+                <div>
+                  <h5 className="admin-card-title mb-0">Commandes récentes</h5>
+                  <p className="text-muted small mb-0 mt-1">
+                    Les 10 dernières commandes (les plus récentes en premier).
+                  </p>
+                </div>
                 <Link to="/admin/commandes" className="btn btn-sm btn-outline-primary btnhover">
                   Voir toutes <i className="fa fa-arrow-right ms-1"></i>
                 </Link>
               </div>
-              <Table className="admin-table mb-0">
-                <thead>
-                  <tr>
-                    <th>N° commande</th>
-                    <th>Client</th>
-                    <th>Montant</th>
-                    <th>Date</th>
-                    <th>Statut</th>
-                    <th className="text-end">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentOrders.map((order) => (
-                    <tr key={order.id}>
-                      <td><strong>#CMD-{order.id}</strong></td>
-                      <td>{order.client}</td>
-                      <td>{order.montant}</td>
-                      <td>{order.date}</td>
-                      <td><Badge bg={statutVariant[order.statut] || 'secondary'}>{order.statut}</Badge></td>
-                      <td className="text-end">
-                        <Link to={`/admin/commandes/${order.id}`} className="btn btn-sm btn-outline-primary btnhover">
-                          Détail
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
+              {!ordersLoaded ? (
+                <p className="text-muted mb-0 py-3">Chargement des commandes…</p>
+              ) : recentOrders.length === 0 ? (
+                <p className="text-muted mb-0 py-3">Aucune commande pour le moment.</p>
+              ) : (
+                <div className="table-responsive">
+                  <Table className="admin-table mb-0 align-middle">
+                    <thead>
+                      <tr>
+                        <th>N° commande</th>
+                        <th>Client</th>
+                        <th>Montant</th>
+                        <th>Date</th>
+                        <th>Statut</th>
+                        <th className="text-end">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {recentOrders.map((order) => (
+                        <tr key={order.id}>
+                          <td>
+                            <strong>#{order.id}</strong>
+                          </td>
+                          <td>{order.client}</td>
+                          <td>{order.montant}</td>
+                          <td className="text-nowrap">{order.date}</td>
+                          <td>
+                            <Badge bg={statutVariant[order.statut] || 'secondary'}>{order.statut}</Badge>
+                          </td>
+                          <td className="text-end">
+                            <Link
+                              to={`/admin/commandes/${order.id}`}
+                              className="btn btn-sm btn-outline-primary btnhover"
+                            >
+                              Détail
+                            </Link>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </Table>
+                </div>
+              )}
             </Card.Body>
           </Card>
         </Col>

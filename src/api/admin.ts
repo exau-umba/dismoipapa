@@ -252,8 +252,21 @@ export interface AdminOrder {
   [key: string]: unknown;
 }
 
+function normalizeOrderList(
+  data: AdminOrder[] | { results?: AdminOrder[] } | null | undefined
+): AdminOrder[] {
+  if (data == null) return [];
+  if (Array.isArray(data)) return data;
+  if (typeof data === 'object' && Array.isArray((data as { results?: AdminOrder[] }).results)) {
+    return (data as { results: AdminOrder[] }).results;
+  }
+  return [];
+}
+
 export function listOrders(): Promise<AdminOrder[]> {
-  return getJson<AdminOrder[]>('/api/orders/');
+  return getJson<AdminOrder[] | { results: AdminOrder[] } | null>('/api/orders/').then((data) =>
+    normalizeOrderList(data ?? null)
+  );
 }
 
 export function getOrder(id: string): Promise<AdminOrder> {
