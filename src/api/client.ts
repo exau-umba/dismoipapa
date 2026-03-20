@@ -5,6 +5,19 @@ const API_BASE_URL =
 
 export type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
 
+/** Nettoie les tokens et redirige vers la connexion admin si l’utilisateur était sur le back-office. */
+export function clearAuthSessionAndRedirectAdminIfNeeded() {
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('refreshToken');
+  if (typeof window === 'undefined') return;
+  const path = window.location.pathname;
+  const onAdminLogin = path === '/admin/login' || path.startsWith('/admin/login/');
+  if (path.startsWith('/admin') && !onAdminLogin) {
+    const next = encodeURIComponent(path + window.location.search);
+    window.location.replace(`/admin/login?next=${next}`);
+  }
+}
+
 export interface RequestOptions extends RequestInit {
   /** Si true, n'ajoute pas automatiquement le header JSON */
   skipJsonHeader?: boolean;
@@ -73,13 +86,16 @@ async function request<T>(
           // La réponse a déjà été traitée via l'appel récursif
           return response as unknown as T;
         } else {
-          // Refresh invalide : on nettoie les tokens
-          localStorage.removeItem('accessToken');
-          localStorage.removeItem('refreshToken');
+          // Refresh invalide : déconnexion (admin redirigé vers login)
+          clearAuthSessionAndRedirectAdminIfNeeded();
         }
       } catch {
-        // En cas d'erreur réseau sur le refresh, on laisse tomber et on remontera l'erreur originale
+        // Erreur réseau / refresh impossible : même traitement qu’un refresh invalide
+        clearAuthSessionAndRedirectAdminIfNeeded();
       }
+    } else {
+      // Access expiré ou invalide et aucun refresh : fin de session
+      clearAuthSessionAndRedirectAdminIfNeeded();
     }
   }
 

@@ -42,8 +42,11 @@ function formatOrderClient(o: AdminOrder): string {
 function formatOrderTotal(o: AdminOrder): string {
   const t = o.total_amount ?? o.total;
   if (t === undefined || t === null) return '—';
-  if (typeof t === 'number') return `${t} $`;
-  return String(t);
+  const n = typeof t === 'number' ? t : Number(String(t).replace(',', '.'));
+  if (!Number.isNaN(n)) {
+    return `${n.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} $`;
+  }
+  return `${String(t)} $`;
 }
 
 const mockOrders: AdminOrder[] = [
@@ -113,7 +116,7 @@ export default function AdminOrders() {
             <tbody>
               {displayOrders.map((o) => (
                 <tr key={o.id}>
-                  <td><strong>#CMD-{o.id}</strong></td>
+                  <td><strong>{String((o as { order_number?: string }).order_number ?? `CMD-${o.id}`)}</strong></td>
                   <td>{formatOrderDate(o)}</td>
                   <td>{formatOrderClient(o)}</td>
                   <td>
