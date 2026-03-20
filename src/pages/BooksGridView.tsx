@@ -47,21 +47,22 @@ function BooksGridView() {
             .catch(() => setCatalogs([]));
     }, []);
 
-    useEffect(() => {
-        const load = async () => {
-            setLoading(true);
-            setError(null);
-            try {
-                const data = await fetchBooks();
-                setBooks(data);
-            } catch (err) {
-                setError(getFriendlyErrorMessage(err));
-            } finally {
-                setLoading(false);
-            }
-        };
-        load();
+    const reloadBooks = React.useCallback(async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const data = await fetchBooks();
+            setBooks(data);
+        } catch (err) {
+            setError(getFriendlyErrorMessage(err));
+        } finally {
+            setLoading(false);
+        }
     }, []);
+
+    useEffect(() => {
+        reloadBooks();
+    }, [reloadBooks]);
 
     const selectedCatalog = catalogs.find((c) => c.id === catalogId);
 
@@ -216,6 +217,13 @@ function BooksGridView() {
                             {error && !loading && (
                               <div className="col-12">
                                 <ErrorMessage message={error} onDismiss={() => setError(null)} className="mb-3" />
+                                <button
+                                    type="button"
+                                    className="btn btn-primary btnhover"
+                                    onClick={reloadBooks}
+                                >
+                                    Réessayer
+                                </button>
                               </div>
                             )}
                             {!loading && !error && filteredBooks.length === 0 && (
@@ -245,14 +253,22 @@ function BooksGridView() {
                                         </div>  */}
                                         <div className="dz-content">
                                             <h5 className="title book-title-truncate" title={data.title}><Link to={`/books-detail/${data.id}`}>{data.title}</Link></h5>
-                                            <ul className="dz-tags">
+                                            {data.price1 ? (
+                                                      <>
+                                                        <span className="price-num text-primary">{data.price1} $</span>
+                                                        {data.price2 && <del>{data.price2} $</del>}
+                                                      </>
+                                                    ) : (
+                                                      <span className="price-num text-muted">Prix à venir</span>
+                                                    )}
+                                            {/* <ul className="dz-tags">
                                                 {data.subtitle1 && (
                                                   <li><Link to={"/books-grid-view"}>{data.subtitle1}{data.subtitle2 ? ',' : ''}</Link></li>
                                                 )}
                                                 {data.subtitle2 && (
                                                   <li><Link to={"/books-grid-view"}>{data.subtitle2}</Link></li>
                                                 )}
-                                            </ul>
+                                            </ul> */}
                                             {/* <ul className="dz-rating">
                                                 <li><i className="flaticon-star text-primary"></i></li>	
                                                 <li><i className="flaticon-star text-primary"></i></li>	

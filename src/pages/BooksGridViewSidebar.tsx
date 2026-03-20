@@ -11,6 +11,26 @@ import { listCatalogs, type Catalog } from '../api/admin';
 import { API_BASE_URL } from '../api/client';
 import { getFriendlyErrorMessage } from '../utils/errorMessages';
 
+const categoryBlog1 = [
+    { name: 'Poésie', name2: 'Fables' },
+    { name: 'Technique', name2: 'Énergie' },
+    { name: 'Roman', name2: 'Fiction' },
+];
+
+const selectYear = [
+    { year: 2025, year2: 2026 },
+    { year: 2027, year2: 2028 },
+    { year: 2029, year2: 2030 },
+    { year: 2031, year2: 2032 },
+    { year: 2033, year2: 2034 },
+    { year: 2035, year2: 2036 },
+    { year: 2037, year2: 2038 },
+    { year: 2039, year2: 2040 },
+    { year: 2041, year2: 2042 },
+    { year: 2043, year2: 2044 },
+    { year: 2045, year2: 2046 },
+];
+
 function BooksGridViewSidebar() {
     const [accordBtn, setAccordBtn] = useState<boolean>(false);
     const [selectBtn, setSelectBtn] = useState('Newest');
@@ -26,12 +46,32 @@ function BooksGridViewSidebar() {
     }, []);
 
     useEffect(() => {
+        const loadBooks = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const data = await fetchBooks();
+                setBooks(data);
+            } catch (err) {
+                setError(getFriendlyErrorMessage(err));
+            } finally {
+                setLoading(false);
+            }
+        };
+        loadBooks();
+    }, []);
+
+    const reloadBooks = React.useCallback(async () => {
         setLoading(true);
         setError(null);
-        fetchBooks()
-            .then(setBooks)
-            .catch((err) => setError(getFriendlyErrorMessage(err)))
-            .finally(() => setLoading(false));
+        try {
+            const data = await fetchBooks();
+            setBooks(data);
+        } catch (err) {
+            setError(getFriendlyErrorMessage(err));
+        } finally {
+            setLoading(false);
+        }
     }, []);
 
     const handleCatalogCheck = (id: string) => {
@@ -105,7 +145,7 @@ function BooksGridViewSidebar() {
                                                 onClick={() => setAccordBtn((prev) => !prev)}
                                             >
                                                 <i className="fas fa-list me-2 text-primary"></i>
-                                                Categories
+                                                Filter Option
                                             </Link>
                                         </div>
                                         <div className="form-group">
@@ -126,6 +166,92 @@ function BooksGridViewSidebar() {
                                 <Collapse in={accordBtn} className="acod-content">
                                     <div>
                                         <div className="widget widget_services style-2">
+                                            <div className="mb-3">
+                                                <div className="text-primary fw-semibold small mb-2">Price Range</div>
+                                                <input type="range" className="form-range" min={0} max={100} defaultValue={40} />
+                                                <div className="d-flex justify-content-between small text-muted mt-1">
+                                                    <span>0</span>
+                                                    <span>100</span>
+                                                </div>
+                                            </div>
+
+                                            <div className="mb-3">
+                                                <div className="text-primary fw-semibold small mb-2">Shop by Category</div>
+                                                <div className="dz-widget_services d-flex justify-content-between">
+                                                    <div>
+                                                        {categoryBlog1.map((item, ind) => (
+                                                            <div className="form-check search-content" key={ind}>
+                                                                <input
+                                                                    className="form-check-input"
+                                                                    type="checkbox"
+                                                                    value=""
+                                                                    id={`sidebarRangeCategoryLeft-${ind}`}
+                                                                />
+                                                                <label className="form-check-label" htmlFor={`sidebarRangeCategoryLeft-${ind}`}>
+                                                                    {item.name}
+                                                                </label>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                    <div>
+                                                        {categoryBlog1.map((item, ind) => (
+                                                            <div className="form-check search-content" key={ind}>
+                                                                <input
+                                                                    className="form-check-input"
+                                                                    type="checkbox"
+                                                                    value=""
+                                                                    id={`sidebarRangeCategoryRight-${ind}`}
+                                                                />
+                                                                <label
+                                                                    className="form-check-label"
+                                                                    htmlFor={`sidebarRangeCategoryRight-${ind}`}
+                                                                >
+                                                                    {item.name2}
+                                                                </label>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="mb-3">
+                                                <div className="text-primary fw-semibold small mb-2">Select Year</div>
+                                                <div className="d-flex flex-wrap gap-2">
+                                                    {selectYear.map((item, ind) => (
+                                                        <React.Fragment key={ind}>
+                                                            <div className="form-check search-content mb-0">
+                                                                <input
+                                                                    className="form-check-input"
+                                                                    type="checkbox"
+                                                                    value=""
+                                                                    id={`sidebarRangeYear-${ind}-${item.year}`}
+                                                                />
+                                                                <label
+                                                                    className="form-check-label"
+                                                                    htmlFor={`sidebarRangeYear-${ind}-${item.year}`}
+                                                                >
+                                                                    {item.year}
+                                                                </label>
+                                                            </div>
+                                                            <div className="form-check search-content mb-0">
+                                                                <input
+                                                                    className="form-check-input"
+                                                                    type="checkbox"
+                                                                    value=""
+                                                                    id={`sidebarRangeYear-${ind}-${item.year2}`}
+                                                                />
+                                                                <label
+                                                                    className="form-check-label"
+                                                                    htmlFor={`sidebarRangeYear-${ind}-${item.year2}`}
+                                                                >
+                                                                    {item.year2}
+                                                                </label>
+                                                            </div>
+                                                        </React.Fragment>
+                                                    ))}
+                                                </div>
+                                            </div>
+
                                             <div className="form-check search-content">
                                                 <input className="form-check-input" type="checkbox" id="sidebarCatalogAll" checked={!catalogId} onChange={() => handleCatalogCheck('')} />
                                                 <label className="form-check-label" htmlFor="sidebarCatalogAll">Tous les catalogues</label>
@@ -139,7 +265,18 @@ function BooksGridViewSidebar() {
                                         </div>
                                     </div>
                                 </Collapse>
-                                {error && <ErrorMessage message={error} onDismiss={() => setError(null)} className="mb-3" />}
+                                {error && (
+                                    <div className="mb-3">
+                                        <ErrorMessage message={error} onDismiss={() => setError(null)} className="mb-2" />
+                                        <button
+                                            type="button"
+                                            className="btn btn-primary btnhover"
+                                            onClick={reloadBooks}
+                                        >
+                                            Réessayer
+                                        </button>
+                                    </div>
+                                )}
                                 {loading && <div className="col-12 text-center py-5"><p>Chargement des livres…</p></div>}
                                 {!loading && !error && filteredBooks.length === 0 && (
                                     <div className="col-12 text-center py-5"><p className="text-muted">Aucun livre pour le moment.</p></div>

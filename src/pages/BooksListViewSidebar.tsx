@@ -184,7 +184,7 @@ function BooksListViewSidebar(){
                                     </div>                                   
                                 ))}   
                                 
-                                <div className="row page">
+                                {/* <div className="row page">
                                     <div className="col-md-6">
                                         <p className="page-text">Showing 12 from 50 data</p>
                                     </div>
@@ -199,7 +199,7 @@ function BooksListViewSidebar(){
                                             </ul>
                                         </nav>
                                     </div>
-                                </div>
+                                </div> */}
 					        </div>
                         </div>
                     </div>    

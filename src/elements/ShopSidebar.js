@@ -23,17 +23,6 @@ const categoryBlog1 = [
     {name:'Technique'  , name2:'Énergie' },
     {name:'Roman'      , name2:'Fiction' },
 ];
-const publishBlog = [
-    {title:'Jean Richard MAMBWENI MABIALA'},
-];
-const accordionBlog2 = [
-    {title:'Best Sales (105)'},
-    {title:'Most Commented (21)'},
-    {title:'Newest Books (32)'},
-    {title:'Featured (129)'},
-    {title:'Watch History (23)'},
-    {title:'Best Books (44)'},
-];
 
 const ShopSidebar = () =>{
     return(
@@ -85,22 +74,6 @@ const ShopSidebar = () =>{
                             </div>    
                         </Accordion.Body>
                     </Accordion.Item>
-                    <Accordion.Item eventKey="2">
-                        <Accordion.Header>Choose Publisher</Accordion.Header>
-                        <Accordion.Body >
-                            <div className="widget dz-widget_services">
-                                {publishBlog.map((data,ind)=>(
-                                    <div className="form-check search-content" key={ind}>
-                                        <input className="form-check-input" type="checkbox" value="" id={`publisherCheckBox-${ind+38}`} />
-                                        <label className="form-check-label" htmlFor={`publisherCheckBox-${ind+38}`}>
-                                            {data.title}
-                                        </label>
-                                    </div>
-                                ))} 
-                                
-                            </div>
-                        </Accordion.Body>
-                    </Accordion.Item>
                     <Accordion.Item eventKey="3">
                         <Accordion.Header>Select Year</Accordion.Header>
                         <Accordion.Body >
@@ -130,23 +103,6 @@ const ShopSidebar = () =>{
                         </Accordion.Body>
                     </Accordion.Item>
                 </Accordion>                                     
-                <Accordion className="accordion-filter accordion-inner" defaultActiveKey="0">
-                    {accordionBlog2.map((data, index)=>(
-                        <Accordion.Item eventKey={`${index}`}>
-                            <Accordion.Header>{data.title}</Accordion.Header>
-                            <Accordion.Body>
-                                 <ul>
-                                    <li><Link to={"#"}>Alone Here</Link></li>
-                                    <li><Link to={"#"}>Alien Invassion</Link></li>
-                                    <li><Link to={"#"}>Bullo The Cat</Link></li>
-                                    <li><Link to={"#"}>Cut That Hair!</Link></li>
-                                    <li><Link to={"#"}>Dragon Of The King</Link></li>
-                                </ul>              
-                            </Accordion.Body>
-                        </Accordion.Item>
-                    ))}
-                </Accordion>
-
                 <div className="row filter-buttons">
                     <div>
                         <Link to={"#"} className="btn btn-secondary btnhover mt-4 d-block">Refine Search</Link>
