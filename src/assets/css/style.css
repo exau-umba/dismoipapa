@@ -15606,7 +15606,7 @@ ul a.rsswidget {
           .service_menu_nav ul li a:before {
             font-size: 22px; } }
       .service_menu_nav ul li a:after {
-        background: var(--secondary);
+        background: var(--primary);
         position: absolute;
         width: 100%;
         height: 100%;

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
-import { getBooksEpubPreviewUrl } from '../../api/admin';
+import { getBooksEpubPreviewUrl, getCatalogBookPreviewUrl } from '../../api/admin';
 import { getFriendlyErrorMessage } from '../../utils/errorMessages';
 import ErrorMessage from '../../components/ErrorMessage';
 import EpubReader from '../../components/EpubReader';
@@ -38,7 +38,14 @@ export default function AdminBookReader() {
       setLoading(true);
       setError(null);
       try {
-        const url = await getBooksEpubPreviewUrl(id);
+        let url: string | null = null;
+        try {
+          // Idéal : la route /preview renvoie un blob URL, ce qui évite le CORS
+          url = await getCatalogBookPreviewUrl(id);
+        } catch {
+          // Fallback : utilise l'ancienne URL directe (peut déclencher un CORS côté navigateur)
+          url = await getBooksEpubPreviewUrl(id);
+        }
         if (!cancelled) {
           setPreviewUrl(url);
           setTitle('Lecture du livre');
@@ -84,7 +91,12 @@ export default function AdminBookReader() {
         return;
       }
       if (!id) return;
-      const url = await getBooksEpubPreviewUrl(id);
+      let url: string | null = null;
+      try {
+        url = await getCatalogBookPreviewUrl(id);
+      } catch {
+        url = await getBooksEpubPreviewUrl(id);
+      }
       if (!url) return;
       const a = document.createElement('a');
       a.href = url;

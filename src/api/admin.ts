@@ -162,6 +162,22 @@ export function deleteBook(id: string): Promise<void> {
   return delJson(`/api/catalog/books/${id}/`);
 }
 
+/** Crée un format pour un livre existant: POST /api/catalog/books/{bookId}/formats/ (multipart). */
+export function createBookFormat(
+  bookId: string,
+  data: { format_type: 'ebook' | 'physical'; price: string; stock_quantity: number },
+  pdfFile?: File | null,
+  epubFile?: File | null
+): Promise<unknown> {
+  const form = new FormData();
+  form.append('format_type', data.format_type);
+  form.append('price', data.price);
+  form.append('stock_quantity', String(data.stock_quantity));
+  if (pdfFile) form.append('pdf_file', pdfFile, pdfFile.name || 'book.pdf');
+  if (epubFile) form.append('epub_file', epubFile, epubFile.name || 'book.epub');
+  return postJson(`/api/catalog/books/${bookId}/formats/`, form, { skipJsonHeader: true });
+}
+
 export function updateFormat(formatId: string, data: { price?: string; stock_quantity?: number }): Promise<unknown> {
   return patchJson(`/api/catalog/formats/${formatId}/`, data);
 }
