@@ -100,7 +100,7 @@ function Index() {
             path="/books-list-view-sidebar"
             element={<BooksListViewSidebar />}
           />
-          <Route path="/shop-cart" element={<ProtectedRoute><ShopCart /></ProtectedRoute>} />
+          <Route path="/shop-cart" element={<ShopCart />} />
           {/* <Route path="/wishlist" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} /> */}
           <Route path="/shop-login" element={<Login />} />
           <Route path="/activate-account" element={<ActivateAccount />} />
