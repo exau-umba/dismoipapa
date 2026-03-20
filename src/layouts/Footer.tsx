@@ -46,6 +46,14 @@ type FooterProps = {
   logoImage?: string;
 };
 
+/** Logos mobile money RDC (dossier public/mobile_money/) */
+const MOBILE_MONEY_LOGOS = [
+  { src: '/mobile_money/airtel-money.png', alt: 'Airtel Money' },
+  { src: '/mobile_money/Orange-Money-logo.png', alt: 'Orange Money' },
+  { src: '/mobile_money/M-pesa-logo.png', alt: 'M-Pesa' },
+  { src: '/mobile_money/afrimpney.jpg', alt: 'Afrimoney' },
+] as const;
+
 function Footer({ footerChange = '', logoImage }: FooterProps) {
   const d = new Date();
 
@@ -103,7 +111,7 @@ function Footer({ footerChange = '', logoImage }: FooterProps) {
                     Plateforme dédiée aux livres de Jean Richard MAMBWENI MABIALA Découvrez ses ouvrages et
                     commandez en quelques clics.
                   </p>
-                  <div className="dz-social-icon style-1">
+                  {/* <div className="dz-social-icon style-1">
                     <ul>
                       <li>
                         <a
@@ -142,7 +150,7 @@ function Footer({ footerChange = '', logoImage }: FooterProps) {
                         </a>
                       </li>
                     </ul>
-                  </div>
+                  </div> */}
                 </div>
               </div>
               <div
@@ -254,6 +262,23 @@ function Footer({ footerChange = '', logoImage }: FooterProps) {
                       </span>
                     </li>
                   </ul>
+                </div>
+              </div>
+            </div>
+            <div className="row footer-payment-row mt-4 pt-4">
+              <div className="col-12">
+                <div className="widget mb-0">
+                  <h5 className="footer-title mb-2">Moyens de paiement</h5>
+                  <p className="text small mb-3" style={{ textAlign: 'start' }}>
+                    Pour l’instant, les paiements sont acceptés par <strong>mobile money</strong>.
+                  </p>
+                  <div className="footer-payment-logos" role="list" aria-label="Opérateurs mobile money acceptés">
+                    {MOBILE_MONEY_LOGOS.map((logo) => (
+                      <div className="footer-payment-logos__item" role="listitem" key={logo.src}>
+                        <img src={logo.src} alt={logo.alt} loading="lazy" />
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>

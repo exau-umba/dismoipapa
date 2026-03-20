@@ -25044,4 +25044,32 @@ body.woo-variation-swatches .variable-items-wrapper .variable-item:not(.radio-va
   }
 }
 
+/* Footer : moyens de paiement (mobile money RDC) */
+.site-footer .footer-payment-row {
+  border-top: 1px solid rgba(26, 22, 104, 0.12);
+}
+.footer-payment-logos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.25rem;
+}
+.footer-payment-logos__item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  border: 1px solid rgba(26, 22, 104, 0.08);
+  min-height: 48px;
+}
+.footer-payment-logos__item img {
+  max-height: 32px;
+  width: auto;
+  max-width: 120px;
+  object-fit: contain;
+  display: block;
+}
+
 /*# sourceMappingURL=style.css.map */
