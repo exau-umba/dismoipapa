@@ -25,7 +25,7 @@ export default function AdminLayout() {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     setShowLogoutModal(false);
-    navigate('/shop-login', { replace: true });
+    navigate('/admin/login', { replace: true });
   };
 
   return (
