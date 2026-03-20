@@ -232,7 +232,7 @@ function ShopDetail() {
                                                     )}
                                                     <button
                                                         type="button"
-                                                        className="btn btn-primary btnhover btnhover2"
+                                                        className="btn btn-primary"
                                                         disabled={!canAddToCart}
                                                         onClick={() => {
                                                             if (!canAddToCart || !productType) return;
@@ -248,7 +248,7 @@ function ShopDetail() {
                                                             setCount(1);
                                                         }}
                                                     >
-                                                        <i className="flaticon-shopping-cart-1"></i> <span>Ajouter au panier</span>
+                                                        <i className="flaticon-shopping-cart-1 "></i> <span>Ajouter au panier</span>
                                                     </button>
                                                     {/* <div className="bookmark-btn style-1 d-none d-sm-block">
                                                         <input className="form-check-input" type="checkbox" id="flexCheckDefault1" />

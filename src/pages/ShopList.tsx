@@ -27,12 +27,19 @@ function ShopList() {
     }, []);
 
     useEffect(() => {
-        setLoading(true);
-        setError(null);
-        fetchBooks()
-            .then(setBooks)
-            .catch((err) => setError(getFriendlyErrorMessage(err)))
-            .finally(() => setLoading(false));
+        const loadBooks = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const data = await fetchBooks();
+                setBooks(data);
+            } catch (err) {
+                setError(getFriendlyErrorMessage(err));
+            } finally {
+                setLoading(false);
+            }
+        };
+        loadBooks();
     }, []);
 
     const handleCatalogCheck = (id: string) => {
@@ -128,7 +135,25 @@ function ShopList() {
                                 </div>
                             </div>
                         </Collapse>
-                        {error && <ErrorMessage message={error} onDismiss={() => setError(null)} className="mb-3" />}
+                        {error && (
+                            <div className="mb-3">
+                                <ErrorMessage message={error} onDismiss={() => setError(null)} className="mb-2" />
+                                <button
+                                    type="button"
+                                    className="btn btn-primary btnhover"
+                                    onClick={() => {
+                                        setLoading(true);
+                                        setError(null);
+                                        fetchBooks()
+                                            .then(setBooks)
+                                            .catch((err) => setError(getFriendlyErrorMessage(err)))
+                                            .finally(() => setLoading(false));
+                                    }}
+                                >
+                                    Réessayer
+                                </button>
+                            </div>
+                        )}
                         {loading && <div className="col-12 text-center py-5"><p>Chargement des livres…</p></div>}
                         {!loading && !error && filteredBooks.length === 0 && (
                             <div className="col-12 text-center py-5"><p className="text-muted">Aucun livre pour le moment.</p></div>
@@ -165,7 +190,7 @@ function ShopList() {
                                                         {book.publication_date && <li><span>Année </span>{book.publication_date.slice(0, 4)}</li>}
                                                     </ul>
                                                     <div className="d-flex">
-                                                        <Link to={`/books-detail/${book.id}`} className="btn btn-secondary btnhover btnhover2"><i className="flaticon-shopping-cart-1 m-r10"></i> Voir le livre</Link>
+                                                        <Link to={`/books-detail/${book.id}`} className="btn btn-primary btnhover btnhover2"><i className="flaticon-shopping-cart-1 m-r10"></i> Voir le livre</Link>
                                                     </div>
                                                 </div>
                                             </div>
@@ -180,7 +205,7 @@ function ShopList() {
                             <div className="col-md-6">
                                 <p className="page-text">{loading ? '…' : `Affichage de ${filteredBooks.length} livre(s)`}</p>
                             </div>
-                            <div className="col-md-6">
+                            {/* <div className="col-md-6">
                                 <nav aria-label="Blog Pagination">
                                     <ul className="pagination style-1 p-t20">
                                         <li className="page-item"><Link to={"#"} className="page-link prev" >Prev</Link></li>
@@ -190,11 +215,11 @@ function ShopList() {
                                         <li className="page-item"><Link to={"#"} className="page-link next" >Next</Link></li>
                                     </ul>
                                 </nav>
-                            </div>
+                            </div> */}
                         </div>    
                     </div>
                 </section>
-                <div className="bg-white py-5">
+                {/* <div className="bg-white py-5">
 			        <div className="container">              
                         <ClientsSlider />            
                     </div>    
@@ -205,8 +230,8 @@ function ShopList() {
                             <CounterSection />      
                         </div>   
                     </div>
-                </section>  
-                <NewsLetter subscribeChange={() => {}} />      
+                </section>   */}
+                {/* <NewsLetter subscribeChange={() => {}} />       */}
             </div>
         </>
     )
