@@ -53,11 +53,13 @@ function AboutUs(){
                                             </div>
                                             <div className="exp-info">
                                                 <ul className="list-check primary">
-                                                    <li>Romans</li>
-                                                    <li>Biographie</li>
-                                                    <li>Recueils littéraires</li>
-                                                    <li>Poésie</li>
-                                                    <li>Fables</li>
+                                                    <li>Roman</li>
+                                                    <li>Receuil de poèmes et fables</li>
+                                                    {/* <li>Gestion de stock des hydrocarbures liquides et/ou liquéfiés</li> */}
+
+                                                    {/* <li>Recueils littéraires</li> */}
+                                                    <li>Sciences</li>
+                                                    {/* <li>Fables</li> */}
                                                 </ul>
                                             </div>
                                         </div>
