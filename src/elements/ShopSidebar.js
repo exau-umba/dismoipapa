@@ -2,111 +2,86 @@ import React from 'react';
 import {Link} from 'react-router-dom';
 import {Accordion} from 'react-bootstrap';
 
-import SlideDragable from './SlideDragable';
-
-const selectYear = [
-    { year: 2025, year2: 2026},
-    { year: 2027, year2: 2028},
-    { year: 2029, year2: 2030},
-    { year: 2031, year2: 2032},
-    { year: 2033, year2: 2034},
-    { year: 2035, year2: 2036},
-    { year: 2037, year2: 2038},
-    { year: 2039, year2: 2040},
-    { year: 2041, year2: 2042},
-    { year: 2043, year2: 2044},
-    { year: 2045, year2: 2046},
-];
-
-const categoryBlog1 = [
-    {name:'Poésie'     , name2:'Fables' },
-    {name:'Technique'  , name2:'Énergie' },
-    {name:'Roman'      , name2:'Fiction' },
-];
-
-const ShopSidebar = () =>{
+const ShopSidebar = ({
+    maxPrice = 200,
+    onMaxPriceChange = (_value) => {},
+    onlyPhysical = false,
+    onlyEbook = false,
+    onOnlyPhysicalChange = (_checked) => {},
+    onOnlyEbookChange = (_checked) => {},
+    catalogs = [],
+    selectedCatalogId = '',
+    onCatalogChange = (_id) => {},
+    onReset = () => {},
+}) =>{
     return(
         <>
-            <div className="shop-filter">
+            <div className="shop-filter text-primary">
                 <div className="d-flex justify-content-between">
-                    <h4 className="title">Filter Option</h4>
-                    <Link to={"#"} className="panel-close-btn"><i className="flaticon-close"></i></Link>
+                    <h4 className="title text-primary">Filter Option</h4>
+                    <Link to={"#"} className="panel-close-btn text-primary"><i className="flaticon-close"></i></Link>
                 </div>
-                <Accordion className="accordion-filter" defaultActiveKey="0">
-                    <Accordion.Item eventKey="0">
+                <Accordion className="accordion-filter text-primary" defaultActiveKey="0">
+                    <Accordion.Item eventKey="0" className="text-primary">
                         <Accordion.Header>
-                            Price Range
+                            <span style={{ color: 'var(--primary)' }}>Prix max</span>
                         </Accordion.Header>
                         <Accordion.Body >
-                            <div className="range-slider style-1">
-                                <div id="slider-tooltips">
-								    <SlideDragable />
+                            <div>
+                                <input
+                                    type="range"
+                                    className="form-range text-primary"
+                                    min={0}
+                                    max={200}
+                                    value={maxPrice}
+                                    onChange={(e) => onMaxPriceChange(Number(e.target.value))}
+                                />
+                                <div className="d-flex justify-content-between small text-primary mt-1">
+                                    <span>0</span>
+                                    <span>{maxPrice} $</span>
                                 </div>
                             </div>
                         </Accordion.Body>
                     </Accordion.Item>
                     <Accordion.Item  eventKey="1">
-                        <Accordion.Header >
-                            Shop by Category
+                        <Accordion.Header>
+                            <span style={{ color: 'var(--primary)' }}>Formats</span>
                         </Accordion.Header>
                         <Accordion.Body >
-                            <div className="widget dz-widget_services d-flex justify-content-between">
-                                <div className="">
-                                    {categoryBlog1.map((item,ind)=>(
-                                        <div className="form-check search-content" key={ind}>
-                                            <input className="form-check-input" type="checkbox" value="" id={`shopcategoryCheckBox-${ind+11}`} />
-                                            <label className="form-check-label" htmlFor={`shopcategoryCheckBox-${ind+11}`}>
-                                                {item.name}
-                                            </label>
-                                        </div>
-                                    ))}
+                            <div className="widget dz-widget_services">
+                                <div className="form-check search-content">
+                                    <input className="form-check-input" type="checkbox" id="shopSidebarOnlyPhysical" checked={onlyPhysical} onChange={(e) => onOnlyPhysicalChange(e.target.checked)} />
+                                    <label className="form-check-label" htmlFor="shopSidebarOnlyPhysical">Physique</label>
                                 </div>
-                                <div className="">
-                                    {categoryBlog1.map((item,ind)=>(
-                                        <div className="form-check search-content" key={ind}>
-                                            <input className="form-check-input" type="checkbox" value="" id={`shopcategoryCheckBox-${ind+28}`} />
-                                            <label className="form-check-label" htmlFor={`shopcategoryCheckBox-${ind+28}`}>
-                                                {item.name2}
-                                            </label>
-                                        </div>
-                                    ))}                                    
+                                <div className="form-check search-content">
+                                    <input className="form-check-input" type="checkbox" id="shopSidebarOnlyEbook" checked={onlyEbook} onChange={(e) => onOnlyEbookChange(e.target.checked)} />
+                                    <label className="form-check-label" htmlFor="shopSidebarOnlyEbook">E-book</label>
                                 </div>
-                            </div>    
+                            </div>
                         </Accordion.Body>
                     </Accordion.Item>
                     <Accordion.Item eventKey="3">
-                        <Accordion.Header>Select Year</Accordion.Header>
+                        <Accordion.Header><span style={{ color: 'var(--primary)' }}>Catalogue</span></Accordion.Header>
                         <Accordion.Body >
-                            <div className="widget dz-widget_services col d-flex justify-content-between">
-                                <div className="">
-                                    {selectYear.map((item,ind)=>(
-                                        <div className="form-check search-content" key={ind}>
-                                            <input className="form-check-input" type="checkbox" value="" id={`productCheckBox${ind+22}`} />
-                                            <label className="form-check-label" htmlFor={`productCheckBox${ind+22}`}>
-                                                {item.year}
-                                            </label>
-                                        </div>
-                                    ))} 
-                                
+                            <div className="widget dz-widget_services">
+                                <div className="form-check search-content">
+                                    <input className="form-check-input text-primary" type="checkbox" id="shopSidebarCatalogAll" checked={!selectedCatalogId} onChange={() => onCatalogChange('')} />
+                                    <label className="form-check-label text-primary" htmlFor="shopSidebarCatalogAll">Tous les catalogues</label>
                                 </div>
-                                <div className="">
-                                    {selectYear.map((item,ind)=>(
-                                        <div className="form-check search-content" key={ind}>
-                                            <input className="form-check-input" type="checkbox" value="" id={`productCheckBox${ind+33}`} /> 
-                                            <label className="form-check-label" htmlFor={`productCheckBox${ind+33}`}>
-                                                {item.year2}
-                                            </label>
-                                        </div>
-                                    ))}                                                        
-                                </div>
+                                {catalogs.map((c) => (
+                                    <div className="form-check search-content" key={c.id}>
+                                        <input className="form-check-input text-primary" type="checkbox" id={`shopSidebarCatalog-${c.id}`} checked={selectedCatalogId === c.id} onChange={() => onCatalogChange(c.id)} />
+                                        <label className="form-check-label text-primary" htmlFor={`shopSidebarCatalog-${c.id}`}>{c.name}</label>
+                                    </div>
+                                ))}
                             </div>
                         </Accordion.Body>
                     </Accordion.Item>
                 </Accordion>                                     
                 <div className="row filter-buttons">
                     <div>
-                        <Link to={"#"} className="btn btn-secondary btnhover mt-4 d-block">Refine Search</Link>
-                        <Link to={"#"} className="btn btn-outline-secondary btnhover mt-3 d-block">Reset Filter</Link>
+                        <button type="button" className="btn btn-primary btnhover mt-4 d-block w-100">Filtrage en direct</button>
+                        <button type="button" className="btn btn-outline-primary btnhover mt-3 d-block w-100" onClick={onReset}>Réinitialiser</button>
                     </div>
                 </div>
             </div>

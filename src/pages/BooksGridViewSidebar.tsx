@@ -1,8 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Collapse, Dropdown } from 'react-bootstrap';
-
-import NewsLetter from '../components/NewsLetter';
 import ErrorMessage from '../components/ErrorMessage';
 import ShopSidebar from '../elements/ShopSidebar';
 import { bookImages } from '../constants/imageUrls';
@@ -10,55 +8,31 @@ import { fetchBooks, type Book } from '../api/catalog';
 import { listCatalogs, type Catalog } from '../api/admin';
 import { API_BASE_URL } from '../api/client';
 import { getFriendlyErrorMessage } from '../utils/errorMessages';
+import { useCart } from '../context/CartContext';
 
-const categoryBlog1 = [
-    { name: 'Poésie', name2: 'Fables' },
-    { name: 'Technique', name2: 'Énergie' },
-    { name: 'Roman', name2: 'Fiction' },
-];
+type SortKey = 'newest' | 'title_asc' | 'price_asc' | 'price_desc';
 
-const selectYear = [
-    { year: 2025, year2: 2026 },
-    { year: 2027, year2: 2028 },
-    { year: 2029, year2: 2030 },
-    { year: 2031, year2: 2032 },
-    { year: 2033, year2: 2034 },
-    { year: 2035, year2: 2036 },
-    { year: 2037, year2: 2038 },
-    { year: 2039, year2: 2040 },
-    { year: 2041, year2: 2042 },
-    { year: 2043, year2: 2044 },
-    { year: 2045, year2: 2046 },
-];
+function toNum(v?: string) {
+    return Number.parseFloat(v || '0') || 0;
+}
 
 function BooksGridViewSidebar() {
     const [accordBtn, setAccordBtn] = useState<boolean>(false);
-    const [selectBtn, setSelectBtn] = useState('Newest');
+    const [sortKey, setSortKey] = useState<SortKey>('newest');
     const [books, setBooks] = useState<Book[]>([]);
     const [catalogs, setCatalogs] = useState<Catalog[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [onlyPhysical, setOnlyPhysical] = useState(false);
+    const [onlyEbook, setOnlyEbook] = useState(false);
+    const [maxPrice, setMaxPrice] = useState(100);
     const [searchParams, setSearchParams] = useSearchParams();
+    const [selections, setSelections] = useState<Record<string, { productType: 'ebook' | 'physical' | ''; fileFormat: 'pdf' | 'epub' | null }>>({});
+    const { addItem } = useCart();
     const catalogId = (searchParams.get('catalog') || '').trim();
 
     useEffect(() => {
         listCatalogs().then(setCatalogs).catch(() => setCatalogs([]));
-    }, []);
-
-    useEffect(() => {
-        const loadBooks = async () => {
-            setLoading(true);
-            setError(null);
-            try {
-                const data = await fetchBooks();
-                setBooks(data);
-            } catch (err) {
-                setError(getFriendlyErrorMessage(err));
-            } finally {
-                setLoading(false);
-            }
-        };
-        loadBooks();
     }, []);
 
     const reloadBooks = React.useCallback(async () => {
@@ -74,6 +48,10 @@ function BooksGridViewSidebar() {
         }
     }, []);
 
+    useEffect(() => {
+        reloadBooks();
+    }, [reloadBooks]);
+
     const handleCatalogCheck = (id: string) => {
         const next = new URLSearchParams(searchParams);
         if (id) next.set('catalog', id);
@@ -82,15 +60,47 @@ function BooksGridViewSidebar() {
     };
 
     const filteredBooks = useMemo(() => {
-        if (!catalogId) return books;
-        return books.filter((b) => b.catalog === catalogId);
-    }, [books, catalogId]);
+        let list = catalogId ? books.filter((b) => b.catalog === catalogId) : books;
+        list = list.filter((b) => {
+            const ebook = b.formats?.find((f) => (f.format_type ?? '') === 'ebook');
+            const physical = b.formats?.find((f) => (f.format_type ?? '') === 'physical');
+            const hasEbook = Boolean(ebook);
+            const hasPhysical = Boolean(physical);
+            const allowedType = (onlyEbook ? hasEbook : true) && (onlyPhysical ? hasPhysical : true);
+            const minAvailable = Math.min(
+                physical ? toNum(physical.price) : Number.POSITIVE_INFINITY,
+                ebook ? toNum(ebook.price) : Number.POSITIVE_INFINITY
+            );
+            return allowedType && (minAvailable === Number.POSITIVE_INFINITY || minAvailable <= maxPrice);
+        });
+        if (sortKey === 'title_asc') return [...list].sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+        if (sortKey === 'price_asc') return [...list].sort((a, b) => {
+            const ap = Math.min(...(a.formats || []).map((f) => toNum(f.price)), Number.POSITIVE_INFINITY);
+            const bp = Math.min(...(b.formats || []).map((f) => toNum(f.price)), Number.POSITIVE_INFINITY);
+            return ap - bp;
+        });
+        if (sortKey === 'price_desc') return [...list].sort((a, b) => {
+            const ap = Math.max(...(a.formats || []).map((f) => toNum(f.price)), 0);
+            const bp = Math.max(...(b.formats || []).map((f) => toNum(f.price)), 0);
+            return bp - ap;
+        });
+        return list;
+    }, [books, catalogId, maxPrice, onlyEbook, onlyPhysical, sortKey]);
+
+    const sortLabel = sortKey === 'newest'
+        ? 'Plus récents'
+        : sortKey === 'title_asc'
+        ? 'Titre (A-Z)'
+        : sortKey === 'price_asc'
+        ? 'Prix croissant'
+        : 'Prix décroissant';
 
     const catalogById = useMemo(() => {
         const m: Record<string, Catalog> = {};
         catalogs.forEach((c) => { m[c.id] = c; });
         return m;
     }, [catalogs]);
+
     return(
         <>
             <div className="page-content bg-grey">
@@ -98,7 +108,24 @@ function BooksGridViewSidebar() {
                     <div className="container">
                         <div className="row ">  
                             <div className="col-xl-3">
-                                <ShopSidebar />
+                                <ShopSidebar
+                                    maxPrice={maxPrice}
+                                    onMaxPriceChange={setMaxPrice}
+                                    onlyPhysical={onlyPhysical}
+                                    onlyEbook={onlyEbook}
+                                    onOnlyPhysicalChange={setOnlyPhysical}
+                                    onOnlyEbookChange={setOnlyEbook}
+                                    catalogs={catalogs}
+                                    selectedCatalogId={catalogId}
+                                    onCatalogChange={handleCatalogCheck}
+                                    onReset={() => {
+                                        setOnlyPhysical(false);
+                                        setOnlyEbook(false);
+                                        setMaxPrice(200);
+                                        handleCatalogCheck('');
+                                        setSortKey('newest');
+                                    }}
+                                />
                             </div>
                            
                             <div className="col-xl-9">
@@ -139,7 +166,7 @@ function BooksGridViewSidebar() {
                                             </ul>
                                         </div>
                                     </div>
-                                    <div className="category">
+                                    {/* <div className="category">
                                         <div className="filter-category">
                                             <Link to={"#"} className="text-primary" data-bs-toggle="collapse"  
                                                 onClick={() => setAccordBtn((prev) => !prev)}
@@ -151,120 +178,18 @@ function BooksGridViewSidebar() {
                                         <div className="form-group">
                                             <i className="fas fa-sort-amount-down me-2 text-primary"></i>                                   
                                             <Dropdown>
-                                                <Dropdown.Toggle  className="i-false text-primary">{selectBtn} <i className="ms-4 font-14 fa-solid fa-caret-down" /></Dropdown.Toggle>
+                                                <Dropdown.Toggle  className="i-false text-primary">{sortLabel} <i className="ms-4 font-14 fa-solid fa-caret-down" /></Dropdown.Toggle>
                                                 <Dropdown.Menu>
-                                                    <Dropdown.Item onClick={()=>setSelectBtn('Newest')}>Newest</Dropdown.Item>
-                                                    <Dropdown.Item onClick={()=>setSelectBtn('1 Days')}>1 Days</Dropdown.Item>
-                                                    <Dropdown.Item onClick={()=>setSelectBtn('2 Week')}>2 Week</Dropdown.Item>
-                                                    <Dropdown.Item onClick={()=>setSelectBtn('3 Week')}>3 Weeks</Dropdown.Item>
-                                                    <Dropdown.Item onClick={()=>setSelectBtn('1 Month')}>1 Month</Dropdown.Item>
+                                                    <Dropdown.Item onClick={()=>setSortKey('newest')}>Plus récents</Dropdown.Item>
+                                                    <Dropdown.Item onClick={()=>setSortKey('title_asc')}>Titre (A-Z)</Dropdown.Item>
+                                                    <Dropdown.Item onClick={()=>setSortKey('price_asc')}>Prix croissant</Dropdown.Item>
+                                                    <Dropdown.Item onClick={()=>setSortKey('price_desc')}>Prix décroissant</Dropdown.Item>
                                                 </Dropdown.Menu>
                                             </Dropdown>
                                         </div>
-                                    </div>
+                                    </div> */}
                                 </div>
-                                <Collapse in={accordBtn} className="acod-content">
-                                    <div>
-                                        <div className="widget widget_services style-2">
-                                            <div className="mb-3">
-                                                <div className="text-primary fw-semibold small mb-2">Price Range</div>
-                                                <input type="range" className="form-range" min={0} max={100} defaultValue={40} />
-                                                <div className="d-flex justify-content-between small text-muted mt-1">
-                                                    <span>0</span>
-                                                    <span>100</span>
-                                                </div>
-                                            </div>
-
-                                            <div className="mb-3">
-                                                <div className="text-primary fw-semibold small mb-2">Shop by Category</div>
-                                                <div className="dz-widget_services d-flex justify-content-between">
-                                                    <div>
-                                                        {categoryBlog1.map((item, ind) => (
-                                                            <div className="form-check search-content" key={ind}>
-                                                                <input
-                                                                    className="form-check-input"
-                                                                    type="checkbox"
-                                                                    value=""
-                                                                    id={`sidebarRangeCategoryLeft-${ind}`}
-                                                                />
-                                                                <label className="form-check-label" htmlFor={`sidebarRangeCategoryLeft-${ind}`}>
-                                                                    {item.name}
-                                                                </label>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                    <div>
-                                                        {categoryBlog1.map((item, ind) => (
-                                                            <div className="form-check search-content" key={ind}>
-                                                                <input
-                                                                    className="form-check-input"
-                                                                    type="checkbox"
-                                                                    value=""
-                                                                    id={`sidebarRangeCategoryRight-${ind}`}
-                                                                />
-                                                                <label
-                                                                    className="form-check-label"
-                                                                    htmlFor={`sidebarRangeCategoryRight-${ind}`}
-                                                                >
-                                                                    {item.name2}
-                                                                </label>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div className="mb-3">
-                                                <div className="text-primary fw-semibold small mb-2">Select Year</div>
-                                                <div className="d-flex flex-wrap gap-2">
-                                                    {selectYear.map((item, ind) => (
-                                                        <React.Fragment key={ind}>
-                                                            <div className="form-check search-content mb-0">
-                                                                <input
-                                                                    className="form-check-input"
-                                                                    type="checkbox"
-                                                                    value=""
-                                                                    id={`sidebarRangeYear-${ind}-${item.year}`}
-                                                                />
-                                                                <label
-                                                                    className="form-check-label"
-                                                                    htmlFor={`sidebarRangeYear-${ind}-${item.year}`}
-                                                                >
-                                                                    {item.year}
-                                                                </label>
-                                                            </div>
-                                                            <div className="form-check search-content mb-0">
-                                                                <input
-                                                                    className="form-check-input"
-                                                                    type="checkbox"
-                                                                    value=""
-                                                                    id={`sidebarRangeYear-${ind}-${item.year2}`}
-                                                                />
-                                                                <label
-                                                                    className="form-check-label"
-                                                                    htmlFor={`sidebarRangeYear-${ind}-${item.year2}`}
-                                                                >
-                                                                    {item.year2}
-                                                                </label>
-                                                            </div>
-                                                        </React.Fragment>
-                                                    ))}
-                                                </div>
-                                            </div>
-
-                                            <div className="form-check search-content">
-                                                <input className="form-check-input" type="checkbox" id="sidebarCatalogAll" checked={!catalogId} onChange={() => handleCatalogCheck('')} />
-                                                <label className="form-check-label" htmlFor="sidebarCatalogAll">Tous les catalogues</label>
-                                            </div>
-                                            {catalogs.map((c) => (
-                                                <div className="form-check search-content" key={c.id}>
-                                                    <input className="form-check-input" type="checkbox" id={`sidebarCatalog${c.id}`} checked={catalogId === c.id} onChange={() => handleCatalogCheck(c.id)} />
-                                                    <label className="form-check-label" htmlFor={`sidebarCatalog${c.id}`}>{c.name}</label>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </Collapse>
+                                <Collapse in={accordBtn} className="acod-content"><div></div></Collapse>
                                 {error && (
                                     <div className="mb-3">
                                         <ErrorMessage message={error} onDismiss={() => setError(null)} className="mb-2" />
@@ -285,8 +210,22 @@ function BooksGridViewSidebar() {
                                 <div className="row book-grid-row">
                                     {filteredBooks.map((book, i) => {
                                         const img = (book.cover_image && (book.cover_image.startsWith('http') ? book.cover_image : `${API_BASE_URL.replace(/\/$/, '')}${book.cover_image.startsWith('/') ? '' : '/'}${book.cover_image}`)) || bookImages[i % bookImages.length];
-                                        const price = book.formats?.[0]?.price ?? '';
+                                        const ebookFormat = book.formats?.find((f) => (f.format_type ?? '') === 'ebook') ?? null;
+                                        const physicalFormat = book.formats?.find((f) => (f.format_type ?? '') === 'physical') ?? null;
+                                        const ebookPrice = ebookFormat?.price ?? '';
+                                        const physicalPrice = physicalFormat?.price ?? '';
+                                        const hasPdf = Boolean(ebookFormat?.pdf_file);
+                                        const hasEpub = Boolean(ebookFormat?.epub_file);
                                         const catalogName = book.catalog ? (catalogById[book.catalog]?.name ?? '') : '';
+                                        const hasBoth = Boolean(ebookFormat && physicalFormat);
+                                        const defaultSelection = {
+                                            productType: (hasBoth ? '' : ebookFormat ? 'ebook' : physicalFormat ? 'physical' : '') as 'ebook' | 'physical' | '',
+                                            fileFormat: (ebookFormat ? (hasPdf ? 'pdf' : hasEpub ? 'epub' : null) : null) as 'pdf' | 'epub' | null,
+                                        };
+                                        const selection = selections[book.id] ?? defaultSelection;
+                                        const selectedPrice = selection.productType === 'ebook' ? ebookPrice : selection.productType === 'physical' ? physicalPrice : '';
+                                        const ebookRequiresFileChoice = selection.productType === 'ebook' && (hasPdf || hasEpub);
+                                        const canAddToCart = Boolean(selection.productType) && (!ebookRequiresFileChoice || selection.fileFormat !== null);
                                         return (
                                         <div className="col-book style-2" key={book.id}>
                                             <div className="dz-shop-card style-1">
@@ -302,9 +241,73 @@ function BooksGridViewSidebar() {
                                                     )}
                                                     <div className="book-footer">
                                                         <div className="price">
-                                                            {price ? <span className="price-num">{price} $</span> : <span className="price-num text-muted">—</span>}
+                                                            <div className="small">
+                                                                <div className="text-muted">Physique: <span className="text-primary">{physicalPrice ? `${physicalPrice} $` : '—'}</span></div>
+                                                                <div className="text-muted">E-book: <span className="text-primary">{ebookPrice ? `${ebookPrice} $` : '—'}</span></div>
+                                                                {selectedPrice ? <div className="price-num mt-1">{selectedPrice} $</div> : null}
+                                                            </div>
                                                         </div>
-                                                        <Link to={`/books-detail/${book.id}`} className="btn btn-secondary box-btn btnhover btnhover2"><i className="flaticon-shopping-cart-1 m-r10"></i> Voir</Link>
+                                                        <div className="d-flex flex-column gap-2" style={{ minWidth: 170 }}>
+                                                            {(ebookFormat || physicalFormat) && (
+                                                                <select
+                                                                    className="form-select form-select-sm"
+                                                                    value={selection.productType}
+                                                                    onChange={(e) => {
+                                                                        const nextType = e.target.value as 'ebook' | 'physical' | '';
+                                                                        setSelections((prev) => ({
+                                                                            ...prev,
+                                                                            [book.id]: {
+                                                                                productType: nextType,
+                                                                                fileFormat: nextType === 'ebook' ? (hasPdf ? 'pdf' : hasEpub ? 'epub' : null) : null,
+                                                                            },
+                                                                        }));
+                                                                    }}
+                                                                >
+                                                                    <option value="" disabled>Choisir un format</option>
+                                                                    {physicalFormat && <option value="physical">Physique</option>}
+                                                                    {ebookFormat && <option value="ebook">E-book</option>}
+                                                                </select>
+                                                            )}
+                                                            {selection.productType === 'ebook' && ebookFormat && (hasPdf || hasEpub) && (
+                                                                <select
+                                                                    className="form-select form-select-sm"
+                                                                    value={selection.fileFormat ?? ''}
+                                                                    onChange={(e) => {
+                                                                        const nextFile = (e.target.value as 'pdf' | 'epub') || null;
+                                                                        setSelections((prev) => ({
+                                                                            ...prev,
+                                                                            [book.id]: {
+                                                                                ...selection,
+                                                                                fileFormat: nextFile,
+                                                                            },
+                                                                        }));
+                                                                    }}
+                                                                >
+                                                                    {hasPdf && <option value="pdf">PDF</option>}
+                                                                    {hasEpub && <option value="epub">EPUB</option>}
+                                                                </select>
+                                                            )}
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-secondary box-btn btnhover btnhover2"
+                                                                disabled={!canAddToCart || !selectedPrice}
+                                                                onClick={() => {
+                                                                    if (!canAddToCart || !selection.productType || !selectedPrice) return;
+                                                                    addItem({
+                                                                        bookId: book.id,
+                                                                        title: book.title,
+                                                                        coverImage: img,
+                                                                        price: selectedPrice,
+                                                                        quantity: 1,
+                                                                        fileFormat: selection.productType === 'ebook' && (hasPdf || hasEpub) ? selection.fileFormat : null,
+                                                                        productType: selection.productType,
+                                                                    });
+                                                                }}
+                                                            >
+                                                                <i className="flaticon-shopping-cart-1 m-r10"></i> Ajouter
+                                                            </button>
+                                                            <Link to={`/books-detail/${book.id}`} className="btn btn-outline-primary box-btn btnhover btnhover2">Voir</Link>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
