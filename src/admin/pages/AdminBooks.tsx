@@ -63,15 +63,30 @@ export default function AdminBooks() {
     }
   };
 
-  const mainFormat = (b: Book) => (b.formats && b.formats.length > 0 ? b.formats[0] : null);
+  const getFormat = (b: Book, type: 'ebook' | 'physical') =>
+    b.formats?.find((f) => (f.format_type ?? '') === type) ?? null;
   const getCatalogLabel = (catalogId: string) => catalogsById[catalogId]?.name ?? '—';
-  const priceStr = (b: Book) => {
-    const f = mainFormat(b);
-    return f?.price ?? '—';
+  const priceCell = (b: Book) => {
+    const ebook = getFormat(b, 'ebook');
+    const physical = getFormat(b, 'physical');
+    return (
+      <div className="d-flex flex-column gap-1">
+        <small>
+          <strong>E-book:</strong> {ebook?.price ?? '—'}
+        </small>
+        <small>
+          <strong>Physique:</strong> {physical?.price ?? '—'}
+        </small>
+      </div>
+    );
   };
-  const stockNum = (b: Book) => {
-    const f = mainFormat(b);
-    return f?.stock_quantity ?? 0;
+  const stockCell = (b: Book) => {
+    const physical = getFormat(b, 'physical');
+    const ebook = getFormat(b, 'ebook');
+    if (!physical && ebook) return <Badge bg="info">E-book uniquement</Badge>;
+    if (!physical && !ebook) return <Badge bg="secondary">—</Badge>;
+    if ((physical?.stock_quantity ?? 0) <= 0) return <Badge bg="danger">Rupture</Badge>;
+    return <Badge bg="success">{physical?.stock_quantity}</Badge>;
   };
 
   return (
@@ -102,7 +117,7 @@ export default function AdminBooks() {
             <thead>
               <tr>
                 <th>Titre</th>
-                <th>Auteur</th>
+                {/* <th>Auteur</th> */}
                 <th>Catalogue</th>
                 <th>Prix ($)</th>
                 <th>Stock</th>
@@ -120,34 +135,44 @@ export default function AdminBooks() {
                 books.map((b) => (
                   <tr key={b.id}>
                     <td>{b.title}</td>
-                    <td>{b.author}</td>
+                    {/* <td>{b.author}</td> */}
                     <td>{getCatalogLabel(b.catalog)}</td>
-                    <td>{priceStr(b)}</td>
-                    <td>
-                      {stockNum(b) === 0 ? (
-                        <Badge bg="danger">Rupture</Badge>
-                      ) : (
-                        <Badge bg="success">{stockNum(b)}</Badge>
-                      )}
-                    </td>
+                    <td>{priceCell(b)}</td>
+                    <td>{stockCell(b)}</td>
                     <td className="text-end">
+                      <Link
+                        to={`/admin/livres/${b.id}/detail`}
+                        className="btn btn-sm btn-outline-dark me-1"
+                        title="Voir détail"
+                        aria-label={`Voir le détail de ${b.title}`}
+                      >
+                        <i className="fa fa-eye" />
+                      </Link>
                       <Link
                         to={`/admin/livres/lecture/${b.id}`}
                         className="btn btn-sm btn-outline-secondary me-1"
                         title="Prévisualiser (EPUB)"
+                        aria-label={`Prévisualiser ${b.title}`}
                       >
-                        <i className="fa fa-book-open me-1" /> Lire
+                        <i className="fa fa-book-open" />
                       </Link>
-                      <Link to={`/admin/livres/${b.id}`} className="btn btn-sm btn-outline-primary me-1">
-                        Modifier
+                      <Link
+                        to={`/admin/livres/${b.id}`}
+                        className="btn btn-sm btn-outline-primary me-1"
+                        title="Modifier"
+                        aria-label={`Modifier ${b.title}`}
+                      >
+                        <i className="fa fa-pen" />
                       </Link>
                       <Button
                         size="sm"
                         variant="outline-danger"
                         onClick={() => handleDeleteClick(b)}
                         disabled={deletingId === b.id}
+                        title="Supprimer"
+                        aria-label={`Supprimer ${b.title}`}
                       >
-                        Supprimer
+                        <i className="fa fa-trash" />
                       </Button>
                     </td>
                   </tr>

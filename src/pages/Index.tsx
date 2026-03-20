@@ -30,6 +30,7 @@ import ShopDetail from './ShopDetail';
 import ContactUs from './ContactUs';
 import ActivateAccount from './ActivateAccount';
 import ProtectedRoute from '../components/ProtectedRoute';
+import AdminProtectedRoute from '../components/AdminProtectedRoute';
 import BookReader from './BookReader';
 
 import ErrorPage from './ErrorPage';
@@ -40,6 +41,7 @@ import ComingSoon from './ComingSoon';
 import AdminLayout from '../admin/AdminLayout';
 import AdminDashboard from '../admin/pages/AdminDashboard';
 import AdminBooks from '../admin/pages/AdminBooks';
+import AdminBookDetail from '../admin/pages/AdminBookDetail';
 import AdminBookForm from '../admin/pages/AdminBookForm';
 import AdminBookReader from '../admin/pages/AdminBookReader';
 import AdminOrders from '../admin/pages/AdminOrders';
@@ -47,6 +49,7 @@ import AdminOrderDetail from '../admin/pages/AdminOrderDetail';
 import AdminUsers from '../admin/pages/AdminUsers';
 import AdminSettings from '../admin/pages/AdminSettings';
 import AdminCatalogs from '../admin/pages/AdminCatalogs';
+import AdminLogin from '../admin/pages/AdminLogin';
 
 // images
 import logo from './../assets/images/logo.png';
@@ -61,10 +64,12 @@ function Index() {
         <Route path="/under-construction" element={<UnderConstruction />} />
         <Route path="/coming-soon" element={<ComingSoon />} />
         <Route path="/" element={<Home2 />} />
-        <Route path="/admin" element={<AdminLayout />}>
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin" element={<AdminProtectedRoute><AdminLayout /></AdminProtectedRoute>}>
           <Route index element={<AdminDashboard />} />
           <Route path="catalogues" element={<AdminCatalogs />} />
           <Route path="livres" element={<AdminBooks />} />
+          <Route path="livres/:id/detail" element={<AdminBookDetail />} />
           <Route path="livres/nouveau" element={<AdminBookForm />} />
           <Route path="livres/:id" element={<AdminBookForm />} />
           <Route path="livres/lecture/:id" element={<AdminBookReader />} />

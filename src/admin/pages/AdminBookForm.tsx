@@ -3,7 +3,7 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import { Form, Button, Row, Col } from 'react-bootstrap';
 import { getBook } from '../../api/catalog';
 import type { Book } from '../../api/catalog';
-import { createBook, updateBook, updateFormat, updateFormatWithFile, listCatalogs, type Catalog } from '../../api/admin';
+import { createBook, createBookFormat, updateBook, updateFormat, updateFormatWithFile, listCatalogs, type Catalog } from '../../api/admin';
 import { getFriendlyErrorMessage } from '../../utils/errorMessages';
 import ErrorMessage from '../../components/ErrorMessage';
 
@@ -171,23 +171,44 @@ export default function AdminBookForm() {
           },
           coverImage || undefined
         );
-        if (form.ebook_enabled && ebookFormatId) {
-          await updateFormatWithFile(
-            ebookFormatId,
-            {
-              price: form.ebook_price || undefined,
-              // Pas de gestion de stock pour les E-books
-              stock_quantity: undefined,
-            },
-            pdfFile || undefined,
-            epubFile || undefined
-          );
+        if (form.ebook_enabled) {
+          if (ebookFormatId) {
+            await updateFormatWithFile(
+              ebookFormatId,
+              {
+                price: form.ebook_price || undefined,
+                // Pas de gestion de stock pour les E-books
+                stock_quantity: undefined,
+              },
+              pdfFile || undefined,
+              epubFile || undefined
+            );
+          } else {
+            await createBookFormat(
+              id,
+              {
+                format_type: 'ebook',
+                price: form.ebook_price || '0',
+                stock_quantity: 0,
+              },
+              pdfFile || undefined,
+              epubFile || undefined
+            );
+          }
         }
-        if (form.physical_enabled && physicalFormatId) {
-          await updateFormat(physicalFormatId, {
-            price: form.physical_price || undefined,
-            stock_quantity: form.physical_stock_quantity !== '' ? parseInt(form.physical_stock_quantity, 10) : undefined,
-          });
+        if (form.physical_enabled) {
+          if (physicalFormatId) {
+            await updateFormat(physicalFormatId, {
+              price: form.physical_price || undefined,
+              stock_quantity: form.physical_stock_quantity !== '' ? parseInt(form.physical_stock_quantity, 10) : undefined,
+            });
+          } else {
+            await createBookFormat(id, {
+              format_type: 'physical',
+              price: form.physical_price || '0',
+              stock_quantity: parseInt(form.physical_stock_quantity, 10) || 0,
+            });
+          }
         }
       } else {
         if (!form.catalog) {
