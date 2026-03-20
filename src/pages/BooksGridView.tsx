@@ -294,7 +294,7 @@ function BooksGridView() {
                                                 <li><i className="flaticon-star text-primary"></i></li>		
                                                 <li><i className="flaticon-star text-primary"></i></li>		
                                             </ul> */}
-                                            <div className="book-footer">
+                                            <div className="book-footer px-2">
                                                 <div className="price">
                                                     {selectedPrice ? (
                                                       <>

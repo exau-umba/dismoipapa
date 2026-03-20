@@ -104,6 +104,8 @@ function ShopDetail() {
     const physicalFormat = book.formats?.find((f) => (f.format_type ?? '') === 'physical') ?? null;
     const selectedFormat = productType === 'physical' ? physicalFormat : productType === 'ebook' ? ebookFormat : null;
     const price = selectedFormat?.price ?? '';
+    const ebookPrice = ebookFormat?.price ?? '';
+    const physicalPrice = physicalFormat?.price ?? '';
     const hasPdf = Boolean(ebookFormat?.pdf_file);
     const hasEpub = Boolean(ebookFormat?.epub_file);
     const ebookRequiresFileChoice = productType === 'ebook' && (hasPdf || hasEpub);
@@ -187,7 +189,11 @@ function ShopDetail() {
                                             )}
                                             <div className="book-footer d-flex flex-column justify-content-between">
                                                 <div className="price">
-                                                    {price ? <><h5>{price} $</h5></> : <h6 className="text-primary">Choisissez un format pour voir le prix</h6>}
+                                                    <div className="small mb-2">
+                                                        <div className="text-muted">Physique: <span className="text-primary">{physicalPrice ? `${physicalPrice} $` : '—'}</span></div>
+                                                        <div className="text-muted">E-book: <span className="text-primary">{ebookPrice ? `${ebookPrice} $` : '—'}</span></div>
+                                                    </div>
+                                                    {price ? <h5>{price} $</h5> : <h6 className="text-primary">Choisissez un format pour continuer</h6>}
                                                 </div>
                                                 <div className="product-num">
                                                     {(ebookFormat || physicalFormat) && (
@@ -250,6 +256,27 @@ function ShopDetail() {
                                                         }}
                                                     >
                                                         <i className="flaticon-shopping-cart-1 "></i> <span>Ajouter au panier</span>
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-outline-primary ms-2"
+                                                        disabled={!canAddToCart}
+                                                        onClick={() => {
+                                                            if (!canAddToCart || !productType) return;
+                                                            addItem({
+                                                                bookId: book.id,
+                                                                title: book.title,
+                                                                coverImage: coverUrl,
+                                                                price: price || '0',
+                                                                quantity: productType === 'ebook' ? 1 : Math.max(1, count),
+                                                                fileFormat: productType === 'ebook' && (hasPdf || hasEpub) ? fileFormat : null,
+                                                                productType: productType as 'ebook' | 'physical',
+                                                            });
+                                                            setCount(1);
+                                                            navigate('/shop-checkout');
+                                                        }}
+                                                    >
+                                                        Acheter maintenant
                                                     </button>
                                                     {/* <div className="bookmark-btn style-1 d-none d-sm-block">
                                                         <input className="form-check-input" type="checkbox" id="flexCheckDefault1" />
@@ -342,7 +369,8 @@ function ShopDetail() {
                                     <div className="row">
                                         {relatedBooks.map((related) => {
                                             const relImg = (related.cover_image && (related.cover_image.startsWith('http') ? related.cover_image : `${API_BASE_URL.replace(/\/$/, '')}${related.cover_image.startsWith('/') ? '' : '/'}${related.cover_image}`)) || bookImages[0];
-                                            const relPrice = related.formats?.[0]?.price ?? '';
+                                            const relEbookPrice = related.formats?.find((f) => (f.format_type ?? '') === 'ebook')?.price ?? '';
+                                            const relPhysicalPrice = related.formats?.find((f) => (f.format_type ?? '') === 'physical')?.price ?? '';
                                             return (
                                             <div className="col-xl-12 col-lg-6" key={related.id}>
                                                 <div className="dz-shop-card style-5">
@@ -353,7 +381,10 @@ function ShopDetail() {
                                                         <h5 className="subtitle book-title-truncate" title={related.title}><Link to={`/books-detail/${related.id}`}>{related.title}</Link></h5>
                                                         <p className="small text-muted">par {related.author}</p>
                                                         <div className="price">
-                                                            <span className="price-num">{relPrice ? `${relPrice} $` : '—'}</span>
+                                                            <div className="small">
+                                                                <div className="text-muted">Physique: <span className="text-primary">{relPhysicalPrice ? `${relPhysicalPrice} $` : '—'}</span></div>
+                                                                <div className="text-muted">E-book: <span className="text-primary">{relEbookPrice ? `${relEbookPrice} $` : '—'}</span></div>
+                                                            </div>
                                                         </div>
                                                         <Link to={`/books-detail/${related.id}`} className="btn btn-outline-primary btn-sm btnhover btnhover2">Voir le détail</Link>
                                                     </div>
