@@ -270,7 +270,7 @@ function Footer({ footerChange = '', logoImage }: FooterProps) {
               </div>
               <div className="col-lg-6 col-md-12 text-end">
                 <p>
-                  Réalisé par <a href="https://www.linkedin.com/in/exau-umba" target="_blank" rel="noreferrer">Exaucé Umba</a> {' '} et <a href="https://www.linkedin.com/in/christkt/" target="_blank" rel="noreferrer">Christ Katumba</a> {' '}
+                  Réalisé par <a href="https://www.linkedin.com/in/exau-umba" target="_blank" rel="noreferrer">Exaucé Umba</a> {' '} et <a href="https://www.linkedin.com/in/christ-katumba-1b47a531a" target="_blank" rel="noreferrer">Christ Katumba</a> {' '}
                   {/* <span className="heart" onClick={heartToggle}></span> */}
                 </p>
               </div>
