@@ -106,7 +106,8 @@ function ShopDetail() {
     const price = selectedFormat?.price ?? '';
     const hasPdf = Boolean(ebookFormat?.pdf_file);
     const hasEpub = Boolean(ebookFormat?.epub_file);
-    const canAddToCart = Boolean(productType) && (productType !== 'ebook' || fileFormat !== null);
+    const ebookRequiresFileChoice = productType === 'ebook' && (hasPdf || hasEpub);
+    const canAddToCart = Boolean(productType) && (!ebookRequiresFileChoice || fileFormat !== null);
 
     const tableDetail = [
         { tablehead: 'Titre', tabledata: book.title },
@@ -186,7 +187,7 @@ function ShopDetail() {
                                             )}
                                             <div className="book-footer d-flex flex-column justify-content-between">
                                                 <div className="price">
-                                                    {price ? <><h5>{price} $</h5></> : <h5 className="text-muted">Prix sur demande</h5>}
+                                                    {price ? <><h5>{price} $</h5></> : <h6 className="text-primary">Choisissez un format pour voir le prix</h6>}
                                                 </div>
                                                 <div className="product-num">
                                                     {(ebookFormat || physicalFormat) && (
@@ -242,7 +243,7 @@ function ShopDetail() {
                                                                 coverImage: coverUrl,
                                                                 price: price || '0',
                                                                 quantity: productType === 'ebook' ? 1 : Math.max(1, count),
-                                                                fileFormat: productType === 'ebook' ? fileFormat : null,
+                                                                fileFormat: productType === 'ebook' && (hasPdf || hasEpub) ? fileFormat : null,
                                                                 productType: productType as 'ebook' | 'physical',
                                                             });
                                                             setCount(1);
