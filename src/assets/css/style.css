@@ -18058,8 +18058,10 @@ ul a.rsswidget {
     z-index: 9;
     height: 80px;
     padding-left: 30px; }
+    /* Ne masquer que la zone extra-nav de la barre supérieure (logo + recherche).
+       La barre sticky (.main-bar) contient le panier mobile : elle doit rester visible. */
     @media only screen and (max-width: 767px) {
-      .site-header .extra-nav {
+      .site-header .header-info-bar .extra-nav {
         display: none; } }
     .site-header .extra-nav .extra-cell {
       display: flex;
@@ -18715,6 +18717,19 @@ ul a.rsswidget {
 
 .text-black .navbar-toggler span {
   background: #212529; }
+
+/* Panier + menu hamburger regroupés à droite (mobile uniquement, voir Header.tsx) */
+.main-bar .main-bar-mobile-actions {
+  float: right;
+  position: relative;
+  z-index: 10;
+  height: 80px;
+  gap: 4px;
+  padding-left: 8px; }
+
+@media only screen and (max-width: 991px) {
+  .main-bar .main-bar-mobile-actions .navbar-toggler.navicon {
+    margin: 0 0 0 2px; } }
 
 .main-bar {
   -webkit-transition: all 0.3s cubic-bezier(0.39, 0.575, 0.565, 1) 0s;
