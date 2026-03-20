@@ -25072,4 +25072,19 @@ body.woo-variation-swatches .variable-items-wrapper .variable-item:not(.radio-va
   display: block;
 }
 
+/* FAQ : bloc moyens de paiement */
+.faq-payment-section {
+  border-top: 1px solid rgba(26, 22, 104, 0.08);
+  border-bottom: 1px solid rgba(26, 22, 104, 0.08);
+}
+.faq-payment-card {
+  border-color: rgba(26, 22, 104, 0.12) !important;
+}
+.faq-payment-inner {
+  max-width: 640px;
+}
+.payment-methods-block--centered .footer-payment-logos {
+  justify-content: center;
+}
+
 /*# sourceMappingURL=style.css.map */

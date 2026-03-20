@@ -3,6 +3,7 @@ import { Accordion } from 'react-bootstrap';
 
 import PageTitle from './../layouts/PageTitle';
 import CounterSection from './../elements/CounterSection';
+import PaymentMethodsBlock from '../components/PaymentMethodsBlock';
 import pic1 from './../assets/images/about/pic1.jpg';
 import pic2 from './../assets/images/about/pic2.jpg';
 
@@ -169,6 +170,24 @@ function Faq() {
                   </div>
                   <div className="faq-accordion mt-4">
                     <FaqAccordion items={faqAchats} idPrefix="achat" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section className="content-inner bg-light faq-payment-section">
+          <div className="container">
+            <div className="row justify-content-center">
+              <div className="col-lg-10 col-xl-8">
+                <div className="faq-payment-card p-4 p-md-4 rounded-md bg-white border shadow-sm text-center">
+                  <div className="faq-payment-inner mx-auto">
+                    <PaymentMethodsBlock
+                      centered
+                      titleTag="h2"
+                      titleClassName="title mb-3"
+                      introClassName="mb-4 text-muted"
+                    />
                   </div>
                 </div>
               </div>
