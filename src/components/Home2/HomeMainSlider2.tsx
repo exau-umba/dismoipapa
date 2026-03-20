@@ -72,62 +72,40 @@ export default function HomeMainSlider() {
 									slidesPerView={"auto"}
 									loop={displayBooks.length > 1}
 									speed={1500}
-									autoplay={displayBooks.length > 1 ? { delay: 2800 } : false}
+									autoplay={displayBooks.length > 1 ? { delay: 5000, disableOnInteraction: false } : false}
 									modules={[Autoplay]}
 								>
 									{displayBooks.map((book, index) => {
 										const img = (book.cover_image && (book.cover_image.startsWith('http') ? book.cover_image : `${API_BASE_URL.replace(/\/$/, '')}${book.cover_image.startsWith('/') ? '' : '/'}${book.cover_image}`)) || bookImages[index % bookImages.length];
-										const price = book.formats?.[0]?.price ?? '';
+										const ebookPrice = book.formats?.find((f) => (f.format_type ?? '') === 'ebook')?.price ?? '';
+										const physicalPrice = book.formats?.find((f) => (f.format_type ?? '') === 'physical')?.price ?? '';
 										return (
 										<SwiperSlide key={book.id}>
-											<Link to={`/books-detail/${book.id}`} className="text-decoration-none text-dark">
-												<div
-													className="books-card d-flex align-items-stretch"
-													style={{
-														width: 4000,
-														height: 180,
-														boxSizing: 'border-box',
-														backgroundColor: '#fff',
-													}}
-												>
-													<div
-														className="dz-media"
-														style={{
-															width: 120,
-															height: '100%',
-															overflow: 'hidden',
-															borderTopLeftRadius: 6,
-															borderTopRightRadius: 6,
-															borderBottomLeftRadius: 6,
-															borderBottomRightRadius: 6,
-														}}
-													>
-														<img
-															src={img}
-															alt={book.title}
-															style={{
-																width: '100%',
-																height: '100%',
-																objectFit: 'cover',
-															}}
-														/>
+											<Link to={`/books-detail/${book.id}`} className="text-decoration-none text-dark d-block h-100">
+												{/* Disposition wireframe : photo à gauche | titre + Physique + E-book à droite */}
+												<div className="books-card home-hero-book-card d-flex flex-row align-items-stretch">
+													<div className="dz-media home-hero-book-card__cover flex-shrink-0">
+														<img src={img} alt={book.title} />
 													</div>
-													<div className="dz-content d-flex flex-column justify-content-between flex-grow-1">
-														<div>
-															<h6
-																className="mb-1 book-title-truncate"
-																title={book.title}
-																style={{ fontSize: 14, textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden' }}
-															>
-																{book.title}
-															</h6>
-															<div style={{ color: '#006af4', fontSize: 12 }}>
-																<ul className="mb-2">
-																	<li>par {book.author}</li>
-																</ul>
+													<div className="dz-content home-hero-book-card__body flex-grow-1 d-flex flex-column justify-content-center">
+														<h6
+															className="home-hero-book-card__title book-title-truncate mb-0"
+															title={book.title}
+														>
+															{book.title}
+														</h6>
+														<div className="home-hero-book-card__prices mt-2">
+															<div className="home-hero-book-card__price-line">
+																Physique :{' '}
+																<span className="text-primary fw-semibold">
+																	{physicalPrice ? `${physicalPrice} $` : '—'}
+																</span>
 															</div>
-															<div className="price">
-																<span className="price-num">{price ? `${price} $` : '—'}</span>
+															<div className="home-hero-book-card__price-line">
+																E-book :{' '}
+																<span className="text-primary fw-semibold">
+																	{ebookPrice ? `${ebookPrice} $` : '—'}
+																</span>
 															</div>
 														</div>
 													</div>
