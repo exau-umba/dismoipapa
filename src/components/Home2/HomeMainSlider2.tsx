@@ -6,15 +6,24 @@ import { Autoplay } from 'swiper';
 
 import { bookImages } from '../../constants/imageUrls';
 import { fetchBooks, type Book } from '../../api/catalog';
+import { listCatalogs } from '../../api/admin';
 import { API_BASE_URL } from '../../api/client';
 
 export default function HomeMainSlider() {
 	const [books, setBooks] = useState<Book[]>([]);
+	const [catalogNames, setCatalogNames] = useState<Record<string, string>>({});
 	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
-		fetchBooks()
-			.then(setBooks)
+		Promise.all([fetchBooks(), listCatalogs().catch(() => [])])
+			.then(([bookList, catalogs]) => {
+				setBooks(bookList);
+				const map: Record<string, string> = {};
+				catalogs.forEach((c) => {
+					map[c.id] = c.name;
+				});
+				setCatalogNames(map);
+			})
 			.catch(() => setBooks([]))
 			.finally(() => setLoading(false));
 	}, []);
@@ -79,6 +88,8 @@ export default function HomeMainSlider() {
 										const img = (book.cover_image && (book.cover_image.startsWith('http') ? book.cover_image : `${API_BASE_URL.replace(/\/$/, '')}${book.cover_image.startsWith('/') ? '' : '/'}${book.cover_image}`)) || bookImages[index % bookImages.length];
 										const ebookPrice = book.formats?.find((f) => (f.format_type ?? '') === 'ebook')?.price ?? '';
 										const physicalPrice = book.formats?.find((f) => (f.format_type ?? '') === 'physical')?.price ?? '';
+										const categoryLabel =
+											(book.catalog && catalogNames[book.catalog]) || '';
 										return (
 										<SwiperSlide key={book.id}>
 											<Link to={`/books-detail/${book.id}`} className="text-decoration-none text-dark d-block h-100">
@@ -94,16 +105,23 @@ export default function HomeMainSlider() {
 														>
 															{book.title}
 														</h6>
+														<p
+															className="home-hero-book-card__category mb-0"
+															title={categoryLabel ? `Catégorie : ${categoryLabel}` : undefined}
+														>
+															{/* <span className="home-hero-book-card__category-prefix">Catégorie : </span> */}
+															{categoryLabel || '—'}
+														</p>
 														<div className="home-hero-book-card__prices mt-2">
 															<div className="home-hero-book-card__price-line">
 																Physique :{' '}
-																<span className="text-primary fw-semibold">
+																<span className="text-primary fw-bold">
 																	{physicalPrice ? `${physicalPrice} $` : '—'}
 																</span>
 															</div>
 															<div className="home-hero-book-card__price-line">
 																E-book :{' '}
-																<span className="text-primary fw-semibold">
+																<span className="text-primary fw-bold">
 																	{ebookPrice ? `${ebookPrice} $` : '—'}
 																</span>
 															</div>
