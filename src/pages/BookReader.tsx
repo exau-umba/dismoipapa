@@ -120,7 +120,7 @@ export default function BookReader() {
 
   return (
     <div className="page-content bg-white">
-      <PageTitle parentPage="Mes livres" childPage={title} parentTo="/my-books" />
+      <PageTitle parentPage="Mes livres" childPage="Lecture" parentTo="/my-books" />
       <section className="content-inner-1 pt-3 pb-3">
         <div className="container-fluid">
           <div className="d-flex justify-content-between align-items-center mb-3">
