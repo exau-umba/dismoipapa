@@ -1,22 +1,51 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
-import { getBooksEpubPreviewUrl, getCatalogBookPreviewUrl } from '../../api/admin';
+import { getLibraryBookReadUrl } from '../../api/library';
+import { getBook } from '../../api/catalog';
 import { getFriendlyErrorMessage } from '../../utils/errorMessages';
 import ErrorMessage from '../../components/ErrorMessage';
 import EpubReader from '../../components/EpubReader';
 
+/**
+ * Lecture EPUB dans l’interface admin.
+ * Même endpoint que le client : GET /api/library/books/{bookId}/read/
+ * (via getLibraryBookReadUrl — token staff / refresh identique au client).
+ */
+type AdminReaderLocationState = { bookTitle?: string };
+
 export default function AdminBookReader() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const navBookTitle = (location.state as AdminReaderLocationState | null)?.bookTitle;
 
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [title, setTitle] = useState<string>('Lecture du livre');
+  const [epubUrl, setEpubUrl] = useState<string | null>(null);
+  const [title, setTitle] = useState<string>(navBookTitle ?? 'Lecture du livre');
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!id) return;
+    if (id === 'demo') {
+      setTitle('Livre de démonstration (EPUB)');
+      return;
+    }
+    setTitle(navBookTitle ?? 'Lecture du livre');
     let cancelled = false;
+    getBook(String(id))
+      .then((book) => {
+        if (!cancelled) setTitle(book.title);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [id, navBookTitle]);
+
+  useEffect(() => {
+    let cancelled = false;
+    let blobUrlToRevoke: string | null = null;
 
     const load = async () => {
       if (!id) {
@@ -25,11 +54,9 @@ export default function AdminBookReader() {
         return;
       }
 
-      // Mode démo : utiliser le fichier statique
       if (id === 'demo') {
         if (!cancelled) {
-          setPreviewUrl('/livres/livre.epub');
-          setTitle('Livre de démonstration (EPUB)');
+          setEpubUrl('/livres/livre.epub');
           setLoading(false);
         }
         return;
@@ -37,19 +64,15 @@ export default function AdminBookReader() {
 
       setLoading(true);
       setError(null);
+      setEpubUrl(null);
       try {
-        let url: string | null = null;
-        try {
-          // Idéal : la route /preview renvoie un blob URL, ce qui évite le CORS
-          url = await getCatalogBookPreviewUrl(id);
-        } catch {
-          // Fallback : utilise l'ancienne URL directe (peut déclencher un CORS côté navigateur)
-          url = await getBooksEpubPreviewUrl(id);
+        const url = await getLibraryBookReadUrl(String(id));
+        if (cancelled) {
+          URL.revokeObjectURL(url);
+          return;
         }
-        if (!cancelled) {
-          setPreviewUrl(url);
-          setTitle('Lecture du livre');
-        }
+        blobUrlToRevoke = url;
+        setEpubUrl(url);
       } catch (err) {
         if (!cancelled) {
           setError(getFriendlyErrorMessage(err));
@@ -65,16 +88,16 @@ export default function AdminBookReader() {
 
     return () => {
       cancelled = true;
-      if (previewUrl && previewUrl.startsWith('blob:')) {
-        URL.revokeObjectURL(previewUrl);
+      if (blobUrlToRevoke) {
+        URL.revokeObjectURL(blobUrlToRevoke);
+        blobUrlToRevoke = null;
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const handleClose = () => {
-    if (previewUrl && previewUrl.startsWith('blob:')) {
-      URL.revokeObjectURL(previewUrl);
+    if (epubUrl && epubUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(epubUrl);
     }
     navigate(-1);
   };
@@ -91,20 +114,18 @@ export default function AdminBookReader() {
         return;
       }
       if (!id) return;
-      let url: string | null = null;
+      /* Même flux que la lecture : GET /api/library/books/{id}/read/ */
+      const u = await getLibraryBookReadUrl(String(id));
       try {
-        url = await getCatalogBookPreviewUrl(id);
-      } catch {
-        url = await getBooksEpubPreviewUrl(id);
+        const a = document.createElement('a');
+        a.href = u;
+        a.download = `livre-${id}.epub`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      } finally {
+        URL.revokeObjectURL(u);
       }
-      if (!url) return;
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `livre-${id}.epub`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      if (url.startsWith('blob:')) URL.revokeObjectURL(url);
     } catch (err) {
       setError(getFriendlyErrorMessage(err));
     }
@@ -113,7 +134,7 @@ export default function AdminBookReader() {
   return (
     <div>
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h1 className="admin-page-title mb-0">Lecture du livre</h1>
+        <h1 className="admin-page-title mb-0">{title}</h1>
         <Button variant="outline-secondary" size="sm" onClick={() => navigate(-1)}>
           <i className="fa fa-arrow-left me-1" />
           Retour
@@ -121,11 +142,7 @@ export default function AdminBookReader() {
       </div>
 
       {error && (
-        <ErrorMessage
-          message={error}
-          onDismiss={() => setError(null)}
-          className="mb-3"
-        />
+        <ErrorMessage message={error} onDismiss={() => setError(null)} className="mb-3" />
       )}
 
       {loading && !error && (
@@ -134,10 +151,13 @@ export default function AdminBookReader() {
         </div>
       )}
 
-      {!loading && !error && previewUrl && (
-        <div className="admin-card p-0" style={{ overflow: 'hidden' }}>
+      {!loading && !error && epubUrl && (
+        <div
+          className="admin-card p-0"
+          style={{ overflow: 'hidden', minHeight: 'min(calc(100dvh - 220px), 900px)' }}
+        >
           <EpubReader
-            epubUrl={previewUrl}
+            epubUrl={epubUrl}
             title={title}
             onClose={handleClose}
             asPage
@@ -148,4 +168,3 @@ export default function AdminBookReader() {
     </div>
   );
 }
-

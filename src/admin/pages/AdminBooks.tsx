@@ -150,9 +150,10 @@ export default function AdminBooks() {
                       </Link>
                       <Link
                         to={`/admin/livres/lecture/${b.id}`}
+                        state={{ bookTitle: b.title }}
                         className="btn btn-sm btn-outline-secondary me-1"
-                        title="Prévisualiser (EPUB)"
-                        aria-label={`Prévisualiser ${b.title}`}
+                        title="Lire l’EPUB (bibliothèque)"
+                        aria-label={`Lire ${b.title}`}
                       >
                         <i className="fa fa-book-open" />
                       </Link>

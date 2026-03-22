@@ -4,9 +4,11 @@ import { Link } from 'react-router-dom';
 type PageTitleProps = {
   parentPage: string;
   childPage: string;
+  /** Lien du fil d’Ariane parent (défaut : accueil) */
+  parentTo?: string;
 };
 
-const PageTitle = ({ parentPage, childPage }: PageTitleProps) => {
+const PageTitle = ({ parentPage, childPage, parentTo = '/' }: PageTitleProps) => {
   return (
     <>
       <div
@@ -19,7 +21,7 @@ const PageTitle = ({ parentPage, childPage }: PageTitleProps) => {
             <nav aria-label="breadcrumb" className="breadcrumb-row">
               <ul className="breadcrumb">
                 <li className="breadcrumb-item">
-                  <Link to={'/'}>{parentPage}</Link>
+                  <Link to={parentTo}>{parentPage}</Link>
                 </li>
                 <li className="breadcrumb-item">{childPage}</li>
               </ul>

@@ -3,6 +3,7 @@
  */
 import { getBook } from './catalog';
 import { getJson, postJson, patchJson, delJson, API_BASE_URL } from './client';
+import { fetchEpubBlobUrl } from './epubBlob';
 
 function buildBookFormData(
   payload: Record<string, unknown>,
@@ -204,17 +205,12 @@ export function deleteFormat(formatId: string): Promise<void> {
   return delJson(`/api/catalog/formats/${formatId}/`);
 }
 
-/** Prévisualisation EPUB d’un livre (admin). Si le backend expose GET /api/catalog/books/{id}/preview/, retourne une blob URL. */
+/**
+ * Prévisualisation EPUB d’un livre (admin) — même pipeline que la bibliothèque client
+ * (refresh token, type MIME, validation ZIP).
+ */
 export async function getCatalogBookPreviewUrl(bookId: string): Promise<string> {
-  const token = localStorage.getItem('accessToken');
-  if (!token) throw new Error('Non autorisé.');
-  const res = await fetch(`${API_BASE_URL}/api/catalog/books/${bookId}/preview/`, {
-    method: 'GET',
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  if (!res.ok) throw new Error(res.status === 404 ? 'Prévisualisation non disponible pour ce livre.' : 'Impossible de charger la prévisualisation.');
-  const blob = await res.blob();
-  return URL.createObjectURL(blob);
+  return fetchEpubBlobUrl(`/api/catalog/books/${bookId}/preview/`);
 }
 
 export async function getBooksEpubPreviewUrl(bookId: string): Promise<string> {
