@@ -154,7 +154,7 @@ function ShopCheckout() {
       redirectTimerRef.current = setTimeout(() => {
         setShowPaymentModal(false);
         navigate('/confirmation-paiement', { state: confirmationState, replace: true });
-      }, 3000);
+      }, 10000);
     } catch (err) {
       setCheckoutError(getFriendlyErrorMessage(err));
     } finally {
