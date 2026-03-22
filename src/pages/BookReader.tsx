@@ -1,21 +1,46 @@
-// @ts-nocheck
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
 import PageTitle from '../layouts/PageTitle';
 import { downloadLibraryBook, getLibraryBookReadUrl } from '../api/library';
+import { getBook } from '../api/catalog';
 import { getFriendlyErrorMessage } from '../utils/errorMessages';
 import ErrorMessage from '../components/ErrorMessage';
 import EpubReader from '../components/EpubReader';
 
+type ReaderLocationState = { bookTitle?: string };
+
 export default function BookReader() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const navBookTitle = (location.state as ReaderLocationState | null)?.bookTitle;
 
   const [epubUrl, setEpubUrl] = useState<string | null>(null);
-  const [title, setTitle] = useState<string>('Lecture du livre');
+  const [title, setTitle] = useState<string>(navBookTitle ?? 'Lecture du livre');
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  /** Titre catalogue (barre du lecteur + en-tête) */
+  useEffect(() => {
+    if (!id) return;
+    if (id === 'demo') {
+      setTitle('Livre de démonstration (EPUB)');
+      return;
+    }
+    setTitle(navBookTitle ?? 'Lecture du livre');
+    let cancelled = false;
+    getBook(String(id))
+      .then((book) => {
+        if (!cancelled) setTitle(book.title);
+      })
+      .catch(() => {
+        /* garder le titre navigation ou le libellé générique */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [id, navBookTitle]);
 
   useEffect(() => {
     let cancelled = false;
@@ -28,11 +53,9 @@ export default function BookReader() {
         return;
       }
 
-      // Mode démo : utiliser le fichier public
       if (id === 'demo') {
         if (!cancelled) {
           setEpubUrl('/livres/livre.epub');
-          setTitle('Livre de démonstration (EPUB)');
           setLoading(false);
         }
         return;
@@ -49,7 +72,6 @@ export default function BookReader() {
         }
         blobUrlToRevoke = url;
         setEpubUrl(url);
-        setTitle('Lecture du livre');
       } catch (err) {
         if (!cancelled) {
           setError(getFriendlyErrorMessage(err));
@@ -98,11 +120,11 @@ export default function BookReader() {
 
   return (
     <div className="page-content bg-white">
-      <PageTitle childPage="Lecture" parentPage="Mes livres" />
+      <PageTitle parentPage="Mes livres" childPage={title} parentTo="/my-books" />
       <section className="content-inner-1 pt-3 pb-3">
         <div className="container-fluid">
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <h1 className="h4 mb-0">Lecture du livre</h1>
+            <h1 className="h4 mb-0">{title}</h1>
             <Button variant="outline-secondary" size="sm" onClick={() => navigate(-1)}>
               <i className="fa fa-arrow-left me-1" />
               Retour
@@ -144,4 +166,3 @@ export default function BookReader() {
     </div>
   );
 }
-

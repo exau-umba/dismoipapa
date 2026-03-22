@@ -215,6 +215,7 @@ function MyBooks() {
                                 </Button>
                                 <Link
                                   to={`/reader/${book.book}`}
+                                  state={{ bookTitle: book.book_title }}
                                   className="btn btn-outline-secondary btnhover"
                                 >
                                   <i className="fa fa-eye"></i>
@@ -305,6 +306,7 @@ function MyBooks() {
                               </div>
                               <Link
                                 to={`/reader/${book.book}`}
+                                state={{ bookTitle: book.book_title }}
                                 className="btn btn-primary btnhover w-100"
                               >
                                 <i className="fa fa-book-open me-1"></i>

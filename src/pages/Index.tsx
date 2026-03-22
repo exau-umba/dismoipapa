@@ -72,8 +72,8 @@ function Index() {
           <Route path="livres" element={<AdminBooks />} />
           <Route path="livres/:id/detail" element={<AdminBookDetail />} />
           <Route path="livres/nouveau" element={<AdminBookForm />} />
-          <Route path="livres/:id" element={<AdminBookForm />} />
           <Route path="livres/lecture/:id" element={<AdminBookReader />} />
+          <Route path="livres/:id" element={<AdminBookForm />} />
           <Route path="commandes" element={<AdminOrders />} />
           <Route path="commandes/:id" element={<AdminOrderDetail />} />
           <Route path="utilisateurs" element={<AdminUsers />} />
