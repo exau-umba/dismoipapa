@@ -1,12 +1,41 @@
 import React from 'react';
 
-/** Logos mobile money RDC (dossier public/mobile_money/) */
-export const MOBILE_MONEY_LOGOS = [
-  { src: '/mobile_money/airtel-money.png', alt: 'Airtel Money' },
-  { src: '/mobile_money/Orange-Money-logo.png', alt: 'Orange Money' },
-  { src: '/mobile_money/M-pesa-logo.png', alt: 'M-Pesa' },
-  { src: '/mobile_money/afrimpney.jpg', alt: 'Afrimoney' },
+/**
+ * Opérateurs Mobile Money RDC — logos dans `public/mobile_money/`.
+ * Source unique pour le checkout, le footer et la FAQ.
+ */
+export const MOBILE_MONEY_METHODS = [
+  {
+    id: 'mpesa',
+    label: 'M-Pesa (Vodacom)',
+    shortLabel: 'M-Pesa',
+    logoSrc: '/mobile_money/M-pesa-logo.png',
+    logoAlt: 'M-Pesa',
+  },
+  {
+    id: 'orange',
+    label: 'Orange Money',
+    shortLabel: 'Orange Money',
+    logoSrc: '/mobile_money/Orange-Money-logo.png',
+    logoAlt: 'Orange Money',
+  },
+  {
+    id: 'airtel',
+    label: 'Airtel Money',
+    shortLabel: 'Airtel Money',
+    logoSrc: '/mobile_money/airtel-money.png',
+    logoAlt: 'Airtel Money',
+  },
+  {
+    id: 'afrimoney',
+    label: 'Afrimoney (Africell)',
+    shortLabel: 'Afrimoney',
+    logoSrc: '/mobile_money/afrimpney.png',
+    logoAlt: 'Afrimoney',
+  },
 ] as const;
+
+export type MobileMoneyOperatorId = (typeof MOBILE_MONEY_METHODS)[number]['id'];
 
 type PaymentMethodsBlockProps = {
   /** Balise du titre (h5 pour le footer, h2 pour une page type FAQ) */
@@ -39,9 +68,9 @@ export default function PaymentMethodsBlock({
         Pour l’instant, les paiements sont acceptés par <strong>mobile money</strong>.
       </p>
       <div className="footer-payment-logos" role="list" aria-label="Opérateurs mobile money acceptés">
-        {MOBILE_MONEY_LOGOS.map((logo) => (
-          <div className="footer-payment-logos__item" role="listitem" key={logo.src}>
-            <img src={logo.src} alt={logo.alt} loading="lazy" />
+        {MOBILE_MONEY_METHODS.map((m) => (
+          <div className="footer-payment-logos__item" role="listitem" key={m.id}>
+            <img src={m.logoSrc} alt={m.logoAlt} loading="lazy" />
           </div>
         ))}
       </div>

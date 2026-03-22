@@ -26,6 +26,7 @@ import ShopCart from './ShopCart';
 import Login from './Login';
 import Registration from './Registration';
 import ShopCheckout from './ShopCheckout';
+import PaymentConfirmation from './PaymentConfirmation';
 import ShopDetail from './ShopDetail';
 import ContactUs from './ContactUs';
 import ActivateAccount from './ActivateAccount';
@@ -106,6 +107,7 @@ function Index() {
           <Route path="/activate-account" element={<ActivateAccount />} />
           <Route path="/shop-registration" element={<Registration />} />
           <Route path="/shop-checkout" element={<ProtectedRoute><ShopCheckout /></ProtectedRoute>} />
+          <Route path="/confirmation-paiement" element={<ProtectedRoute><PaymentConfirmation /></ProtectedRoute>} />
           {/* <Route path="/books-detail" element={<ShopDetail />} /> */}
           <Route path="/books-detail/:id" element={<ShopDetail />} />
           {/* <Route path="/blog-grid" element={<BlogGrid />} /> */}

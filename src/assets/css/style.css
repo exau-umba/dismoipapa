@@ -25102,4 +25102,58 @@ body.woo-variation-swatches .variable-items-wrapper .variable-item:not(.radio-va
   justify-content: center;
 }
 
+/* Checkout : sélection opérateur mobile money (logos) */
+.checkout-mobile-money-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+.checkout-mobile-money-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 0.75rem;
+  background: #fff;
+  border: 2px solid rgba(26, 22, 104, 0.12);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  width: 100%;
+  text-align: center;
+}
+.checkout-mobile-money-card:hover {
+  border-color: rgba(26, 22, 104, 0.35);
+}
+.checkout-mobile-money-card:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+.checkout-mobile-money-card.is-selected {
+  border-color: var(--primary);
+  background: rgba(26, 22, 104, 0.04);
+  box-shadow: 0 0 0 3px rgba(26, 22, 104, 0.12);
+}
+.checkout-mobile-money-card__logo {
+  height: 44px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.checkout-mobile-money-card__logo img {
+  max-height: 44px;
+  max-width: 100%;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+.checkout-mobile-money-card__label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--primary);
+}
+
 /*# sourceMappingURL=style.css.map */
