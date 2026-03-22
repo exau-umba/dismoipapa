@@ -7,6 +7,55 @@ import { downloadLibraryBook, listLibraryEntries, type LibraryEntry } from '../a
 import { getFriendlyErrorMessage } from '../utils/errorMessages';
 import ErrorMessage from '../components/ErrorMessage';
 
+/** Couverture : ratio livre, image entière visible (object-fit contain). */
+function LibraryBookCover(props: {
+  src: string;
+  alt: string;
+  children?: React.ReactNode;
+}) {
+  const { src, alt, children } = props;
+  const [imgSrc, setImgSrc] = useState(src);
+
+  useEffect(() => {
+    setImgSrc(src);
+  }, [src]);
+
+  return (
+    <div
+      className="rounded-top overflow-hidden bg-light border-bottom"
+      style={{
+        aspectRatio: '2 / 3',
+        maxHeight: 440,
+        minHeight: 260,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '14px 16px',
+        position: 'relative',
+      }}
+    >
+      <img
+        src={imgSrc}
+        alt={alt}
+        loading="lazy"
+        decoding="async"
+        onError={() => setImgSrc(bookImages[0])}
+        style={{
+          maxWidth: '100%',
+          maxHeight: '100%',
+          width: 'auto',
+          height: 'auto',
+          objectFit: 'contain',
+          objectPosition: 'center',
+          display: 'block',
+          boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
+        }}
+      />
+      {children}
+    </div>
+  );
+}
+
 function MyBooks() {
   const [activeTab, setActiveTab] = useState('purchased');
   const [entries, setEntries] = useState<LibraryEntry[]>([]);
@@ -130,23 +179,10 @@ function MyBooks() {
                               boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                             }}
                           >
-                            <div
-                              style={{
-                                height: '300px',
-                                overflow: 'hidden',
-                                background: '#f8f9fa',
-                              }}
-                            >
-                              <img
-                                src={book.book_cover || bookImages[0]}
-                                alt={book.book_title}
-                                style={{
-                                  width: '100%',
-                                  height: '100%',
-                                  objectFit: 'cover',
-                                }}
-                              />
-                            </div>
+                            <LibraryBookCover
+                              src={book.book_cover || bookImages[0]}
+                              alt={book.book_title}
+                            />
                             <Card.Body>
                               <h5
                                 className="card-title"
@@ -229,36 +265,24 @@ function MyBooks() {
                               boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                             }}
                           >
-                            <div
-                              style={{
-                                height: '300px',
-                                overflow: 'hidden',
-                                background: '#f8f9fa',
-                                position: 'relative',
-                              }}
+                            <LibraryBookCover
+                              src={book.book_cover || bookImages[0]}
+                              alt={book.book_title}
                             >
-                              <img
-                                src={book.book_cover || bookImages[0]}
-                                alt={book.book_title}
-                                style={{
-                                  width: '100%',
-                                  height: '100%',
-                                  objectFit: 'cover',
-                                }}
-                              />
                               <Badge
                                 bg="warning"
                                 style={{
                                   position: 'absolute',
-                                  top: '10px',
-                                  right: '10px',
+                                  top: '12px',
+                                  right: '12px',
                                   fontSize: '0.75rem',
+                                  zIndex: 2,
                                 }}
                               >
                                 <i className="fa fa-star me-1"></i>
                                 Abonnement
                               </Badge>
-                            </div>
+                            </LibraryBookCover>
                             <Card.Body>
                               <h5
                                 className="card-title"

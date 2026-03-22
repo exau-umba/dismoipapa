@@ -4,7 +4,7 @@
  * GET /api/library/books/{book_id}/read/ → lecture EPUB
  * GET /api/library/books/{book_id}/download/ → téléchargement PDF/Word
  */
-import { API_BASE_URL, getJson } from './client';
+import { API_BASE_URL, getAuthenticatedBinaryResponse, getJson } from './client';
 
 export interface LibraryEntry {
   id: string;
@@ -35,33 +35,70 @@ export async function listLibraryEntries(): Promise<LibraryEntry[]> {
   return normalizeLibraryList(data);
 }
 
+/** Signature magique ZIP (les fichiers EPUB sont des archives ZIP). */
+function isZipMagic(buffer: ArrayBuffer): boolean {
+  if (buffer.byteLength < 4) return false;
+  const u8 = new Uint8Array(buffer, 0, 4);
+  return (
+    u8[0] === 0x50 &&
+    u8[1] === 0x4b &&
+    (u8[2] === 0x03 || u8[2] === 0x05 || u8[2] === 0x07) &&
+    (u8[3] === 0x04 || u8[3] === 0x06 || u8[3] === 0x08)
+  );
+}
+
 /**
  * Récupère l'EPUB d'un livre de la bibliothèque (authentifié) et retourne une URL blob.
+ * Utilise le client API (refresh token) et force le type MIME pour epub.js.
  * À révoquer avec URL.revokeObjectURL(url) après utilisation (ex: au démontage du lecteur).
  */
 export async function getLibraryBookReadUrl(bookId: string): Promise<string> {
-  const token = localStorage.getItem('accessToken');
-  if (!token) {
-    throw new Error('Vous devez être connecté pour lire ce livre.');
+  const res = await getAuthenticatedBinaryResponse(
+    `/api/library/books/${bookId}/read/`,
+    'application/epub+zip,application/zip,application/octet-stream;q=0.9,*/*;q=0.8',
+  );
+
+  if (!res || !(res instanceof Response)) {
+    throw new Error('Réponse invalide du serveur.');
   }
-  const res = await fetch(`${API_BASE_URL}/api/library/books/${bookId}/read/`, {
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  if (!res.ok) {
-    const text = await res.text();
-    let message = res.statusText;
-    try {
-      const data = JSON.parse(text);
-      if (data?.detail) message = Array.isArray(data.detail) ? data.detail.join(' ') : data.detail;
-    } catch {
-      if (text) message = text.slice(0, 200);
+
+  const buf = await res.arrayBuffer();
+
+  if (!buf || buf.byteLength < 22) {
+    throw new Error(
+      'Le fichier du livre est vide ou incomplet. Si le problème continue, contactez le support.',
+    );
+  }
+
+  if (!isZipMagic(buf)) {
+    const preview = new TextDecoder()
+      .decode(buf.slice(0, Math.min(4000, buf.byteLength)))
+      .trimStart();
+    if (preview.startsWith('{') || preview.startsWith('[')) {
+      try {
+        const j = JSON.parse(preview) as { detail?: unknown };
+        const d = j?.detail;
+        const msg =
+          typeof d === 'string'
+            ? d
+            : Array.isArray(d)
+              ? d.map(String).join(' ')
+              : 'Le serveur a renvoyé une erreur à la place du fichier EPUB.';
+        throw new Error(msg);
+      } catch (e) {
+        if (e instanceof SyntaxError) {
+          /* JSON tronqué ou invalide : message générique ci-dessous */
+        } else {
+          throw e;
+        }
+      }
     }
-    throw new Error(message || 'Impossible de charger le livre.');
+    throw new Error(
+      'Le contenu reçu n’est pas un EPUB valide (fichier ZIP attendu). Vérifiez que l’e-book est bien au format EPUB côté administration.',
+    );
   }
-  const blob = await res.blob();
+
+  const blob = new Blob([buf], { type: 'application/epub+zip' });
   return URL.createObjectURL(blob);
 }
 
@@ -82,28 +119,13 @@ export function getLibraryBookDownloadUrl(bookId: string): string {
  * donc on récupère le fichier en blob puis on déclenche un téléchargement.
  */
 export async function downloadLibraryBook(bookId: string): Promise<void> {
-  const token = localStorage.getItem('accessToken');
-  if (!token) {
-    throw new Error('Vous devez être connecté pour télécharger ce livre.');
-  }
+  const res = await getAuthenticatedBinaryResponse(
+    `/api/library/books/${bookId}/download/`,
+    'application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/epub+zip,application/octet-stream,*/*',
+  );
 
-  const res = await fetch(`${API_BASE_URL}/api/library/books/${bookId}/download/`, {
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  if (!res.ok) {
-    const text = await res.text();
-    let message = res.statusText;
-    try {
-      const data = JSON.parse(text);
-      if (data?.detail) message = Array.isArray(data.detail) ? data.detail.join(' ') : data.detail;
-    } catch {
-      if (text) message = text.slice(0, 200);
-    }
-    throw new Error(message || 'Impossible de télécharger le livre.');
+  if (!res || !(res instanceof Response)) {
+    throw new Error('Réponse invalide du serveur.');
   }
 
   const blob = await res.blob();

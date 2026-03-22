@@ -140,6 +140,27 @@ async function request<T>(
   return response;
 }
 
+/**
+ * GET authentifié pour un corps **binaire** (EPUB, PDF, etc.).
+ * N’envoie pas `Accept: application/json` (contrairement au client par défaut),
+ * ce qui évite que certaines APIs renvoient du JSON ou un contenu inadapté.
+ * La gestion du refresh token sur 401 est identique à `getJson`.
+ */
+export function getAuthenticatedBinaryResponse(
+  path: string,
+  acceptHeader = 'application/octet-stream,*/*',
+  options: Omit<RequestOptions, 'skipJsonHeader'> = {},
+): Promise<Response> {
+  return request<Response>(path, 'GET', undefined, {
+    ...options,
+    skipJsonHeader: true,
+    headers: {
+      ...(options.headers as Record<string, string>),
+      Accept: acceptHeader,
+    },
+  });
+}
+
 export function getJson<T>(path: string, options?: RequestOptions) {
   return request<T>(path, 'GET', undefined, options);
 }

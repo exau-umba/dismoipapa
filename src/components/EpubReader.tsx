@@ -125,7 +125,17 @@ export default function EpubReader({
     const loadEpub = async () => {
       try {
         const { default: ePub } = await import('epubjs');
-        const book = ePub(epubUrl) as NonNullable<typeof bookRef.current>;
+
+        /**
+         * epub.js déduit le type depuis l’URL : sans extension `.epub`, il traite l’entrée
+         * comme un « répertoire » (ex. URLs blob:uuid) → le livre ne s’affiche pas.
+         * Forcer openAs: 'epub' pour tout chargement par chaîne (blob, chemins sans suffixe).
+         */
+        const bookOptions =
+          typeof epubUrl === 'string'
+            ? { openAs: 'epub' as const, replacements: 'blobUrl' as const }
+            : undefined;
+        const book = ePub(epubUrl, bookOptions) as NonNullable<typeof bookRef.current>;
         bookRef.current = book;
 
         await book.opened;
@@ -139,20 +149,25 @@ export default function EpubReader({
         const footerH = footerRef.current?.getBoundingClientRect().height ?? 52;
         const maxH = availableHeight ?? Math.max(520, window.innerHeight - 180);
         const viewportH = Math.max(320, maxH - headerH - footerH);
-        const viewportW = Math.max(320, container.clientWidth || window.innerWidth);
+        const viewportW = Math.max(
+          320,
+          container.clientWidth || container.getBoundingClientRect().width || window.innerWidth,
+        );
 
         // A4 sur desktop, plus fluide sur mobile
         const maxPageWidth = viewportW < 768 ? viewportW - 16 : Math.min(760, viewportW - 32);
         const pageWidth = Math.max(320, Math.floor(maxPageWidth));
         const pageHeight = Math.max(420, Math.min(Math.round(pageWidth * Math.SQRT2), viewportH));
 
-        const rendition = book.renderTo(container, {
+        const renderOpts = {
           width: pageWidth,
           height: pageHeight,
-          spread: 'none',
-          flow: 'paginated',
+          spread: 'none' as const,
+          flow: 'paginated' as const,
           allowScriptedContent: true,
-        }) as NonNullable<typeof renditionRef.current>;
+        };
+
+        let rendition = book.renderTo(container, renderOpts) as NonNullable<typeof renditionRef.current>;
         renditionRef.current = rendition;
 
         // Applique le thème dans l'iframe
@@ -169,7 +184,30 @@ export default function EpubReader({
           }
         });
 
-        await rendition.display();
+        try {
+          await rendition.display();
+        } catch (paginatedErr) {
+          // Certains EPUB ne rendent rien en mode paginated : repli en défilement vertical
+          rendition.destroy();
+          container.innerHTML = '';
+          const scrolledOpts = { ...renderOpts, flow: 'scrolled' as const, height: viewportH };
+          rendition = book.renderTo(container, scrolledOpts) as NonNullable<typeof renditionRef.current>;
+          renditionRef.current = rendition;
+          (rendition.themes as any).register('dark', themeCss.css);
+          (rendition.themes as any).register('light', themeCss.css);
+          rendition.themes.select(darkState ? 'dark' : 'light');
+          rendition.themes.font(`${fontSizeState}px`);
+          rendition.on('relocated', (location: { start?: { index?: number } }) => {
+            if (mounted && location?.start?.index != null) {
+              setSectionInfo((s) => ({ ...s, current: location.start?.index ?? 0 }));
+            }
+          });
+          await rendition.display();
+          if (paginatedErr instanceof Error) {
+            console.warn('[EpubReader] Mode paginated indisponible, passage en défilement :', paginatedErr.message);
+          }
+        }
+
         if (!mounted) return;
         setReady(true);
       } catch (err) {
@@ -290,9 +328,8 @@ export default function EpubReader({
               minHeight: 0,
               overflow: 'hidden',
               padding: 0,
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
+              display: 'block',
+              position: 'relative',
             }}
           />
         )}

@@ -19,6 +19,7 @@ export default function BookReader() {
 
   useEffect(() => {
     let cancelled = false;
+    let blobUrlToRevoke: string | null = null;
 
     const load = async () => {
       if (!id) {
@@ -39,12 +40,16 @@ export default function BookReader() {
 
       setLoading(true);
       setError(null);
+      setEpubUrl(null);
       try {
         const url = await getLibraryBookReadUrl(String(id));
-        if (!cancelled) {
-          setEpubUrl(url);
-          setTitle('Lecture du livre');
+        if (cancelled) {
+          URL.revokeObjectURL(url);
+          return;
         }
+        blobUrlToRevoke = url;
+        setEpubUrl(url);
+        setTitle('Lecture du livre');
       } catch (err) {
         if (!cancelled) {
           setError(getFriendlyErrorMessage(err));
@@ -60,11 +65,11 @@ export default function BookReader() {
 
     return () => {
       cancelled = true;
-      if (epubUrl && typeof epubUrl === 'string' && epubUrl.startsWith('blob:')) {
-        URL.revokeObjectURL(epubUrl);
+      if (blobUrlToRevoke) {
+        URL.revokeObjectURL(blobUrlToRevoke);
+        blobUrlToRevoke = null;
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const handleClose = () => {
