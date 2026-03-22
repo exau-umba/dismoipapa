@@ -126,7 +126,10 @@ export default function BookReader() {
           )}
 
           {!loading && !error && epubUrl && (
-            <div className="card p-0" style={{ overflow: 'hidden' }}>
+            <div
+              className="card p-0 border-0 shadow-sm"
+              style={{ overflow: 'hidden', minHeight: 'min(calc(100dvh - 200px), 900px)' }}
+            >
               <EpubReader
                 epubUrl={epubUrl}
                 title={title}
