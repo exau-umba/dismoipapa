@@ -1,4 +1,5 @@
 import { getJson, postJson } from './client';
+import { clearEpubReadCache } from './epubReadCache';
 
 export interface AuthTokens {
   access: string;
@@ -44,6 +45,7 @@ export async function loginUser(email: string, password: string) {
 export function logoutUser() {
   localStorage.removeItem('accessToken');
   localStorage.removeItem('refreshToken');
+  void clearEpubReadCache();
 }
 
 export async function refreshAccessToken() {

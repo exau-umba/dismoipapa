@@ -9,6 +9,9 @@ export type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
 export function clearAuthSessionAndRedirectAdminIfNeeded() {
   localStorage.removeItem('accessToken');
   localStorage.removeItem('refreshToken');
+  void import('./epubReadCache')
+    .then((m) => m.clearEpubReadCache())
+    .catch(() => {});
   if (typeof window === 'undefined') return;
   const path = window.location.pathname;
   const onAdminLogin = path === '/admin/login' || path.startsWith('/admin/login/');

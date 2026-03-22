@@ -27,10 +27,6 @@ export default function AdminBookReader() {
 
   useEffect(() => {
     if (!id) return;
-    if (id === 'demo') {
-      setTitle('Livre de démonstration (EPUB)');
-      return;
-    }
     setTitle(navBookTitle ?? 'Lecture du livre');
     let cancelled = false;
     getBook(String(id))
@@ -51,14 +47,6 @@ export default function AdminBookReader() {
       if (!id) {
         setError('Livre introuvable.');
         setLoading(false);
-        return;
-      }
-
-      if (id === 'demo') {
-        if (!cancelled) {
-          setEpubUrl('/livres/livre.epub');
-          setLoading(false);
-        }
         return;
       }
 
@@ -104,15 +92,6 @@ export default function AdminBookReader() {
 
   const handleDownload = async () => {
     try {
-      if (id === 'demo') {
-        const a = document.createElement('a');
-        a.href = '/livres/livre.epub';
-        a.download = 'livre.epub';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        return;
-      }
       if (!id) return;
       /* Même flux que la lecture : GET /api/library/books/{id}/read/ */
       const u = await getLibraryBookReadUrl(String(id));

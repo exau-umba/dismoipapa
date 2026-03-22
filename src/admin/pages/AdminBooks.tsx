@@ -94,13 +94,6 @@ export default function AdminBooks() {
       <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
         <h1 className="admin-page-title mb-0">Livres</h1>
         <div className="d-flex gap-2">
-          <Link
-            to="/admin/livres/lecture/demo"
-            className="btn btn-outline-secondary btn-sm"
-          >
-            <i className="fa fa-book-open me-1" />
-            Tester le lecteur EPUB
-          </Link>
           <Link to="/admin/livres/nouveau" className="btn btn-primary btnhover">
             <i className="fa fa-plus me-1"></i> Ajouter un livre
           </Link>
