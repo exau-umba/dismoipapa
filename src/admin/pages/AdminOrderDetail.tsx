@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Card, Table, Form, Row, Col, Button } from 'react-bootstrap';
-import { getOrder, type AdminOrder, type OrderItem } from '../../api/admin';
+import { getOrder, getUser, type AdminOrder, type OrderItem } from '../../api/admin';
 import { getFriendlyErrorMessage } from '../../utils/errorMessages';
 
 function parseMoneyToNumber(v: unknown): number {
@@ -25,7 +25,10 @@ function normalizeStatusToUiOption(status: unknown): string {
   return 'En attente';
 }
 
-function mapApiOrderToOrderDetail(apiOrder: AdminOrder): OrderDetail {
+function mapApiOrderToOrderDetail(
+  apiOrder: AdminOrder,
+  userData?: { full_name?: string; email?: string; phone_number?: string; shipping_address?: string } | null
+): OrderDetail {
   const items = (apiOrder.items ?? []) as OrderItem[];
   const lignes: OrderLine[] = items.map((it) => {
     const unit = parseMoneyToNumber((it as { unit_price?: string }).unit_price);
@@ -43,15 +46,25 @@ function mapApiOrderToOrderDetail(apiOrder: AdminOrder): OrderDetail {
   const orderDate = apiOrder.order_date ?? apiOrder.created_at ?? '';
   const shippingAddress = apiOrder.shipping_address ?? '—';
   const paymentStatus = apiOrder.payment_status ?? apiOrder.status ?? '—';
+  const userEmailFromOrder = typeof apiOrder.user_email === 'string' ? apiOrder.user_email : undefined;
+  const userNameFromOrder = typeof apiOrder.user_full_name === 'string' ? apiOrder.user_full_name : undefined;
+  const orderNumber =
+    typeof apiOrder.order_number === 'string' && apiOrder.order_number.trim().length > 0
+      ? apiOrder.order_number
+      : `CMD-${apiOrder.id}`;
 
   return {
     id: Number(apiOrder.id) || 0,
-    numero: `#CMD-${apiOrder.id}`,
+    numero: `#${orderNumber}`,
     date: orderDate ? new Date(orderDate).toLocaleDateString('fr-FR') : '—',
     statut: normalizeStatusToUiOption(apiOrder.shipping_status ?? apiOrder.payment_status ?? paymentStatus),
-    client: { nom: '—', email: '—', tel: '—' },
+    client: {
+      nom: userData?.full_name || userNameFromOrder || '—',
+      email: userData?.email || userEmailFromOrder || '—',
+      tel: userData?.phone_number || '—',
+    },
     adresseLivraison: {
-      adresse: shippingAddress,
+      adresse: userData?.shipping_address || shippingAddress,
       complement: '',
       codePostal: '',
       ville: '',
@@ -194,7 +207,25 @@ export default function AdminOrderDetail() {
       try {
         const apiOrder = await getOrder(id);
         if (cancelled) return;
-        const mapped = mapApiOrderToOrderDetail(apiOrder);
+        let userData:
+          | { full_name?: string; email?: string; phone_number?: string; shipping_address?: string }
+          | null = null;
+        if (typeof apiOrder.user === 'string' && apiOrder.user.trim().length > 0) {
+          try {
+            const u = await getUser(apiOrder.user);
+            if (!cancelled) {
+              userData = {
+                full_name: u.full_name,
+                email: u.email,
+                phone_number: u.phone_number,
+                shipping_address: u.shipping_address,
+              };
+            }
+          } catch {
+            // Non bloquant : on garde les infos présentes dans la commande.
+          }
+        }
+        const mapped = mapApiOrderToOrderDetail(apiOrder, userData);
         setOrder(mapped);
         setStatut(mapped.statut);
       } catch (err) {
@@ -301,7 +332,7 @@ export default function AdminOrderDetail() {
             </Card.Body>
           </Card>
 
-          <Card className="admin-card mb-3">
+          {/* <Card className="admin-card mb-3">
             <Card.Body>
               <h5 className="admin-card-title">Statut</h5>
               <Form.Select value={statut} onChange={(e) => setStatut(e.target.value)}>
@@ -311,7 +342,7 @@ export default function AdminOrderDetail() {
               </Form.Select>
               <Button size="sm" className="btn-primary btnhover mt-2">Enregistrer le statut</Button>
             </Card.Body>
-          </Card>
+          </Card> */}
         </Col>
       </Row>
 

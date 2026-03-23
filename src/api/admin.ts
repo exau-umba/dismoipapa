@@ -235,6 +235,9 @@ export interface OrderItem {
 
 export interface AdminOrder {
   id: string;
+  user_email?: string;
+  user_full_name?: string;
+  order_number?: string;
   shipping_address?: string;
   order_date?: string;
   total_amount?: string | number;

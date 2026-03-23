@@ -97,7 +97,7 @@ export default function MyOrders() {
                   return (
                     <tr key={String(o.id)}>
                       <td>
-                        <strong>#{o.id}</strong>
+                        <strong>{String((o as { order_number?: string }).order_number ?? `CMD-${o.id}`)}</strong>
                       </td>
                       <td>{createdAt}</td>
                       <td>
