@@ -160,7 +160,7 @@ function BooksGridView() {
                                         Catalogue
                                     </Link>
                                 </div>
-                                <div className="form-group">
+                                {/* <div className="form-group">
                                     <i className="fas fa-sort-amount-down me-2 text-primary"></i>
                                     <Dropdown>
                                         <Dropdown.Toggle className="i-false text-primary">
@@ -174,7 +174,7 @@ function BooksGridView() {
                                             <Dropdown.Item onClick={() => setSelectBtn('1 Month')}>1 Month</Dropdown.Item>
                                         </Dropdown.Menu>
                                     </Dropdown>
-                                </div>
+                                </div> */}
                             </div>
                         </div>	
 

@@ -106,7 +106,7 @@ function ShopList() {
                                         Categories
                                     </Link>
                                 </div>
-                                <div className="form-group">
+                                {/* <div className="form-group">
                                     <i className="fas fa-sort-amount-down me-2 text-primary"></i>                                   
                                     <Dropdown>
                                         <Dropdown.Toggle  className="i-false text-primary">{selectBtn} <i className="ms-4 font-14 fa-solid fa-caret-down" /></Dropdown.Toggle>
@@ -118,7 +118,7 @@ function ShopList() {
                                             <Dropdown.Item onClick={()=>setSelectBtn('1 Month')}>1 Month</Dropdown.Item>
                                         </Dropdown.Menu>
                                     </Dropdown>
-                                </div>
+                                </div> */}
                             </div>
                         </div>	
 
@@ -274,7 +274,7 @@ function ShopList() {
                                                         >
                                                             <i className="flaticon-shopping-cart-1 m-r10"></i> Ajouter
                                                         </button>
-                                                        <Link to={`/books-detail/${book.id}`} className="btn btn-outline-primary btnhover btnhover2">Voir le livre</Link>
+                                                        <Link to={`/books-detail/${book.id}`} className="btn btn-outline-primary btnhover btnhover2">Voir</Link>
                                                     </div>
                                                 </div>
                                             </div>
@@ -285,11 +285,11 @@ function ShopList() {
                             })}
                         </div>
                         )}
-                        <div className="row page mt-0">
+                        {/* <div className="row page mt-0">
                             <div className="col-md-6">
                                 <p className="page-text">{loading ? '…' : `Affichage de ${filteredBooks.length} livre(s)`}</p>
                             </div>
-                            {/* <div className="col-md-6">
+                            <div className="col-md-6">
                                 <nav aria-label="Blog Pagination">
                                     <ul className="pagination style-1 p-t20">
                                         <li className="page-item"><Link to={"#"} className="page-link prev" >Prev</Link></li>
@@ -299,8 +299,8 @@ function ShopList() {
                                         <li className="page-item"><Link to={"#"} className="page-link next" >Next</Link></li>
                                     </ul>
                                 </nav>
-                            </div> */}
-                        </div>    
+                            </div>
+                        </div>     */}
                     </div>
                 </section>
                 {/* <div className="bg-white py-5">
