@@ -123,28 +123,19 @@ function ShopDetail() {
             <div className="page-content bg-grey">
                 <section className="content-inner-1">
                     <div className="container">
-                        <div className="row book-grid-row style-4 m-b60">
+                        <div className="row book-grid-row style-4 m-b60 shop-detail-mobile">
                             <div className="col">
-                                <div className="dz-box d-flex flex-row align-items-start">
+                                <div className="dz-box d-flex flex-row align-items-start shop-detail-mobile__box">
                                     <div
-                                      className="dz-media"
-                                      style={{
-                                        maxWidth: 220,
-                                        aspectRatio: '210/297',
-                                        position: 'sticky',
-                                        top: 90,
-                                        alignSelf: 'flex-start',
-                                        flex: '0 0 auto',
-                                      }}
+                                      className="dz-media shop-detail-mobile__media"
                                     >
-                                        <img src={coverUrl} alt={book.title} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                                        <img src={coverUrl} alt={book.title} className="shop-detail-mobile__cover" />
                                     </div>
-                                    <div className="dz-content" style={{ minWidth: 0, flex: '1 1 auto' }}>
+                                    <div className="dz-content shop-detail-mobile__content">
                                         <div className="dz-header">
                                             <h3
-                                                className="title"
+                                                className="title shop-detail-mobile__title"
                                                 title={book.title}
-                                                style={{ wordBreak: 'break-word', whiteSpace: 'normal' }}
                                             >
                                                 {book.title}
                                             </h3>
@@ -195,9 +186,9 @@ function ShopDetail() {
                                                     </div>
                                                     {price ? <h5>{price} $</h5> : <h6 className="text-primary">Choisissez un format pour continuer</h6>}
                                                 </div>
-                                                <div className="product-num">
+                                                <div className="product-num shop-detail-mobile__actions">
                                                     {(ebookFormat || physicalFormat) && (
-                                                        <div className="me-3 row" style={{ minWidth: 190 }}>
+                                                        <div className="me-3 row shop-detail-mobile__control">
                                                             {/* <label className="d-block small text-muted mb-1">Type</label> */}
                                                             <select
                                                                 className="form-select form-select-sm"
@@ -217,7 +208,7 @@ function ShopDetail() {
                                                     )}
 
                                                     {productType === 'physical' && (
-                                                      <div className="quantity btn-quantity style-1 me-3">
+                                                      <div className="quantity btn-quantity style-1 me-3 shop-detail-mobile__control">
                                                           <button className="btn btn-plus" type="button" onClick={() => setCount((prev) => prev + 1)}><i className="ti-plus"></i></button>
                                                           <input className="quantity-input" type="text" value={count} name="demo_vertical2" readOnly />
                                                           <button className="btn btn-minus" type="button" onClick={() => setCount((prev) => Math.max(1, prev - 1))}><i className="ti-minus"></i></button>
@@ -225,7 +216,7 @@ function ShopDetail() {
                                                     )}
 
                                                     {productType === 'ebook' && ebookFormat && (hasPdf || hasEpub) && (
-                                                        <div className="me-3" style={{ minWidth: 190 }}>
+                                                        <div className="me-3 shop-detail-mobile__control">
                                                             <label className="d-block small text-muted mb-1">Format du fichier</label>
                                                             <select
                                                                 className="form-select form-select-sm"
@@ -239,7 +230,7 @@ function ShopDetail() {
                                                     )}
                                                     <button
                                                         type="button"
-                                                        className="btn btn-primary"
+                                                        className="btn btn-primary shop-detail-mobile__button"
                                                         disabled={!canAddToCart}
                                                         onClick={() => {
                                                             if (!canAddToCart || !productType) return;
@@ -259,7 +250,7 @@ function ShopDetail() {
                                                     </button>
                                                     <button
                                                         type="button"
-                                                        className="btn btn-outline-primary ms-2"
+                                                        className="btn btn-outline-primary ms-2 shop-detail-mobile__button"
                                                         disabled={!canAddToCart}
                                                         onClick={() => {
                                                             if (!canAddToCart || !productType) return;
