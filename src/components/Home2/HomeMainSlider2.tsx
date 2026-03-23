@@ -71,7 +71,32 @@ export default function HomeMainSlider() {
 							</div>
 							<div className="col-md-6 mb-4 mb-md-0">
 								{loading ? (
-									<div className="text-white">Chargement des livres…</div>
+									<Swiper
+										className="swiper-container main-swiper-thumb"
+										spaceBetween={10}
+										slidesPerView={"auto"}
+										loop={false}
+										speed={1500}
+										autoplay={false}
+										modules={[Autoplay]}
+										aria-hidden="true"
+									>
+										{Array.from({ length: 3 }).map((_, index) => (
+											<SwiperSlide key={`book-skeleton-${index}`}>
+												<div className="books-card home-hero-book-card d-flex flex-row align-items-stretch">
+													<div className="dz-media home-hero-book-card__cover home-hero-book-skeleton-block flex-shrink-0" />
+													<div className="dz-content home-hero-book-card__body flex-grow-1 d-flex flex-column justify-content-center">
+														<div className="home-hero-book-skeleton-line home-hero-book-skeleton-line--title" />
+														<div className="home-hero-book-skeleton-line home-hero-book-skeleton-line--category" />
+														<div className="home-hero-book-card__prices mt-2">
+															<div className="home-hero-book-skeleton-line home-hero-book-skeleton-line--price" />
+															<div className="home-hero-book-skeleton-line home-hero-book-skeleton-line--price short" />
+														</div>
+													</div>
+												</div>
+											</SwiperSlide>
+										))}
+									</Swiper>
 								) : displayBooks.length === 0 ? (
 									<div className="text-white">Aucun livre pour le moment.</div>
 								) : (
