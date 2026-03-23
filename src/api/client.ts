@@ -30,6 +30,35 @@ export interface RequestOptions extends RequestInit {
   _retry401?: boolean;
 }
 
+function extractApiErrorMessage(data: unknown): string | null {
+  if (!data || typeof data !== 'object') return null;
+  const record = data as Record<string, unknown>;
+
+  if (typeof record.detail === 'string' && record.detail.trim()) {
+    return record.detail;
+  }
+  if (Array.isArray(record.detail) && record.detail.length > 0) {
+    return record.detail.map(String).join(' ');
+  }
+  if (typeof record.message === 'string' && record.message.trim()) {
+    return record.message;
+  }
+
+  if (Array.isArray(record.non_field_errors) && record.non_field_errors.length > 0) {
+    return record.non_field_errors.map(String).join(' ');
+  }
+
+  const fieldErrors = Object.entries(record)
+    .filter(([key, value]) => key !== 'detail' && key !== 'message' && key !== 'non_field_errors' && Array.isArray(value))
+    .flatMap(([, value]) => (value as unknown[]).map(String))
+    .filter((msg) => msg.trim().length > 0);
+  if (fieldErrors.length > 0) {
+    return fieldErrors.join(' ');
+  }
+
+  return null;
+}
+
 async function request<T>(
   path: string,
   method: HttpMethod,
@@ -106,13 +135,8 @@ async function request<T>(
     let message = response.statusText;
     try {
       const data = await response.json();
-      if (data && typeof data === 'object') {
-        if ('detail' in data) {
-          message = Array.isArray(data.detail) ? data.detail.join(' ') : (data.detail as string);
-        } else if (typeof (data as Record<string, unknown>).message === 'string') {
-          message = (data as Record<string, unknown>).message as string;
-        }
-      }
+      const parsed = extractApiErrorMessage(data);
+      if (parsed) message = parsed;
     } catch {
       // ignore erreur de parse JSON
     }
