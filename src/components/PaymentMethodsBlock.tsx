@@ -6,7 +6,7 @@ import React from 'react';
  */
 export const MOBILE_MONEY_METHODS = [
   {
-    id: 'mpesa',
+    id: 'vodacom',
     label: 'M-Pesa (Vodacom)',
     shortLabel: 'M-Pesa',
     logoSrc: '/mobile_money/M-pesa-logo.png',
@@ -27,7 +27,7 @@ export const MOBILE_MONEY_METHODS = [
     logoAlt: 'Airtel Money',
   },
   {
-    id: 'afrimoney',
+    id: 'africell',
     label: 'Afrimoney (Africell)',
     shortLabel: 'Afrimoney',
     logoSrc: '/mobile_money/afrimpney.png',

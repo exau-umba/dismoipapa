@@ -1,22 +1,27 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Collapse, Form, Modal } from 'react-bootstrap';
+import { Collapse, Form, Modal, Toast, ToastContainer } from 'react-bootstrap';
 import PageTitle from '../layouts/PageTitle';
 import { useCart } from '../context/CartContext';
 import { getBook } from '../api/catalog';
-import { createOrder, simulateOrderPayment } from '../api/orders';
+import { createOrder, requestNetikashPayment } from '../api/orders';
 import { getFriendlyErrorMessage } from '../utils/errorMessages';
 import ErrorMessage from '../components/ErrorMessage';
 import type { PaymentConfirmationState } from './PaymentConfirmation';
 import { MOBILE_MONEY_METHODS, type MobileMoneyOperatorId } from '../components/PaymentMethodsBlock';
 
 type MobileOperatorId = MobileMoneyOperatorId;
+type CheckoutToast = {
+  id: number;
+  message: string;
+  variant: 'danger' | 'success' | 'warning';
+};
 
 function validateMobilePayment(operator: string | null, phone: string): string | null {
   if (!operator) return 'Veuillez choisir un opérateur Mobile Money.';
   const digits = phone.replace(/\D/g, '');
-  if (digits.length < 9 || digits.length > 15) {
-    return 'Veuillez saisir un numéro de téléphone valide (9 à 15 chiffres).';
+  if (digits.length !== 9) {
+    return 'Veuillez saisir exactement 9 chiffres pour le numéro Mobile Money.';
   }
   return null;
 }
@@ -33,7 +38,9 @@ function ShopCheckout() {
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [mobileOperator, setMobileOperator] = useState<MobileOperatorId | ''>('');
   const [mobilePhone, setMobilePhone] = useState('');
+  const phoneInputRefs = useRef<Array<HTMLInputElement | null>>([]);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [toasts, setToasts] = useState<CheckoutToast[]>([]);
   const [billing, setBilling] = useState({
     firstName: '',
     lastName: '',
@@ -78,6 +85,38 @@ function ShopCheckout() {
     setBilling((prev) => ({ ...prev, [key]: value }));
   };
 
+  const pushToast = (message: string, variant: CheckoutToast['variant']) => {
+    const id = Date.now() + Math.floor(Math.random() * 1000);
+    setToasts((prev) => [...prev, { id, message, variant }]);
+  };
+  const dismissToast = (id: number) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  const phoneDigits = useMemo(() => {
+    const digits = mobilePhone.replace(/\D/g, '').slice(0, 9);
+    return Array.from({ length: 9 }, (_, i) => digits[i] ?? '');
+  }, [mobilePhone]);
+
+  const updatePhoneDigit = (index: number, raw: string) => {
+    const digit = raw.replace(/\D/g, '').slice(-1);
+    const next = [...phoneDigits];
+    next[index] = digit;
+    const merged = next.join('');
+    setMobilePhone(merged);
+
+    if (digit && index < 8) {
+      phoneInputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handlePhoneDigitKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === 'Backspace' && !phoneDigits[index] && index > 0) {
+      e.preventDefault();
+      phoneInputRefs.current[index - 1]?.focus();
+    }
+  };
+
   const validateCheckout = (): string | null => {
     if (isCartEmpty) return 'Votre panier est vide.';
     if (!hasPhysical) return null;
@@ -108,11 +147,13 @@ function ShopCheckout() {
     const validationError = validateCheckout();
     if (validationError) {
       setCheckoutError(validationError);
+      pushToast(validationError, 'warning');
       return;
     }
     const paymentError = validateMobilePayment(mobileOperator || null, mobilePhone);
     if (paymentError) {
       setCheckoutError(paymentError);
+      pushToast(paymentError, 'warning');
       return;
     }
 
@@ -128,14 +169,14 @@ function ShopCheckout() {
         shipping_address: shippingAddress,
         items,
       });
-
       if (createdOrder?.id) {
-        try {
-          await simulateOrderPayment(createdOrder.id);
-        } catch {
-          // Simulation best effort : la commande existe déjà.
-        }
+        await requestNetikashPayment({
+          order_id: createdOrder.id,
+          phone: mobilePhone.replace(/\D/g, '').slice(0, 9),
+          provider_id: mobileOperator as MobileMoneyOperatorId,
+        });
       }
+      pushToast('Commande créée, demande de paiement envoyée sur votre téléphone.', 'success');
 
       clearCart();
       setShowPaymentModal(true);
@@ -156,7 +197,9 @@ function ShopCheckout() {
         navigate('/confirmation-paiement', { state: confirmationState, replace: true });
       }, 10000);
     } catch (err) {
-      setCheckoutError(getFriendlyErrorMessage(err));
+      const msg = getFriendlyErrorMessage(err);
+      setCheckoutError(msg);
+      pushToast(msg, 'danger');
     } finally {
       setPlacingOrder(false);
     }
@@ -167,6 +210,22 @@ function ShopCheckout() {
 
   return (
     <>
+      <ToastContainer position="top-end" className="p-3" style={{ zIndex: 1080 }}>
+        {toasts.map((t) => (
+          <Toast
+            key={t.id}
+            autohide
+            delay={5000}
+            onClose={() => dismissToast(t.id)}
+            bg={t.variant}
+          >
+            <Toast.Body className={t.variant === 'warning' ? 'text-dark' : 'text-white'}>
+              {t.message}
+            </Toast.Body>
+          </Toast>
+        ))}
+      </ToastContainer>
+
       <Modal show={showPaymentModal} onHide={() => {}} backdrop="static" keyboard={false} centered>
         <Modal.Header className="border-0 pb-0 d-flex flex-column align-items-center text-center gap-2">
           {selectedOperatorLogo ? (
@@ -469,16 +528,35 @@ function ShopCheckout() {
                   </div>
                   {mobileOperator ? (
                     <div className="form-group mb-3">
-                      <Form.Label htmlFor="checkout-mobile-phone">Numéro de téléphone Mobile Money</Form.Label>
-                      <Form.Control
-                        id="checkout-mobile-phone"
-                        type="tel"
-                        inputMode="tel"
-                        autoComplete="tel"
-                        placeholder="Ex. 081 234 5678 ou +243 81 234 5678"
-                        value={mobilePhone}
-                        onChange={(e) => setMobilePhone(e.target.value)}
-                      />
+                      <Form.Label>Numéro de téléphone Mobile Money (9 chiffres)</Form.Label>
+                      <div className="d-flex gap-2 flex-wrap align-items-center" aria-label="Saisie du numéro Mobile Money">
+                        <span
+                          className="form-control text-center text-muted"
+                          style={{ width: 72, backgroundColor: '#f8f9fa', pointerEvents: 'none' }}
+                          aria-hidden
+                        >
+                          +243
+                        </span>
+                        {phoneDigits.map((digit, index) => (
+                          <Form.Control
+                            key={index}
+                            ref={(el) => {
+                              phoneInputRefs.current[index] = el;
+                            }}
+                            type="text"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            maxLength={1}
+                            value={digit}
+                            onChange={(e) => updatePhoneDigit(index, e.target.value)}
+                            onKeyDown={(e) => handlePhoneDigitKeyDown(index, e)}
+                            className="text-center"
+                            style={{ width: 42, paddingLeft: 0, paddingRight: 0 }}
+                            aria-label={`Chiffre ${index + 1} du numéro`}
+                          />
+                        ))}
+                      </div>
+                      <small className="text-muted d-block mt-2">Exemple : 820748672</small>
                     </div>
                   ) : null}
 

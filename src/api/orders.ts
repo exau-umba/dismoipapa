@@ -1,4 +1,5 @@
 import { getJson, postJson } from './client';
+import { getFriendlyErrorMessage } from '../utils/errorMessages';
 
 export interface CreateOrderItemPayload {
   format: string;
@@ -35,15 +36,35 @@ export interface CreatedOrder {
 }
 
 export type MyOrder = CreatedOrder;
+export type NetikashProviderId = 'vodacom' | 'airtel' | 'africell' | 'orange';
 
 export function listMyOrders(): Promise<MyOrder[]> {
-  return getJson<MyOrder[]>('/api/orders/');
+  try {
+    return getJson<MyOrder[]>('/api/orders/');
+  } catch (error) {
+    throw new Error(getFriendlyErrorMessage(error));
+  }
 }
 
-export function createOrder(payload: CreateOrderPayload): Promise<CreatedOrder> {
-  return postJson<CreatedOrder>('/api/orders/', payload);
+export async function createOrder(payload: CreateOrderPayload): Promise<CreatedOrder> {
+  try {
+    const response = await postJson<CreatedOrder>('/api/orders/', payload);
+    // console.log("Order created:", response);
+    return response;
+  } catch (error) {
+    // console.log("Error creating order:", error);
+    throw new Error(getFriendlyErrorMessage(error));
+  }
 }
 
-export function simulateOrderPayment(orderId: string): Promise<unknown> {
-  return postJson('/api/payments/simulate/', { order_id: orderId });
+export function requestNetikashPayment(payload: {
+  order_id: string;
+  phone: string;
+  provider_id: NetikashProviderId;
+}): Promise<unknown> {
+  try {
+    return postJson('/api/payments/netikash/request/', payload);
+  } catch (error) {
+    throw new Error(getFriendlyErrorMessage(error));
+  }
 }
