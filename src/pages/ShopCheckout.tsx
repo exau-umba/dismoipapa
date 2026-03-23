@@ -186,7 +186,6 @@ function ShopCheckout() {
       const operatorLabel = MOBILE_MONEY_METHODS.find((o) => o.id === mobileOperator)?.shortLabel ?? '';
 
       const confirmationState: PaymentConfirmationState = {
-        orderId: createdOrder.id,
         orderNumber,
         mobileOperator: operatorLabel,
       };
