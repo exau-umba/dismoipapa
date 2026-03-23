@@ -3,7 +3,6 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import PageTitle from '../layouts/PageTitle';
 
 export type PaymentConfirmationState = {
-  orderId?: string;
   orderNumber?: string;
   mobileOperator?: string;
 };
@@ -14,20 +13,16 @@ function PaymentConfirmation() {
   const state = (location.state as PaymentConfirmationState | null) ?? {};
 
   React.useEffect(() => {
-    if (!state.orderId && !state.orderNumber) {
+    if (!state.orderNumber) {
       navigate('/books-grid-view', { replace: true });
     }
-  }, [state.orderId, state.orderNumber, navigate]);
+  }, [state.orderNumber, navigate]);
 
-  if (!state.orderId && !state.orderNumber) {
+  if (!state.orderNumber) {
     return null;
   }
 
-  const refLabel = state.orderNumber
-    ? state.orderNumber
-    : state.orderId
-      ? `#${state.orderId.slice(0, 8)}…`
-      : '';
+  const refLabel = state.orderNumber;
 
   return (
     <>
