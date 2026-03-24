@@ -183,7 +183,7 @@ function Header() {
                   </Dropdown.Toggle>
                   <Dropdown.Menu as="ul" className="dropdown-menu cart-list">
                     {cartItems.length === 0 ? (
-                      <li className="cart-item text-center py-3 text-muted">
+                      <li className="cart-item text-center py-3 text-black-50">
                         <small>Panier vide</small>
                       </li>
                     ) : (
@@ -202,12 +202,12 @@ function Header() {
                                     {item.title}
                                   </Link>
                                 </h6>
-                                <span className="dz-price text-muted">
+                                <span className="dz-price text-black-50">
                                   {item.price} $ × {item.quantity}
                                   {` • ${productTypeLabel(item.productType)}`}
                                   {item.productType === 'ebook' && item.fileFormat ? ` • ${formatLabel(item.fileFormat)}` : ''}
                                 </span>
-                                <button type="button" className="item-close border-0 bg-transparent p-0" style={{ cursor: 'pointer' }} onClick={() => removeCartItem(item.lineId)} aria-label="Retirer">&times;</button>
+                                <button type="button" className="item-close text-primary border-0 bg-transparent p-0" style={{ cursor: 'pointer' }} onClick={() => removeCartItem(item.lineId)} aria-label="Retirer">&times;</button>
                               </div>
                             </div>
                           </li>

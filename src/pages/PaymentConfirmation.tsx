@@ -36,11 +36,11 @@ function PaymentConfirmation() {
                   <i className="fa fa-check-circle" />
                 </div>
                 <h2 className="mb-3">Paiement enregistré</h2>
-                <p className="text-muted lead mb-4">
+                <p className="text-black-50 lead mb-4">
                   Votre commande {refLabel ? <strong>{refLabel}</strong> : ''} a bien été prise en compte.
                   Les livres numériques sont disponibles dans votre espace personnel.
                 </p>
-                <p className="text-muted mb-4">
+                <p className="text-black-50 mb-4">
                   Rendez-vous dans <strong>Mon profil</strong>, puis <strong>Mes livres</strong> pour consulter,
                   lire ou télécharger vos achats.
                 </p>
@@ -48,9 +48,9 @@ function PaymentConfirmation() {
                   <Link to="/my-books" className="btn btn-primary btnhover">
                     Mes livres
                   </Link>
-                  <Link to="/my-profile" className="btn btn-outline-primary btnhover">
+                  {/* <Link to="/my-profile" className="btn btn-outline-primary btnhover">
                     Mon profil
-                  </Link>
+                  </Link> */}
                   <Link to="/books-grid-view" className="btn btn-outline-secondary btnhover">
                     Continuer les achats
                   </Link>
