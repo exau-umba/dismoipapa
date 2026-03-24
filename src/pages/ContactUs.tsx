@@ -57,7 +57,8 @@ const ContactUs = () => {
                 <div className="content-inner-2 pt-0">
                     <div className="map-iframe">
                         <iframe
-                          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3986.0184020246816!2d28.86868587564886!3d-2.5008213909743433!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x19c299ff939c9da9%3A0xf51e0c77d1d88a86!2sLibrairie%20Sim%2FLivres%20Pour%20les%20Grands%20Lacs!5e0!3m2!1sen!2scd!4v1774371088332!5m2!1sen!2scd"
+                          
+                          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3600.3955225866075!2d15.306707824508194!3d-4.303988546370026!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1a6a33002b6366e1%3A0x66912f8bffd19d58!2sLibrairie%20Livres%20Pour%20les%20Grands%20Lacs%20(Rond-Point%20Forescom)!5e1!3m2!1sfr!2scd!4v1774376477326!5m2!1sfr!2scd"
                           style={{border:'0', width:'100%', minHeight:'100%', marginBottom: '-8px'}}
                           allowFullScreen
                           title="Localisation Dis-moi Papa"
