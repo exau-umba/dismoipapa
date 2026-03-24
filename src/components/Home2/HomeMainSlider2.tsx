@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link } from 'react-router-dom';
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
@@ -8,6 +8,15 @@ import { bookImages } from '../../constants/imageUrls';
 import { fetchBooks, type Book } from '../../api/catalog';
 import { listCatalogs } from '../../api/admin';
 import { API_BASE_URL } from '../../api/client';
+
+function shuffleArray<T>(items: T[]): T[] {
+	const out = [...items];
+	for (let i = out.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		[out[i], out[j]] = [out[j], out[i]];
+	}
+	return out;
+}
 
 export default function HomeMainSlider() {
 	const [books, setBooks] = useState<Book[]>([]);
@@ -28,7 +37,10 @@ export default function HomeMainSlider() {
 			.finally(() => setLoading(false));
 	}, []);
 
-	const displayBooks = books.length > 0 ? books : [];
+	const displayBooks = useMemo(
+		() => (books.length > 0 ? shuffleArray(books) : []),
+		[books]
+	);
 
 	return (
 		<>
