@@ -126,7 +126,7 @@ function ShopCheckout() {
       'address1',
       'city',
       'region',
-      'postalCode',
+      // 'postalCode',
       'email',
       'phone',
     ];
@@ -375,7 +375,6 @@ function ShopCheckout() {
                               placeholder="Code postal"
                               value={billing.postalCode}
                               onChange={(e) => handleBillingChange('postalCode', e.target.value)}
-                              required
                             />
                           </div>
                         </div>
