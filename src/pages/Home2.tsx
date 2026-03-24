@@ -19,10 +19,10 @@ import NewsLetter from '../components/NewsLetter';
 import ClientsSlider from '../components/Home/ClientsSlider';
 
 const iconBlog = [
-    {title:'Livraison rapide', iconClass:'flaticon-power'}, 
-    {title:'Paiement sécurisé', iconClass:'flaticon-shield '}, 
-    {title:'Meilleure qualité', iconClass:'flaticon-like'}, 
-    {title:'Satisfait ou remboursé', iconClass:'flaticon-star'}, 
+    {title:'Livraison rapide', iconClass:'flaticon-power', description:'Livraison rapide et fiable à votre domicile, nous livrons en RD Congo.'}, 
+    {title:'Paiement sécurisé', iconClass:'flaticon-shield ', description:'Paiement sécurisé et fiable, nous utilisons les meilleurs systèmes de paiement.'}, 
+    {title:'Meilleure qualité', iconClass:'flaticon-like', description:'Meilleure qualité et garantie de satisfaction, nous sommes là pour vous aider.'}, 
+    // {title:'Satisfait ou remboursé', iconClass:'flaticon-star', description:'Satisfait ou remboursé, vous avez le droit de changer votre livre si vous ne êtes pas satisfait.'}, 
 ];
 
 const missionBlog = [
@@ -110,14 +110,14 @@ function Home2(){
                     <div className="container">
                         <div className="row">
                             {iconBlog.map((data, ind)=>(
-                                <div className="col-lg-3 col-sm-6" key={ind}>
+                                <div className="col-lg-4 col-sm-6" key={ind}>
                                     <div className="icon-bx-wraper style-1 m-b30 text-center">
                                         <div className="icon-bx-sm m-b10">
                                             <i className={`icon-cell ${data.iconClass}`} />
                                         </div>
                                         <div className="icon-content">
                                             <h5 className="dz-title m-b10">{data.title}</h5>
-                                            <p>Des services pensés pour vous faciliter l'achat et la lecture.</p>
+                                            <p>{data.description}</p>
                                         </div>
                                     </div>
                                 </div>

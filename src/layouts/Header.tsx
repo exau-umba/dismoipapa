@@ -101,6 +101,15 @@ function Header() {
     navigate(`/books-grid-view?catalog=${catalog.id}`);
   };
 
+  const handleMobileSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    const query = String(form.get('mobileSearch') || '').trim();
+    if (!query) return;
+    navigate(`/books-grid-view?q=${encodeURIComponent(query)}`);
+    setSidebarOpen(false);
+  };
+
   const handleLogoutConfirm = () => {
     logoutUser();
     setCurrentUser(null);
@@ -377,7 +386,7 @@ function Header() {
                   textDecoration: 'none',
                   color: '#1a1668',
                   fontWeight: '700',
-                  fontSize: '1.5rem',
+                  fontSize: '1.2rem',
                   whiteSpace: 'nowrap',
                   fontFamily: 'Poppins, sans-serif',
                 }}
@@ -468,15 +477,16 @@ function Header() {
                   Dis-moi Papa
                 </Link>
               </div>
-              <form className="search-input">
+              <form className="search-input" onSubmit={handleMobileSearchSubmit}>
                 <div className="input-group">
                   <input
                     type="text"
                     className="form-control"
                     aria-label="Recherche"
                     placeholder="Rechercher un livre..."
+                    name="mobileSearch"
                   />
-                  <button className="btn" type="button">
+                  <button className="btn" type="submit">
                     <i className="flaticon-loupe"></i>
                   </button>
                 </div>

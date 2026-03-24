@@ -23,6 +23,7 @@ function ShopList() {
     const [searchParams, setSearchParams] = useSearchParams();
     const [selections, setSelections] = useState<Record<string, { productType: 'ebook' | 'physical' | ''; fileFormat: 'pdf' | 'epub' | null }>>({});
     const { addItem } = useCart();
+    const searchTerm = (searchParams.get('q') || '').trim().toLowerCase();
     const catalogId = (searchParams.get('catalog') || '').trim();
 
     useEffect(() => {
@@ -53,16 +54,36 @@ function ShopList() {
     };
 
     const filteredBooks = React.useMemo(() => {
-        if (!catalogId) return books;
-        return books.filter((b) => b.catalog === catalogId);
-    }, [books, catalogId]);
+        let list = books;
+        if (catalogId) {
+            list = list.filter((b) => b.catalog === catalogId);
+        }
+        if (searchTerm) {
+            list = list.filter((book) => {
+                const title = (book.title || '').toLowerCase();
+                const author = (book.author || '').toLowerCase();
+                const synopsis = (book.synopsis || '').toLowerCase();
+                return (
+                    title.includes(searchTerm) ||
+                    author.includes(searchTerm) ||
+                    synopsis.includes(searchTerm)
+                );
+            });
+        }
+        return list;
+    }, [books, catalogId, searchTerm]);
     return(
         <>
             <div className="page-content bg-grey">
                 <section className="content-inner-1 border-bottom">
                     <div className="container">
                         <div className="d-flex justify-content-between align-items-center">
-                            <h4 className="title">Les livres de Jean Richard MAMBWENI MABIALA</h4>
+                            <div>
+                                <h4 className="title">Les livres de Jean Richard MAMBWENI MABIALA</h4>
+                                {searchTerm && (
+                                    <p className="mb-0 text-muted">Résultats pour « {searchTerm} »</p>
+                                )}
+                            </div>
                         </div>
                         <div className="filter-area m-b30">
                             <div className="grid-area">

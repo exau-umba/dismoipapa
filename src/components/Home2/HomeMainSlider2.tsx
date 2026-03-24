@@ -58,8 +58,8 @@ export default function HomeMainSlider() {
 											Accédez en quelques clics aux principaux ouvrages de l’auteur, en
 											version imprimée ou numérique, et suivez les nouvelles parutions.
 										</p>
-										<div className="content-btn">
-											<Link className="btn btn-primary btnhover me-3" to={'/books-grid-view'}>
+										<div className="content-btn d-flex flex-column flex-md-row gap-3">
+											<Link className="btn btn-primary btnhover " to={'/books-grid-view'}>
 												Voir tous les livres
 											</Link>
 											<Link className="btn btn-outline-light btnhover" to={'/auteur'}>
