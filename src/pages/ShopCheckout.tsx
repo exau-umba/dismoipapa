@@ -528,32 +528,32 @@ function ShopCheckout() {
                   {mobileOperator ? (
                     <div className="form-group mb-3">
                       <Form.Label>Numéro de téléphone Mobile Money (9 chiffres)</Form.Label>
-                      <div className="d-flex gap-2 flex-wrap align-items-center" aria-label="Saisie du numéro Mobile Money">
+                      <div className="checkout-phone-input-group" aria-label="Saisie du numéro Mobile Money">
                         <span
-                          className="form-control text-center text-muted"
-                          style={{ width: 72, backgroundColor: '#f8f9fa', pointerEvents: 'none' }}
+                          className="form-control text-center text-muted checkout-phone-prefix"
                           aria-hidden
                         >
                           +243
                         </span>
-                        {phoneDigits.map((digit, index) => (
-                          <Form.Control
-                            key={index}
-                            ref={(el) => {
-                              phoneInputRefs.current[index] = el;
-                            }}
-                            type="text"
-                            inputMode="numeric"
-                            pattern="[0-9]*"
-                            maxLength={1}
-                            value={digit}
-                            onChange={(e) => updatePhoneDigit(index, e.target.value)}
-                            onKeyDown={(e) => handlePhoneDigitKeyDown(index, e)}
-                            className="text-center"
-                            style={{ width: 42, paddingLeft: 0, paddingRight: 0 }}
-                            aria-label={`Chiffre ${index + 1} du numéro`}
-                          />
-                        ))}
+                        <div className="checkout-phone-digits">
+                          {phoneDigits.map((digit, index) => (
+                            <Form.Control
+                              key={index}
+                              ref={(el) => {
+                                phoneInputRefs.current[index] = el;
+                              }}
+                              type="text"
+                              inputMode="numeric"
+                              pattern="[0-9]*"
+                              maxLength={1}
+                              value={digit}
+                              onChange={(e) => updatePhoneDigit(index, e.target.value)}
+                              onKeyDown={(e) => handlePhoneDigitKeyDown(index, e)}
+                              className="text-center checkout-phone-digit"
+                              aria-label={`Chiffre ${index + 1} du numéro`}
+                            />
+                          ))}
+                        </div>
                       </div>
                       <small className="text-muted d-block mt-2">Exemple : 820748672</small>
                     </div>

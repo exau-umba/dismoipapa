@@ -25262,5 +25262,36 @@ body.woo-variation-swatches .variable-items-wrapper .variable-item:not(.radio-va
   line-height: 1.2;
   color: var(--primary);
 }
+.checkout-phone-input-group {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 0.5rem;
+  align-items: center;
+}
+.checkout-phone-prefix {
+  background-color: #f8f9fa;
+  pointer-events: none;
+}
+.checkout-phone-digits {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  gap: 0.4rem;
+}
+.checkout-phone-digit {
+  min-width: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+@media only screen and (max-width: 575px) {
+  .checkout-phone-input-group {
+    grid-template-columns: 1fr;
+  }
+  .checkout-phone-prefix {
+    max-width: 90px;
+  }
+  .checkout-phone-digits {
+    gap: 0.3rem;
+  }
+}
 
 /*# sourceMappingURL=style.css.map */
