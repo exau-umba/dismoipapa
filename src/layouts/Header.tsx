@@ -197,7 +197,7 @@ function Header() {
                                 </Link>
                               </div>
                               <div className="media-body">
-                                <h6 className="dz-title">
+                                <h6 className="dz-title book-title-truncate">
                                   <Link to={`/books-detail/${item.bookId}`} className="media-heading book-title-truncate text-primary" title={item.title}>
                                     {item.title}
                                   </Link>
