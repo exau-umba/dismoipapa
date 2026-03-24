@@ -15,7 +15,14 @@ import {
 import { Bar, Line, Doughnut } from 'react-chartjs-2';
 import { Card, Table, Badge, Row, Col } from 'react-bootstrap';
 import { fetchBooks } from '../../api/catalog';
-import { listUsers, listOrders, listCatalogs, type Catalog, type AdminOrder } from '../../api/admin';
+import {
+  listUsers,
+  listOrders,
+  listCatalogs,
+  type Catalog,
+  type AdminOrder,
+  type AdminUser,
+} from '../../api/admin';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend, ArcElement);
 
@@ -49,11 +56,39 @@ function formatOrderDate(o: AdminOrder): string {
   }
 }
 
-function formatOrderClient(o: AdminOrder): string {
+function formatOrderClientName(o: AdminOrder, usersById: Record<string, AdminUser>): string {
+  if (typeof o.user_full_name === 'string' && o.user_full_name.trim()) {
+    return o.user_full_name;
+  }
   const u = o.user;
-  if (typeof u === 'object' && u && 'email' in u) return (u as { email?: string }).email ?? '—';
-  if (typeof u === 'string') return u;
-  return (o as { client?: string }).client ?? '—';
+  if (typeof u === 'object' && u && 'full_name' in u) {
+    return (u as { full_name?: string }).full_name ?? '—';
+  }
+  if (typeof u === 'string') {
+    const found = usersById[u];
+    if (found?.full_name) return found.full_name;
+    if (!u.includes('-')) return u;
+  }
+  return '—';
+}
+
+function formatOrderClientEmail(o: AdminOrder, usersById: Record<string, AdminUser>): string {
+  if (typeof o.user_email === 'string' && o.user_email.trim()) {
+    return o.user_email;
+  }
+  const u = o.user;
+  if (typeof u === 'object' && u && 'email' in u) {
+    return (u as { email?: string }).email ?? '—';
+  }
+  if (typeof u === 'string') {
+    const found = usersById[u];
+    if (found?.email) return found.email;
+  }
+  return '—';
+}
+
+function formatOrderNumber(o: AdminOrder): string {
+  return String((o as { order_number?: string }).order_number ?? `CMD-${o.id}`);
 }
 
 function formatOrderTotalDisplay(o: AdminOrder): string {
@@ -117,7 +152,9 @@ const statutVariant: Record<string, string> = {
 
 type RecentOrderRow = {
   id: string;
-  client: string;
+  orderNumber: string;
+  clientName: string;
+  clientEmail: string;
   montant: string;
   date: string;
   statut: string;
@@ -142,9 +179,6 @@ export default function AdminDashboard() {
         setBooksCount(0);
         setBooks([]);
       });
-    listUsers()
-      .then((data) => setUsersCount(data.length))
-      .catch(() => setUsersCount(0));
   }, []);
 
   useEffect(() => {
@@ -154,15 +188,25 @@ export default function AdminDashboard() {
   }, []);
 
   useEffect(() => {
-    listOrders()
-      .then((data) => {
+    Promise.all([
+      listOrders().catch(() => [] as AdminOrder[]),
+      listUsers().catch(() => [] as AdminUser[]),
+    ])
+      .then(([data, users]) => {
+        setUsersCount(users.length);
         const list = Array.isArray(data) ? data : [];
+        const usersById: Record<string, AdminUser> = {};
+        users.forEach((u) => {
+          usersById[u.id] = u;
+        });
         setOrders(list);
         const sorted = [...list].sort((a, b) => getOrderTimestamp(b) - getOrderTimestamp(a));
         setRecentOrders(
           sorted.slice(0, 10).map((o) => ({
             id: String(o.id),
-            client: formatOrderClient(o),
+            orderNumber: formatOrderNumber(o),
+            clientName: formatOrderClientName(o, usersById),
+            clientEmail: formatOrderClientEmail(o, usersById),
             montant: formatOrderTotalDisplay(o),
             date: formatOrderDate(o),
             statut: formatOrderStatus(o),
@@ -421,9 +465,12 @@ export default function AdminDashboard() {
                       {recentOrders.map((order) => (
                         <tr key={order.id}>
                           <td>
-                            <strong>#{order.id}</strong>
+                            <strong>{order.orderNumber}</strong>
                           </td>
-                          <td>{order.client}</td>
+                          <td>
+                            <div className="fw-semibold">{order.clientName}</div>
+                            <div className="small text-muted">{order.clientEmail}</div>
+                          </td>
                           <td>{order.montant}</td>
                           <td className="text-nowrap">{order.date}</td>
                           <td>
