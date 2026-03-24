@@ -57,7 +57,7 @@ const ContactUs = () => {
                 <div className="content-inner-2 pt-0">
                     <div className="map-iframe">
                         <iframe
-                          src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d7956.232148101352!2d15.331696000000003!3d-4.389366999999997!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2scd!4v1773347696139!5m2!1sen!2scd"
+                          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3986.0184020246816!2d28.86868587564886!3d-2.5008213909743433!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x19c299ff939c9da9%3A0xf51e0c77d1d88a86!2sLibrairie%20Sim%2FLivres%20Pour%20les%20Grands%20Lacs!5e0!3m2!1sen!2scd!4v1774371088332!5m2!1sen!2scd"
                           style={{border:'0', width:'100%', minHeight:'100%', marginBottom: '-8px'}}
                           allowFullScreen
                           title="Localisation Dis-moi Papa"
@@ -82,7 +82,8 @@ const ContactUs = () => {
                                             </div>
                                             <div className="icon-content">
                                                 <h5 className=" dz-tilte text-white">Notre adresse</h5>
-                                                <p>Avenue du Commerce, Kinshasa, République démocratique du Congo</p>
+                                                <p>1, Av. De la paix (Bâtiment SEDEC)
+                                                Réf. Rond-Point FORESCOM, Kinshasa, RDC</p>
                                             </div>
                                         </li>
                                         <li className="icon-bx-wraper text-white left m-b30">

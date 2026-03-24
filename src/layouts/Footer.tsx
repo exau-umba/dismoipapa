@@ -238,8 +238,8 @@ function Footer({ footerChange = '', logoImage }: FooterProps) {
                     <li>
                       <i className="flaticon-placeholder"></i>
                       <span>
-                        Avenue du Commerce, Kinshasa, République démocratique du
-                        Congo
+                        1, Av. De la paix (Bâtiment SEDEC)
+                        Réf. Rond-Point FORESCOM, Kinshasa, RDC
                       </span>
                     </li>
                     <li>
