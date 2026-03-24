@@ -1,4 +1,5 @@
 import React from 'react';
+import PwaUpdatePrompt from './components/PwaUpdatePrompt';
 import Index from './pages/Index';
 
 // Css
@@ -9,6 +10,7 @@ function App() {
   return (
     <div className="App">
       <Index />
+      <PwaUpdatePrompt />
     </div>
   );
 }
