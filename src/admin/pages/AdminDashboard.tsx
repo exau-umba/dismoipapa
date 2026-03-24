@@ -123,11 +123,46 @@ const CATEGORY_COLORS = [
   'rgba(153, 102, 255, 0.8)',
 ];
 
-const chartOptions = {
+/** Barres : deux échelles (revenus vs nombre de commandes), sinon les barres « commandes » sont écrasées par l’échelle des montants. */
+const barChartOptions = {
   responsive: true,
+  maintainAspectRatio: true,
+  aspectRatio: 1.85,
   plugins: {
     legend: { position: 'top' as const },
-    title: { display: true, text: 'Activité des 6 derniers mois' },
+    title: { display: false },
+  },
+  scales: {
+    x: {
+      grid: { display: false },
+    },
+    y: {
+      type: 'linear' as const,
+      display: true,
+      position: 'left' as const,
+      beginAtZero: true,
+      title: { display: true, text: 'Revenus ($)' },
+    },
+    y1: {
+      type: 'linear' as const,
+      display: true,
+      position: 'right' as const,
+      beginAtZero: true,
+      grid: { drawOnChartArea: false },
+      title: { display: true, text: 'Nombre de commandes' },
+      ticks: {
+        precision: 0,
+      },
+    },
+  },
+};
+
+const revenueLineOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { display: false },
+    title: { display: false },
   },
   scales: {
     y: { beginAtZero: true },
@@ -260,6 +295,7 @@ export default function AdminDashboard() {
         {
           label: 'Nombre de commandes',
           data: monthlyStats.orderCounts,
+          yAxisID: 'y1',
           backgroundColor: 'rgba(0, 102, 204, 0.7)',
           borderColor: '#0066cc',
           borderWidth: 1,
@@ -267,6 +303,7 @@ export default function AdminDashboard() {
         {
           label: 'Revenus ($)',
           data: monthlyStats.revenueValues,
+          yAxisID: 'y',
           backgroundColor: 'rgba(26, 22, 104, 0.5)',
           borderColor: '#1a1668',
           borderWidth: 1,
@@ -402,7 +439,7 @@ export default function AdminDashboard() {
           <Card className="admin-card">
             <Card.Body>
               <h5 className="admin-card-title">Commandes et revenus (6 derniers mois)</h5>
-              <Bar data={barChartData} options={chartOptions} />
+              <Bar data={barChartData} options={barChartOptions} />
             </Card.Body>
           </Card>
         </Col>
@@ -419,11 +456,13 @@ export default function AdminDashboard() {
       <Row className="mb-4">
         <Col lg={12}>
           <Card className="admin-card">
-            <Card.Body>
-              <div className="d-flex justify-content-between align-items-center mb-3">
+            <Card.Body className="pb-3">
+              <div className="d-flex justify-content-between align-items-center mb-2">
                 <h5 className="admin-card-title mb-0">Évolution des revenus</h5>
               </div>
-              <Line data={revenueLineData} options={{ responsive: true, plugins: { legend: { display: false } } }} />
+              <div className="admin-dashboard-revenue-line" style={{ height: 240, position: 'relative' }}>
+                <Line data={revenueLineData} options={revenueLineOptions} />
+              </div>
             </Card.Body>
           </Card>
         </Col>
