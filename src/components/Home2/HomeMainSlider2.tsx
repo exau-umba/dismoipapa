@@ -58,11 +58,11 @@ export default function HomeMainSlider() {
 											Accédez en quelques clics aux principaux ouvrages de l’auteur, en
 											version imprimée ou numérique, et suivez les nouvelles parutions.
 										</p>
-										<div className="content-btn d-flex flex-column flex-md-row gap-3">
-											<Link className="btn btn-primary btnhover " to={'/books-grid-view'}>
+										<div className="content-btn home-hero-actions d-none d-md-flex flex-column flex-md-row gap-3">
+											<Link className="btn btn-primary btnhover home-hero-action-btn" to={'/books-grid-view'}>
 												Voir tous les livres
 											</Link>
-											<Link className="btn btn-outline-light btnhover" to={'/auteur'}>
+											<Link className="btn btn-outline-light btnhover home-hero-action-btn" to={'/auteur'}>
 												En savoir plus sur l'auteur
 											</Link>
 										</div>
@@ -159,6 +159,14 @@ export default function HomeMainSlider() {
 									})}
 								</Swiper>
 								)}
+								<div className="content-btn home-hero-actions d-flex d-md-none flex-column gap-3 mt-3">
+									<Link className="btn btn-primary btnhover home-hero-action-btn" to={'/books-grid-view'}>
+										Voir tous les livres
+									</Link>
+									<Link className="btn btn-outline-light btnhover home-hero-action-btn" to={'/auteur'}>
+										En savoir plus sur l'auteur
+									</Link>
+								</div>
 							</div>
 						</div>
 					</div>
