@@ -180,10 +180,10 @@ function ShopDetail() {
                                             )}
                                             <div className="book-footer d-flex flex-column justify-content-between">
                                                 <div className="price">
-                                                    <div className="small mb-2">
+                                                    {/* <div className="small mb-2">
                                                         <div className="text-muted">Physique: <span className="text-primary">{physicalPrice ? `${physicalPrice} $` : '—'}</span></div>
                                                         <div className="text-muted">E-book: <span className="text-primary">{ebookPrice ? `${ebookPrice} $` : '—'}</span></div>
-                                                    </div>
+                                                    </div> */}
                                                     {price ? <h5>{price} $</h5> : <h6 className="text-primary">Choisissez un format pour continuer</h6>}
                                                 </div>
                                                 <div className="product-num shop-detail-mobile__actions">
@@ -331,9 +331,9 @@ function ShopDetail() {
                                                             </h4>
                                                             <div className="clearfix">
                                                                 <form method="post" id="comments_form" className="comment-form" noValidate>
-                                                                    <p className="comment-form-author"><input id="name" placeholder="Author" name="author" type="text" value="" /></p>
+                                                                    <p className="comment-form-author"><input id="name" placeholder="Author" name="author" type="text" defaultValue="" /></p>
                                                                     <p className="comment-form-email">
-                                                                        <input id="email" required placeholder="Email" name="email" type="email" value="" />
+                                                                        <input id="email" required placeholder="Email" name="email" type="email" defaultValue="" />
                                                                     </p>
                                                                     <p className="comment-form-comment">
                                                                         <textarea id="comments" placeholder="Type Comment Here" className="form-control4" name="comment" cols={45} rows={3} required={true}></textarea>
