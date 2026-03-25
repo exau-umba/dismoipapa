@@ -36,6 +36,8 @@ export function getFriendlyErrorMessage(error: unknown): string {
     'Bad Request': 'Les informations envoyées sont incorrectes. Vérifiez et réessayez.',
     'Conflict': 'Cette action entre en conflit avec les données actuelles.',
     'Too Many Requests': 'Trop de tentatives. Veuillez patienter avant de réessayer.',
+    'Payment error': 'Erreur de paiement. Veuillez vérifier vos informations de paiement et réessayer.',
+    'No active account found with the given credentials': 'Compte invalide. Veuillez vérifier vos identifiants et réessayer.',
   };
   const trimmed = message.trim();
   if (known[trimmed]) return known[trimmed];
