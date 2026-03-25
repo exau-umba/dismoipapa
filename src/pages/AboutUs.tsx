@@ -31,7 +31,7 @@ function AboutUs(){
                         <div className="row about-style1 align-items-center">
                             <div className="col-lg-6 m-b30">
                                 <div className="row sp10 about-thumb">
-                                    <div className="col-sm-6 aos-item" >
+                                    <div className="col-sm-6 aos-item d-none d-md-block" >
                                         <div className="split-box">
                                             <div>
                                                 <img className="m-b30" src={aboutImages[0]} alt="" />
