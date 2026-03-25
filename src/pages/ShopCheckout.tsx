@@ -504,7 +504,7 @@ function ShopCheckout() {
                   </table>
 
                   <h4 className="widget-title">Paiement Mobile Money</h4>
-                  <p className="text-muted small mb-3">
+                  <p className="text-black-50 small mb-3">
                     Choisissez votre opérateur, puis indiquez le numéro de téléphone associé au compte Mobile Money.
                   </p>
                   <div className="checkout-mobile-money-grid mb-3" role="group" aria-label="Opérateur Mobile Money">
@@ -529,7 +529,7 @@ function ShopCheckout() {
                       <Form.Label>Numéro de téléphone Mobile Money (9 chiffres)</Form.Label>
                       <div className="checkout-phone-input-group" aria-label="Saisie du numéro Mobile Money">
                         <span
-                          className="form-control text-center text-muted checkout-phone-prefix"
+                          className="form-control text-center text-black-50 checkout-phone-prefix"
                           aria-hidden
                         >
                           +243
@@ -554,7 +554,7 @@ function ShopCheckout() {
                           ))}
                         </div>
                       </div>
-                      <small className="text-muted d-block mt-2">Exemple : 820748672</small>
+                      <small className="text-black-50 d-block mt-2">Exemple : 820748672</small>
                     </div>
                   ) : null}
 
