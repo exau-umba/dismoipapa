@@ -1,4 +1,4 @@
-import { getJson, postJson } from './client';
+import { getJson, postJson, patchJson } from './client';
 import { clearEpubReadCache } from './epubReadCache';
 
 export interface AuthTokens {
@@ -75,6 +75,30 @@ export async function requestPasswordReset(email: string) {
 export async function activateAccount(token: string) {
   // GET /api/users/activate/?token=...
   return getJson<{ detail?: string }>('/api/users/activate/?token=' + encodeURIComponent(token));
+}
+
+/**
+ * PATCH /api/users/me/ - Mise à jour des informations du profil courant.
+ * (Correspond aux champs décrits dans `papa_dis_moi.json`.)
+ */
+export async function updateCurrentUser(payload: {
+  full_name?: string;
+  phone_number?: string;
+  shipping_address?: string;
+  is_subscriber?: boolean;
+}): Promise<UserProfile> {
+  return patchJson<UserProfile>('/api/users/me/', payload);
+}
+
+/**
+ * POST /api/users/{id}/change-password/ - Changement de mot de passe.
+ * (Correspond aux champs décrits dans `papa_dis_moi.json`.)
+ */
+export async function changePassword(
+  userId: string,
+  payload: { old_password: string; new_password: string }
+): Promise<unknown> {
+  return postJson(`/api/users/${userId}/change-password/`, payload);
 }
 
 
