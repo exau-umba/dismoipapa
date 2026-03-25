@@ -61,7 +61,7 @@ export default function MyOrders() {
       <PageTitle parentPage="Pages" childPage="Mes commandes" />
       <section className="content-inner-1">
         <div className="container">
-          <div className="row mb-3">
+          {/* <div className="row mb-3">
             <div className="col-12">
               <div className="d-flex flex-column flex-md-row gap-2">
                 <Link className="btn btn-outline-primary btnhover" to="/my-profile#informations-personnelles">
@@ -72,7 +72,7 @@ export default function MyOrders() {
                 </Link>
               </div>
             </div>
-          </div>
+          </div> */}
 
           {error && (
             <div className="row">
