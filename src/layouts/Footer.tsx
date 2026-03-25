@@ -1,6 +1,7 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import PaymentMethodsBlock from '../components/PaymentMethodsBlock';
+import { buildShopLoginHref } from '../utils/authRedirect';
 
 // function heartToggle() {
 //   const heartBlaste = document.querySelector('.heart');
@@ -49,6 +50,8 @@ type FooterProps = {
 
 function Footer({ footerChange = '', logoImage }: FooterProps) {
   const d = new Date();
+  const location = useLocation();
+  const loginHref = buildShopLoginHref(location.pathname, location.search);
 
   return (
     <>
@@ -219,7 +222,7 @@ function Footer({ footerChange = '', logoImage }: FooterProps) {
                     </li>
                     {!isAuthenticated && (
                       <li>
-                        <Link to={'/shop-login'}>Connexion</Link>
+                        <Link to={loginHref}>Connexion</Link>
                       </li>
                     )}
                     {/* <li>

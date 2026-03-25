@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
 //Components 
 import PageTitle from '../layouts/PageTitle';
 import ErrorMessage from '../components/ErrorMessage';
-import { registerUser } from '../api/auth';
+import { getCurrentUser, registerUser } from '../api/auth';
 import { getFriendlyErrorMessage } from '../utils/errorMessages';
+import { getSafeRedirectPath } from '../utils/authRedirect';
 
 function Registration(){
     const [fullName, setFullName] = useState('');
@@ -18,14 +19,20 @@ function Registration(){
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const nextParam = searchParams.get('next');
 
-    // Si déjà connecté, on redirige vers le profil
+    // Si déjà connecté : admin -> back-office, sinon retour vers `next` ou profil
     useEffect(() => {
         const token = localStorage.getItem('accessToken');
-        if (token) {
-            navigate('/my-profile');
-        }
-    }, [navigate]);
+        if (!token) return;
+        getCurrentUser()
+            .then((u) => {
+                if (u?.is_staff) navigate('/admin', { replace: true });
+                else navigate(getSafeRedirectPath(nextParam, '/my-profile'), { replace: true });
+            })
+            .catch(() => {});
+    }, [navigate, nextParam]);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -42,8 +49,9 @@ function Registration(){
                 is_subscriber: isSubscriber,
             });
             setSuccess("Votre compte a été créé. Veuillez vérifier votre e‑mail pour l'activer.");
-            // Rediriger vers la page de connexion après un court délai
-            setTimeout(() => navigate('/shop-login'), 2000);
+            // Rediriger vers la page de connexion en conservant `next`
+            const loginQs = nextParam ? `?next=${encodeURIComponent(nextParam)}` : '';
+            setTimeout(() => navigate(`/shop-login${loginQs}`), 2000);
         } catch (err) {
             if (err instanceof Error) {
                 setError(err.message);
@@ -156,7 +164,14 @@ function Registration(){
                                         </div>
                                     </form>
                                         <div className="text-center mt-3">
-                                            <Link to={"/shop-login"} className="me-2 btn-link">
+                                            <Link
+                                              to={
+                                                nextParam
+                                                  ? `/shop-login?next=${encodeURIComponent(nextParam)}`
+                                                  : '/shop-login'
+                                              }
+                                              className="me-2 btn-link"
+                                            >
                                                 Vous avez déjà un compte ? Se connecter
                                             </Link>
                                         </div> 

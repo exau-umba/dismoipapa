@@ -5,6 +5,7 @@ import { getCurrentUser, logoutUser, type UserProfile } from '../api/auth';
 import { useCart } from '../context/CartContext';
 import { listCatalogs, type Catalog } from '../api/admin';
 import LogoutConfirmModal from '../components/LogoutConfirmModal';
+import { buildShopLoginHref } from '../utils/authRedirect';
 
 import Collapse from 'react-bootstrap/Collapse';
 import { MenuListArray2 } from './MenuListArray2';
@@ -60,6 +61,7 @@ function Header() {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const loginHref = buildShopLoginHref(location.pathname, location.search);
 
   useEffect(() => {
     listCatalogs()
@@ -311,7 +313,7 @@ function Header() {
                 ) : (
                   <li className="nav-item ms-4">
                     <Link
-                      to="/shop-login"
+                      to={loginHref}
                       className="btn btn-primary btnhover btn-sm"
                     >
                       {authLoading ? 'Connexion…' : 'Se connecter'}
@@ -532,7 +534,7 @@ function Header() {
                 ) : (
                   <li className="d-block d-lg-none">
                     <Link
-                      to="/shop-login"
+                      to={loginHref}
                       className="btn btn-primary btnhover text-white"
                     >
                       {authLoading ? 'Connexion…' : 'Se connecter'}

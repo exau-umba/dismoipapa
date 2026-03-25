@@ -6,26 +6,9 @@ import PageTitle from '../layouts/PageTitle';
 import ErrorMessage from '../components/ErrorMessage';
 import { getCurrentUser, loginUser, requestPasswordReset } from '../api/auth';
 import { getFriendlyErrorMessage } from '../utils/errorMessages';
+import { getSafeRedirectPath } from '../utils/authRedirect';
 
-/** Chemins internes autorisés pour la redirection après connexion */
-const ALLOWED_NEXT_PATHS = ['/my-profile', '/my-books', '/my-orders', '/shop-cart', '/wishlist', '/shop-checkout', '/confirmation-paiement', '/admin'];
-
-function getRedirectPath(next: string | null): string {
-  if (!next) return '/my-profile';
-  try {
-    const path = decodeURIComponent(next);
-    if (!path.startsWith('/')) return '/my-profile';
-    const allowed = ALLOWED_NEXT_PATHS.some(
-      (p) => path === p || path.startsWith(p + '?') || path.startsWith(p + '/')
-    );
-    if (allowed) return path;
-  } catch {
-    // ignore invalid next
-  }
-  return '/my-profile';
-}
-
-/** Détermine la page de redirection après connexion : admin -> /admin, sinon next ou /my-profile */
+/** Détermine la page de redirection après connexion : admin -> /admin, sinon `next` sûr ou /my-profile */
 async function getRedirectAfterLogin(next: string | null): Promise<string> {
   try {
     const user = await getCurrentUser();
@@ -33,7 +16,7 @@ async function getRedirectAfterLogin(next: string | null): Promise<string> {
   } catch {
     // token invalide ou API indisponible, on utilise next
   }
-  return getRedirectPath(next);
+  return getSafeRedirectPath(next, '/my-profile');
 }
 
 function Login() {
@@ -98,7 +81,16 @@ function Login() {
                                     <div className="tab-content">
                                         <h4>NOUVEAU CLIENT</h4>
                                         <p>En créant un compte, vous pourrez passer commande plus rapidement, enregistrer plusieurs adresses, suivre vos commandes et plus encore.</p>
-                                        <Link to={"/shop-registration"} className="btn btn-primary btnhover m-r5 button-lg radius-no">CRÉER UN COMPTE</Link>
+                                        <Link
+                                          to={
+                                            nextParam
+                                              ? `/shop-registration?next=${encodeURIComponent(nextParam)}`
+                                              : '/shop-registration'
+                                          }
+                                          className="btn btn-primary btnhover m-r5 button-lg radius-no"
+                                        >
+                                          CRÉER UN COMPTE
+                                        </Link>
                                     </div>
                                 </div>
                             </div>
