@@ -76,7 +76,7 @@ function PwaUpdatePrompt() {
       role="status"
       aria-live="polite"
     >
-      <Alert variant="dark" className="mb-0 shadow border-secondary d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center justify-content-between gap-2">
+      <Alert variant="dark" className="mb-0 shadow border-primary d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center justify-content-between gap-2">
         <span className="small">
           Une nouvelle version de l’application est prête. Mettez à jour pour utiliser les
           derniers correctifs et fonctionnalités.
@@ -85,7 +85,7 @@ function PwaUpdatePrompt() {
           <Button variant="outline-light" size="sm" onClick={dismiss}>
             Plus tard
           </Button>
-          <Button variant="warning" size="sm" onClick={applyUpdate}>
+          <Button variant="primary" size="sm" onClick={applyUpdate}>
             Mettre à jour
           </Button>
         </div>
