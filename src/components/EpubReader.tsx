@@ -167,12 +167,20 @@ export default function EpubReader({
       const el = shellRef.current;
       if (!el) return;
       const rect = el.getBoundingClientRect();
-      const h = Math.max(400, Math.round(window.innerHeight - rect.top - 12));
+      const viewportH =
+        (typeof window !== 'undefined' && window.visualViewport?.height) || window.innerHeight;
+      const h = Math.max(320, Math.round(viewportH - rect.top - 12));
       setShellHeight(h);
     };
     compute();
     window.addEventListener('resize', compute);
-    return () => window.removeEventListener('resize', compute);
+    window.visualViewport?.addEventListener('resize', compute);
+    window.visualViewport?.addEventListener('scroll', compute);
+    return () => {
+      window.removeEventListener('resize', compute);
+      window.visualViewport?.removeEventListener('resize', compute);
+      window.visualViewport?.removeEventListener('scroll', compute);
+    };
   }, []);
 
   useEffect(() => {
@@ -480,7 +488,7 @@ export default function EpubReader({
       style={{
         backgroundColor: shellBg,
         height: shellHeight ? `${shellHeight}px` : 'min(85vh, 820px)',
-        minHeight: 480,
+        minHeight: layoutChrome ? 320 : 480,
         borderRadius: asPage ? 8 : 0,
       }}
     >
@@ -523,7 +531,7 @@ export default function EpubReader({
             {/* Barre : réglages + titre + actions */}
             <div
               ref={toolbarRef}
-              className="d-flex align-items-center gap-2 px-2 py-2 border-bottom flex-shrink-0"
+              className="d-flex flex-wrap align-items-center gap-2 px-2 py-2 border-bottom flex-shrink-0 reader-toolbar"
               style={{ borderColor: toolbarBorder, backgroundColor: toolbarBg }}
             >
               <div className="d-flex align-items-center gap-2">
@@ -539,7 +547,7 @@ export default function EpubReader({
                 {settingsDropdown}
               </div>
               <h2
-                className="flex-grow-1 text-center mb-0 text-truncate px-2"
+                className="flex-grow-1 text-center mb-0 text-truncate px-2 reader-title"
                 style={{
                   fontSize: '1rem',
                   fontWeight: 600,
@@ -646,11 +654,11 @@ export default function EpubReader({
         <div className="d-flex flex-column flex-grow-1 min-h-0">
           <div
             ref={toolbarRef}
-            className="d-flex align-items-center gap-2 px-2 py-2 border-bottom flex-shrink-0"
+            className="d-flex flex-wrap align-items-center gap-2 px-2 py-2 border-bottom flex-shrink-0 reader-toolbar"
             style={{ borderColor: toolbarBorder, backgroundColor: toolbarBg }}
           >
             {settingsDropdown}
-            <h2 className="flex-grow-1 text-center mb-0 text-truncate" style={{ fontSize: '1rem' }}>
+            <h2 className="flex-grow-1 text-center mb-0 text-truncate reader-title" style={{ fontSize: '1rem' }}>
               {title}
             </h2>
             <Button variant="outline-secondary" size="sm" onClick={onClose}>

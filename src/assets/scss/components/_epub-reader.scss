@@ -1,0 +1,28 @@
+.epub-reader-shell {
+  // iOS/Android: éviter les débordements quand la barre d’adresse varie
+  max-height: 100dvh;
+}
+
+// Mobile: toolbar plus compacte + pas de débordement horizontal
+@media (max-width: 576px) {
+  .reader-toolbar {
+    gap: 0.5rem !important;
+  }
+
+  .reader-title {
+    font-size: 0.95rem !important;
+    flex-basis: 100% !important; // passe sur une ligne dédiée si nécessaire
+    order: 3; // garde actions/réglages visibles en premier
+  }
+
+  .reader-epub-container {
+    max-width: 100% !important;
+    border-radius: 0 !important;
+  }
+
+  .epub-reader-shell {
+    min-height: 320px !important;
+    border-radius: 0 !important;
+  }
+}
+

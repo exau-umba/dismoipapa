@@ -150,7 +150,12 @@ export default function BookReader() {
           {!loading && !error && epubUrl && (
             <div
               className="card p-0 border-0 shadow-sm"
-              style={{ overflow: 'hidden', minHeight: 'min(calc(100dvh - 200px), 900px)' }}
+              style={{
+                overflow: 'hidden',
+                // Laisser `EpubReader` gérer la hauteur réelle (via visualViewport).
+                // Ici on évite juste les écrans trop petits/vides.
+                minHeight: 360,
+              }}
             >
               <EpubReader
                 epubUrl={epubUrl}
