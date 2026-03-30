@@ -9,6 +9,7 @@ const menuItems = [
   { path: '/admin/catalogues', label: 'Catalogues', icon: 'fa-folder-open' },
   { path: '/admin/livres', label: 'Livres', icon: 'fa-book' },
   { path: '/admin/commandes', label: 'Commandes', icon: 'fa-shopping-cart' },
+  { path: '/admin/transactions', label: 'Transactions', icon: 'fa-credit-card' },
   { path: '/admin/utilisateurs', label: 'Utilisateurs', icon: 'fa-users' },
   { path: '/admin/parametres', label: 'Paramètres', icon: 'fa-cog' },
 ];
