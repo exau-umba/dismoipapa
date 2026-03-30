@@ -9,6 +9,7 @@ import { getFriendlyErrorMessage } from '../utils/errorMessages';
 const profilePages = [
   { to: '/my-books', icons: 'fa fa-book', name: 'Mes Livres' },
   { to: '/my-orders', icons: 'fa fa-shopping-cart', name: 'Mes commandes' },
+  { to: '/my-transactions', icons: 'fa fa-credit-card', name: 'Mes transactions' },
   { to: '/shop-cart', icons: 'fa fa-shopping-cart', name: 'Panier' },
   { to: '/shop-checkout', icons: 'fa fa-credit-card', name: 'Paiement' },
 ];
