@@ -25348,6 +25348,9 @@ body.woo-variation-swatches .variable-items-wrapper .variable-item:not(.radio-va
   grid-template-columns: repeat(9, minmax(0, 1fr));
   gap: 0.4rem;
 }
+.checkout-phone-digits.checkout-phone-digits--10 {
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+}
 .checkout-phone-digit {
   min-width: 0;
   padding-left: 0;
@@ -25362,6 +25365,9 @@ body.woo-variation-swatches .variable-items-wrapper .variable-item:not(.radio-va
   }
   .checkout-phone-digits {
     gap: 0.3rem;
+  }
+  .checkout-phone-digits.checkout-phone-digits--10 {
+    gap: 0.22rem;
   }
 }
 

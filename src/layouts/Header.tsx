@@ -298,6 +298,15 @@ function Header() {
                             <span className="ms-2">Mes commandes</span>
                           </div>
                         </Link>
+                        <Link
+                          to={'/my-transactions'}
+                          className="dropdown-item d-flex justify-content-between align-items-center ai-icon"
+                        >
+                          <div>
+                            <i className="fa fa-credit-card" style={{ width: 20, textAlign: 'center' }} aria-hidden />
+                            <span className="ms-2">Mes transactions</span>
+                          </div>
+                        </Link>
                       </div>
                       <div className="dropdown-footer">
                         <button

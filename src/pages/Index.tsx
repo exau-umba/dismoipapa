@@ -13,6 +13,7 @@ import Auteur from './Auteur';
 import MyProfile from './MyProfile';
 import MyBooks from './MyBooks';
 import MyOrders from './MyOrders';
+import MyTransactions from './MyTransactions';
 import Faq from './Faq';
 import HelpDesk from './HelpDesk';
 // import Pricing from './Pricing';
@@ -51,6 +52,7 @@ import AdminUsers from '../admin/pages/AdminUsers';
 import AdminSettings from '../admin/pages/AdminSettings';
 import AdminCatalogs from '../admin/pages/AdminCatalogs';
 import AdminLogin from '../admin/pages/AdminLogin';
+import AdminTransactions from '../admin/pages/AdminTransactions';
 
 // images
 import logo from './../assets/images/logo.png';
@@ -76,6 +78,7 @@ function Index() {
           <Route path="livres/:id" element={<AdminBookForm />} />
           <Route path="commandes" element={<AdminOrders />} />
           <Route path="commandes/:id" element={<AdminOrderDetail />} />
+          <Route path="transactions" element={<AdminTransactions />} />
           <Route path="utilisateurs" element={<AdminUsers />} />
           <Route path="parametres" element={<AdminSettings />} />
         </Route>
@@ -85,6 +88,7 @@ function Index() {
           <Route path="/my-profile" element={<ProtectedRoute><MyProfile /></ProtectedRoute>} />
           <Route path="/my-books" element={<ProtectedRoute><MyBooks /></ProtectedRoute>} />
           <Route path="/my-orders" element={<ProtectedRoute><MyOrders /></ProtectedRoute>} />
+          <Route path="/my-transactions" element={<ProtectedRoute><MyTransactions /></ProtectedRoute>} />
           <Route path="/reader/:id" element={<ProtectedRoute><BookReader /></ProtectedRoute>} />
           {/* <Route path="/services" element={<Services />} /> */}
           <Route path="/faq" element={<Faq />} />
