@@ -36,11 +36,18 @@ export interface CreatedOrder {
 }
 
 export type MyOrder = CreatedOrder;
-export type NetikashProviderId = 'vodacom' | 'airtel' | 'africell' | 'orange';
 
 export function listMyOrders(): Promise<MyOrder[]> {
   try {
     return getJson<MyOrder[]>('/api/orders/');
+  } catch (error) {
+    throw new Error(getFriendlyErrorMessage(error));
+  }
+}
+
+export function getMyOrder(id: string): Promise<MyOrder> {
+  try {
+    return getJson<MyOrder>(`/api/orders/${id}/`);
   } catch (error) {
     throw new Error(getFriendlyErrorMessage(error));
   }
@@ -57,13 +64,10 @@ export async function createOrder(payload: CreateOrderPayload): Promise<CreatedO
   }
 }
 
-export function requestNetikashPayment(payload: {
-  order_id: string;
-  phone: string;
-  provider_id: NetikashProviderId;
-}): Promise<unknown> {
+/** Demande de paiement mobile (notification + code sur le téléphone). */
+export function requestWonyapayPayment(payload: { order_id: string; phone: string }): Promise<unknown> {
   try {
-    return postJson('/api/payments/netikash/request/', payload);
+    return postJson('/api/payments/wonyapay/request/', payload);
   } catch (error) {
     throw new Error(getFriendlyErrorMessage(error));
   }
