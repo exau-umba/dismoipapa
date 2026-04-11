@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import PageTitle from '../layouts/PageTitle';
 import { useCart } from '../context/CartContext';
+import { formatBookPriceLabel, isFreeBookPrice } from '../utils/bookPrice';
 
 function ShopCart() {
   const { items, removeItem, updateQuantity, updateFileFormat, subtotal, totalItems } = useCart();
@@ -39,6 +40,9 @@ function ShopCart() {
                       <tbody>
                         {items.map((data) => {
                           const lineTotal = parseFloat(data.price || '0') * data.quantity;
+                          const lineTotalLabel = isFreeBookPrice(data.price)
+                            ? 'Gratuit'
+                            : `${lineTotal.toFixed(0)} $`;
                           return (
                             <tr key={data.lineId}>
                               <td className="product-item-img">
@@ -68,7 +72,7 @@ function ShopCart() {
                                   </div>
                                 )}
                               </td>
-                              <td className="product-item-price text-primary">{data.price} $</td>
+                              <td className="product-item-price text-primary">{formatBookPriceLabel(data.price)}</td>
                               <td className="product-item-quantity">
                                 {data.productType === 'ebook' ? (
                                   <span className="text-muted">1</span>
@@ -92,7 +96,7 @@ function ShopCart() {
                                   </div>
                                 )}
                               </td>
-                              <td className="product-item-totle text-primary">{lineTotal.toFixed(0)} $</td>
+                              <td className="product-item-totle text-primary">{lineTotalLabel}</td>
                               <td className="product-item-close">
                                 <button
                                   type="button"
@@ -127,7 +131,9 @@ function ShopCart() {
                       <tbody>
                         <tr>
                           <td className="text-primary">Sous-total ({totalItems} article{totalItems > 1 ? 's' : ''})</td>
-                          <td className="text-primary">{subtotal.toFixed(0)} $</td>
+                          <td className="text-primary">
+                            {subtotal <= 0 ? 'Gratuit' : `${subtotal.toFixed(0)} $`}
+                          </td>
                         </tr>
                         <tr>
                           <td className="text-primary">Livraison</td>
@@ -135,7 +141,9 @@ function ShopCart() {
                         </tr>
                         <tr>
                           <td className="text-primary"><strong>Total</strong></td>
-                          <td className="text-primary"><strong>{subtotal.toFixed(0)} $</strong></td>
+                          <td className="text-primary">
+                            <strong>{subtotal <= 0 ? 'Gratuit' : `${subtotal.toFixed(0)} $`}</strong>
+                          </td>
                         </tr>
                       </tbody>
                     </table>

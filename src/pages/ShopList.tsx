@@ -12,6 +12,7 @@ import { listCatalogs, type Catalog } from '../api/admin';
 import { API_BASE_URL } from '../api/client';
 import { getFriendlyErrorMessage } from '../utils/errorMessages';
 import { useCart } from '../context/CartContext';
+import { formatBookPriceLabel } from '../utils/bookPrice';
 
 function ShopList() {
     const [accordBtn, setAccordBtn] = useState<boolean>(false);
@@ -218,8 +219,8 @@ function ShopList() {
                                                 </div>
                                                 <div className="price">
                                                     <div className="small">
-                                                        <div className="text-muted">Physique: <span className="text-primary">{physicalPrice ? `${physicalPrice} $` : '—'}</span></div>
-                                                        <div className="text-muted">E-book: <span className="text-primary">{ebookPrice ? `${ebookPrice} $` : '—'}</span></div>
+                                                        <div className="text-muted">Physique: <span className="text-primary">{formatBookPriceLabel(physicalPrice)}</span></div>
+                                                        <div className="text-muted">E-book: <span className="text-primary">{formatBookPriceLabel(ebookPrice)}</span></div>
                                                     </div>
                                                 </div>
                                             </div>

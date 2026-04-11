@@ -6,8 +6,15 @@ import { useCart } from '../context/CartContext';
 import { getBook } from '../api/catalog';
 import { createOrder, getMyOrder, requestWonyapayPayment } from '../api/orders';
 import { getFriendlyErrorMessage } from '../utils/errorMessages';
+import { isFreeBookPrice } from '../utils/bookPrice';
 import ErrorMessage from '../components/ErrorMessage';
 import { MOBILE_MONEY_METHODS, type MobileMoneyOperatorId } from '../components/PaymentMethodsBlock';
+
+function lineTotalLabel(price: string, quantity: number): string {
+  if (isFreeBookPrice(price)) return 'Gratuit';
+  const n = parseFloat(price || '0') * quantity;
+  return `${n.toFixed(0)} $`;
+}
 
 /** Deux chiffres après le 0 initial (ex. 081… → 81). */
 const OPERATOR_PREFIXES: Record<MobileMoneyOperatorId, readonly string[]> = {
@@ -71,6 +78,10 @@ function ShopCheckout() {
   const [paymentModalOperator, setPaymentModalOperator] = useState<MobileMoneyOperatorId | null>(null);
 
   const isCartEmpty = orderItems.length === 0;
+
+  /** Panier entièrement à 0 $ : création de commande sans étape Mobile Money. */
+  const isFreeOrder =
+    !isCartEmpty && orderItems.every((item) => isFreeBookPrice(item.price));
 
   useEffect(() => {
     setMobilePhone('');
@@ -231,11 +242,13 @@ function ShopCheckout() {
       pushToast(validationError, 'warning');
       return;
     }
-    const phoneErr = validatePaymentPhone();
-    if (phoneErr) {
-      setCheckoutError(phoneErr);
-      pushToast(phoneErr, 'warning');
-      return;
+    if (!isFreeOrder) {
+      const phoneErr = validatePaymentPhone();
+      if (phoneErr) {
+        setCheckoutError(phoneErr);
+        pushToast(phoneErr, 'warning');
+        return;
+      }
     }
 
     setPlacingOrder(true);
@@ -252,6 +265,14 @@ function ShopCheckout() {
       });
       if (!createdOrder?.id) {
         throw new Error('Impossible de créer la commande.');
+      }
+
+      if (isFreeOrder) {
+        clearCart();
+        pushToast('Commande gratuite enregistrée. Vous pouvez accéder à vos livres depuis « Mes livres ».', 'success');
+        const hasEbook = orderItems.some((i) => i.productType === 'ebook');
+        navigate(hasEbook ? '/my-books' : '/my-orders', { replace: true });
+        return;
       }
 
       await requestWonyapayPayment({
@@ -609,7 +630,7 @@ function ShopCheckout() {
                               ) : null}
                             </td>
                             <td className="product-price text-primary">
-                              {(parseFloat(item.price || '0') * item.quantity).toFixed(0)} $
+                              {lineTotalLabel(item.price, item.quantity)}
                             </td>
                           </tr>
                         ))
@@ -625,7 +646,9 @@ function ShopCheckout() {
                     <tbody>
                       <tr>
                         <td className="text-primary">Sous-total</td>
-                        <td className="product-price text-primary">{subtotal.toFixed(0)} $</td>
+                        <td className="product-price text-primary">
+                          {isFreeOrder ? 'Gratuit' : `${subtotal.toFixed(0)} $`}
+                        </td>
                       </tr>
                       <tr>
                         <td className="text-primary">Livraison</td>
@@ -636,68 +659,79 @@ function ShopCheckout() {
                           <strong>Total</strong>
                         </td>
                         <td className="product-price-total text-primary">
-                          <strong>{subtotal.toFixed(0)} $</strong>
+                          <strong>{isFreeOrder ? 'Gratuit' : `${subtotal.toFixed(0)} $`}</strong>
                         </td>
                       </tr>
                     </tbody>
                   </table>
 
-                  <h4 className="widget-title">Paiement</h4>
-                  <p className="text-black-50 small mb-3">
-                    Choisissez votre opérateur, puis saisissez votre numéro en <strong>10 chiffres</strong> (sans +243) :
-                    le premier chiffre est toujours <strong>0</strong>, les deux suivants doivent correspondre à votre
-                    opérateur. Une notification vous demandera ensuite votre code.
-                  </p>
-                  <div className="checkout-mobile-money-grid mb-3" role="group" aria-label="Opérateur Mobile Money">
-                    {MOBILE_MONEY_METHODS.map((opt) => (
-                      <button
-                        key={opt.id}
-                        type="button"
-                        className={`checkout-mobile-money-card ${mobileOperator === opt.id ? 'is-selected' : ''}`}
-                        onClick={() => setMobileOperator(opt.id)}
-                        aria-pressed={mobileOperator === opt.id}
-                        aria-label={opt.label}
-                      >
-                        <span className="checkout-mobile-money-card__logo">
-                          <img src={opt.logoSrc} alt="" aria-hidden />
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                  {mobileOperator ? (
-                    <div className="form-group mb-3">
-                      <Form.Label>
-                        Numéro {OPERATOR_LABEL[mobileOperator]} (10 chiffres, préfixes valides après 0 :{' '}
-                        {OPERATOR_PREFIXES[mobileOperator].join(', ')})
-                      </Form.Label>
-                      <div className="checkout-phone-digits checkout-phone-digits--10" aria-label="Saisie du numéro">
-                        {phoneDigits.map((digit, index) => (
-                          <Form.Control
-                            key={index}
-                            ref={(el) => {
-                              phoneInputRefs.current[index] = el;
-                            }}
-                            type="text"
-                            inputMode="numeric"
-                            pattern="[0-9]*"
-                            maxLength={1}
-                            value={digit}
-                            onChange={(e) => updatePhoneDigit(index, e.target.value)}
-                            onKeyDown={(e) => handlePhoneDigitKeyDown(index, e)}
-                            className="text-center checkout-phone-digit"
-                            aria-label={`Chiffre ${index + 1} sur 10`}
-                            disabled={!mobileOperator}
-                          />
+                  <h4 className="widget-title">{isFreeOrder ? 'Commande gratuite' : 'Paiement'}</h4>
+                  {isFreeOrder ? (
+                    <p className="text-muted small mb-3">
+                      Aucun paiement n’est nécessaire. Après validation, votre commande est enregistrée et les E-books
+                      gratuits sont disponibles dans <strong>Mes livres</strong>.
+                    </p>
+                  ) : (
+                    <>
+                      <p className="text-black-50 small mb-3">
+                        Choisissez votre opérateur, puis saisissez votre numéro en <strong>10 chiffres</strong> (sans
+                        +243) : le premier chiffre est toujours <strong>0</strong>, les deux suivants doivent
+                        correspondre à votre opérateur. Une notification vous demandera ensuite votre code.
+                      </p>
+                      <div className="checkout-mobile-money-grid mb-3" role="group" aria-label="Opérateur Mobile Money">
+                        {MOBILE_MONEY_METHODS.map((opt) => (
+                          <button
+                            key={opt.id}
+                            type="button"
+                            className={`checkout-mobile-money-card ${mobileOperator === opt.id ? 'is-selected' : ''}`}
+                            onClick={() => setMobileOperator(opt.id)}
+                            aria-pressed={mobileOperator === opt.id}
+                            aria-label={opt.label}
+                          >
+                            <span className="checkout-mobile-money-card__logo">
+                              <img src={opt.logoSrc} alt="" aria-hidden />
+                            </span>
+                          </button>
                         ))}
                       </div>
-                      <small className={`d-block mt-2 ${paymentPrefixInvalid ? 'text-danger' : 'text-black-50'}`}>
-                        {paymentPrefixInvalid
-                          ? `Ce début de numéro ne correspond pas à ${OPERATOR_LABEL[mobileOperator]}.`
-                          : `${paymentDigits.length}/10 — premier chiffre : 0 uniquement.`}
-                      </small>
-                    </div>
-                  ) : (
-                    <p className="text-muted small mb-3 mb-0">Sélectionnez d’abord un opérateur pour saisir le numéro.</p>
+                      {mobileOperator ? (
+                        <div className="form-group mb-3">
+                          <Form.Label>
+                            Numéro {OPERATOR_LABEL[mobileOperator]} (10 chiffres, préfixes valides après 0 :{' '}
+                            {OPERATOR_PREFIXES[mobileOperator].join(', ')})
+                          </Form.Label>
+                          <div className="checkout-phone-digits checkout-phone-digits--10" aria-label="Saisie du numéro">
+                            {phoneDigits.map((digit, index) => (
+                              <Form.Control
+                                key={index}
+                                ref={(el) => {
+                                  phoneInputRefs.current[index] = el;
+                                }}
+                                type="text"
+                                inputMode="numeric"
+                                pattern="[0-9]*"
+                                maxLength={1}
+                                value={digit}
+                                onChange={(e) => updatePhoneDigit(index, e.target.value)}
+                                onKeyDown={(e) => handlePhoneDigitKeyDown(index, e)}
+                                className="text-center checkout-phone-digit"
+                                aria-label={`Chiffre ${index + 1} sur 10`}
+                                disabled={!mobileOperator}
+                              />
+                            ))}
+                          </div>
+                          <small className={`d-block mt-2 ${paymentPrefixInvalid ? 'text-danger' : 'text-black-50'}`}>
+                            {paymentPrefixInvalid
+                              ? `Ce début de numéro ne correspond pas à ${OPERATOR_LABEL[mobileOperator]}.`
+                              : `${paymentDigits.length}/10 — premier chiffre : 0 uniquement.`}
+                          </small>
+                        </div>
+                      ) : (
+                        <p className="text-muted small mb-3 mb-0">
+                          Sélectionnez d’abord un opérateur pour saisir le numéro.
+                        </p>
+                      )}
+                    </>
                   )}
                   <div className="form-group">
                     <button
@@ -706,14 +740,19 @@ function ShopCheckout() {
                       disabled={
                         placingOrder ||
                         isCartEmpty ||
-                        !mobileOperator ||
-                        paymentDigits.length !== 10 ||
-                        paymentPrefixInvalid ||
-                        paymentDigits[0] !== '0'
+                        (!isFreeOrder &&
+                          (!mobileOperator ||
+                            paymentDigits.length !== 10 ||
+                            paymentPrefixInvalid ||
+                            paymentDigits[0] !== '0'))
                       }
                       onClick={handlePlaceOrder}
                     >
-                      {placingOrder ? 'Traitement…' : 'Passer la commande et payer'}
+                      {placingOrder
+                        ? 'Traitement…'
+                        : isFreeOrder
+                          ? 'Valider la commande gratuite'
+                          : 'Passer la commande et payer'}
                     </button>
                   </div>
                 </form>

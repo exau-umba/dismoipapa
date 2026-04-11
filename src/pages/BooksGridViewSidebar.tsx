@@ -9,6 +9,7 @@ import { listCatalogs, type Catalog } from '../api/admin';
 import { API_BASE_URL } from '../api/client';
 import { getFriendlyErrorMessage } from '../utils/errorMessages';
 import { useCart } from '../context/CartContext';
+import { formatBookPriceLabel } from '../utils/bookPrice';
 
 type SortKey = 'newest' | 'title_asc' | 'price_asc' | 'price_desc';
 
@@ -243,7 +244,7 @@ function BooksGridViewSidebar() {
                                                                 <div className="price">
                                                                     {selectedPrice ? (
                                                                         <>
-                                                                            <span className="price-num">{selectedPrice} $</span>
+                                                                            <span className="price-num">{formatBookPriceLabel(selectedPrice)}</span>
                                                                         </>
                                                                     ) : (
                                                                         <span className="price-num text-muted">{selection.productType ? 'Prix à venir' : 'Choisir un format'}</span>

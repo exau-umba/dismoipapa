@@ -6,6 +6,7 @@ import { useCart } from '../context/CartContext';
 import { listCatalogs, type Catalog } from '../api/admin';
 import LogoutConfirmModal from '../components/LogoutConfirmModal';
 import { buildShopLoginHref } from '../utils/authRedirect';
+import { isFreeBookPrice } from '../utils/bookPrice';
 
 import Collapse from 'react-bootstrap/Collapse';
 import { MenuListArray2 } from './MenuListArray2';
@@ -205,7 +206,9 @@ function Header() {
                                   </Link>
                                 </h6>
                                 <span className="dz-price text-black-50">
-                                  {item.price} $ × {item.quantity}
+                                  {isFreeBookPrice(item.price)
+                                    ? 'Gratuit'
+                                    : `${item.price} $ × ${item.quantity}`}
                                   {` • ${productTypeLabel(item.productType)}`}
                                   {item.productType === 'ebook' && item.fileFormat ? ` • ${formatLabel(item.fileFormat)}` : ''}
                                 </span>
@@ -215,7 +218,9 @@ function Header() {
                           </li>
                         ))}
                         <li className="cart-item text-center">
-                          <h6 className="text-primary">Total = {cartSubtotal.toFixed(0)} $</h6>
+                          <h6 className="text-primary">
+                            Total = {cartSubtotal <= 0 ? 'Gratuit' : `${cartSubtotal.toFixed(0)} $`}
+                          </h6>
                         </li>
                         <li className="text-center d-flex">
                           <Link to="/shop-cart" className="btn btn-sm btn-primary me-2 btnhover w-100">Voir le panier</Link>

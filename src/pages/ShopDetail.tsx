@@ -16,6 +16,7 @@ import profile1 from './../assets/images/profile1.jpg';
 import { getBook, fetchBooks, type Book } from '../api/catalog';
 import { API_BASE_URL } from '../api/client';
 import { getFriendlyErrorMessage } from '../utils/errorMessages';
+import { formatBookPriceLabel, isFreeBookPrice } from '../utils/bookPrice';
 
 function CommentBlog({title, image}: {title: string, image: string}){
     return(
@@ -110,6 +111,7 @@ function ShopDetail() {
     const hasEpub = Boolean(ebookFormat?.epub_file);
     const ebookRequiresFileChoice = productType === 'ebook' && (hasPdf || hasEpub);
     const canAddToCart = Boolean(productType) && (!ebookRequiresFileChoice || fileFormat !== null);
+    const selectedPriceIsFree = isFreeBookPrice(price);
 
     const tableDetail = [
         { tablehead: 'Titre', tabledata: book.title },
@@ -184,7 +186,13 @@ function ShopDetail() {
                                                         <div className="text-muted">Physique: <span className="text-primary">{physicalPrice ? `${physicalPrice} $` : '—'}</span></div>
                                                         <div className="text-muted">E-book: <span className="text-primary">{ebookPrice ? `${ebookPrice} $` : '—'}</span></div>
                                                     </div> */}
-                                                    {price ? <h5>{price} $</h5> : <h6 className="text-primary">Choisissez un format pour continuer</h6>}
+                                                    {price ? (
+                                                      <h5 className={selectedPriceIsFree ? 'text-success' : undefined}>
+                                                        {formatBookPriceLabel(price)}
+                                                      </h5>
+                                                    ) : (
+                                                      <h6 className="text-primary">Choisissez un format pour continuer</h6>
+                                                    )}
                                                 </div>
                                                 <div className="product-num shop-detail-mobile__actions">
                                                     {(ebookFormat || physicalFormat) && (
@@ -267,7 +275,7 @@ function ShopDetail() {
                                                             navigate('/shop-checkout');
                                                         }}
                                                     >
-                                                        Acheter maintenant
+                                                        {selectedPriceIsFree ? 'Commander gratuitement' : 'Acheter maintenant'}
                                                     </button>
                                                     {/* <div className="bookmark-btn style-1 d-none d-sm-block">
                                                         <input className="form-check-input" type="checkbox" id="flexCheckDefault1" />
@@ -373,8 +381,8 @@ function ShopDetail() {
                                                         <p className="small text-muted">par {related.author}</p>
                                                         <div className="price">
                                                             <div className="small">
-                                                                <div className="text-muted">Physique: <span className="text-primary">{relPhysicalPrice ? `${relPhysicalPrice} $` : '—'}</span></div>
-                                                                <div className="text-muted">E-book: <span className="text-primary">{relEbookPrice ? `${relEbookPrice} $` : '—'}</span></div>
+                                                                <div className="text-muted">Physique: <span className="text-primary">{formatBookPriceLabel(relPhysicalPrice)}</span></div>
+                                                                <div className="text-muted">E-book: <span className="text-primary">{formatBookPriceLabel(relEbookPrice)}</span></div>
                                                             </div>
                                                         </div>
                                                         <Link to={`/books-detail/${related.id}`} className="btn btn-outline-primary btn-sm btnhover btnhover2">Voir le détail</Link>

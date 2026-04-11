@@ -9,6 +9,7 @@ import { fetchBooks, Book } from '../api/catalog';
 import { listCatalogs, type Catalog } from '../api/admin';
 import { API_BASE_URL } from '../api/client';
 import { useCart } from '../context/CartContext';
+import { formatBookPriceLabel } from '../utils/bookPrice';
 
 function mapBackendBookToCard(book: Book, index: number) {
     const fallbackImg = bookImages[index % bookImages.length];
@@ -276,8 +277,8 @@ function BooksGridView() {
                                         <div className="dz-content">
                                             <h5 className="title book-title-truncate" title={data.title}><Link to={`/books-detail/${data.id}`}>{data.title}</Link></h5>
                                             <div className="small mb-2">
-                                                <div className="text-muted">Physique: <span className="text-primary">{data.physicalPrice ? `${data.physicalPrice} $` : '—'}</span></div>
-                                                <div className="text-muted">E-book: <span className="text-primary">{data.ebookPrice ? `${data.ebookPrice} $` : '—'}</span></div>
+                                                <div className="text-muted">Physique: <span className="text-primary">{formatBookPriceLabel(data.physicalPrice)}</span></div>
+                                                <div className="text-muted">E-book: <span className="text-primary">{formatBookPriceLabel(data.ebookPrice)}</span></div>
                                             </div>
                                             {/* <ul className="dz-tags">
                                                 {data.subtitle1 && (
@@ -298,7 +299,7 @@ function BooksGridView() {
                                                 <div className="price">
                                                     {selectedPrice ? (
                                                       <>
-                                                        <span className="price-num">{selectedPrice} $</span>
+                                                        <span className="price-num">{formatBookPriceLabel(selectedPrice)}</span>
                                                       </>
                                                     ) : (
                                                       <span className="price-num text-muted">{selection.productType ? 'Prix à venir' : 'Choisir un format'}</span>

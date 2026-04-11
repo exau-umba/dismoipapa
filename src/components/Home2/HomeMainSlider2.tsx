@@ -8,6 +8,7 @@ import { bookImages } from '../../constants/imageUrls';
 import { fetchBooks, type Book } from '../../api/catalog';
 import { listCatalogs } from '../../api/admin';
 import { API_BASE_URL } from '../../api/client';
+import { formatBookPriceLabel } from '../../utils/bookPrice';
 
 function shuffleArray<T>(items: T[]): T[] {
 	const out = [...items];
@@ -153,13 +154,13 @@ export default function HomeMainSlider() {
 															<div className="home-hero-book-card__price-line">
 																Physique :{' '}
 																<span className="text-primary fw-bold">
-																	{physicalPrice ? `${physicalPrice} $` : '—'}
+																	{formatBookPriceLabel(physicalPrice)}
 																</span>
 															</div>
 															<div className="home-hero-book-card__price-line">
 																E-book :{' '}
 																<span className="text-primary fw-bold">
-																	{ebookPrice ? `${ebookPrice} $` : '—'}
+																	{formatBookPriceLabel(ebookPrice)}
 																</span>
 															</div>
 														</div>
