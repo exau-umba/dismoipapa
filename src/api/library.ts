@@ -17,6 +17,10 @@ export interface LibraryEntry {
   book_publication_date: string | null;
   ebook_pdf_url: string | null;
   ebook_epub_url: string | null;
+  /** Si renvoyé par l’API : false = pas de version physique pour ce livre. */
+  physical_available?: boolean | null;
+  /** Alias possible côté API (synonyme de physical_available). */
+  has_physical?: boolean | null;
   access_type: 'purchase' | 'subscription' | string;
   added_at: string;
 }

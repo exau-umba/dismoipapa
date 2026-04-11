@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Nav, Tab, Card, Badge, Button } from 'react-bootstrap';
+import { Nav, Tab, Card, Badge, Button, Modal } from 'react-bootstrap';
 import PageTitle from '../layouts/PageTitle';
 import { bookImages } from '../constants/imageUrls';
 import { downloadLibraryBook, listLibraryEntries, type LibraryEntry } from '../api/library';
@@ -8,6 +8,16 @@ import { getFriendlyErrorMessage } from '../utils/errorMessages';
 import ErrorMessage from '../components/ErrorMessage';
 
 /** Couverture : ratio livre, image entière visible (object-fit contain). */
+function libraryPhysicalLabel(book: LibraryEntry): string {
+  const available =
+    book.physical_available === true || book.has_physical === true;
+  const unavailable =
+    book.physical_available === false || book.has_physical === false;
+  if (available) return 'Disponible';
+  if (unavailable) return 'Indisponible';
+  return '—';
+}
+
 function LibraryBookCover(props: {
   src: string;
   alt: string;
@@ -81,6 +91,11 @@ function MyBooks() {
     [entries]
   );
 
+  const downloadingTitle = useMemo(() => {
+    if (!downloadingBookId) return '';
+    return entries.find((e) => e.book === downloadingBookId)?.book_title ?? '';
+  }, [downloadingBookId, entries]);
+
   const handleDownload = async (bookId: string) => {
     setError(null);
     setDownloadingBookId(bookId);
@@ -95,6 +110,32 @@ function MyBooks() {
 
   return (
     <>
+      <Modal
+        show={downloadingBookId !== null}
+        backdrop="static"
+        keyboard={false}
+        centered
+        aria-labelledby="my-books-download-loading-title"
+      >
+        <Modal.Body className="text-center py-5 px-4">
+          <div className="spinner-border text-primary mb-3" role="status" aria-label="Chargement">
+            <span className="visually-hidden">Chargement…</span>
+          </div>
+          <h5 id="my-books-download-loading-title" className="mb-2">
+            Préparation du téléchargement
+          </h5>
+          <p className="text-muted small mb-0">
+            {downloadingTitle ? (
+              <>
+                « {downloadingTitle} » — merci de patienter quelques instants.
+              </>
+            ) : (
+              <>Merci de patienter, le fichier est en cours de préparation…</>
+            )}
+          </p>
+        </Modal.Body>
+      </Modal>
+
       <div className="page-content bg-white">
         <PageTitle childPage="Mes Livres" parentPage="Accueil" />
         <section className="content-inner-1 bg-light">
@@ -197,29 +238,35 @@ function MyBooks() {
                               <p className="text-muted small mb-2">
                                 {book.book_author}
                               </p>
-                              <div className="d-flex justify-content-between align-items-center mb-3">
+                              <div className="d-flex justify-content-between align-items-center mb-1">
                                 <Badge bg="success">Achat</Badge>
                                 <span className="text-muted small">
                                   {book.ebook_epub_url ? 'EPUB' : 'PDF'}
                                 </span>
                               </div>
+                              <p className="text-muted small mb-3 text-end">
+                                Physique : {libraryPhysicalLabel(book)}
+                              </p>
                               <div className="d-flex gap-2">
                                 <Button
                                   variant="primary"
-                                  className="btnhover flex-fill"
+                                  className={`btnhover ${book.ebook_epub_url ? 'flex-fill' : 'w-100'}`}
                                   onClick={() => handleDownload(book.book)}
                                   disabled={downloadingBookId === book.book}
                                 >
                                   <i className="fa fa-download me-1"></i>
                                   {downloadingBookId === book.book ? 'Téléchargement…' : 'Télécharger'}
                                 </Button>
-                                <Link
-                                  to={`/reader/${book.book}`}
-                                  state={{ bookTitle: book.book_title }}
-                                  className="btn btn-outline-secondary btnhover"
-                                >
-                                  <i className="fa fa-eye"></i>
-                                </Link>
+                                {book.ebook_epub_url ? (
+                                  <Link
+                                    to={`/reader/${book.book}`}
+                                    state={{ bookTitle: book.book_title }}
+                                    className="btn btn-outline-secondary btnhover"
+                                    title="Lire (EPUB)"
+                                  >
+                                    <i className="fa fa-eye"></i>
+                                  </Link>
+                                ) : null}
                               </div>
                               <p className="text-muted small mt-2 mb-0">
                                 Acheté le {new Date(book.added_at).toLocaleDateString('fr-FR')}
@@ -304,14 +351,20 @@ function MyBooks() {
                                   {book.book_language?.toUpperCase() || '—'}
                                 </span>
                               </div>
-                              <Link
-                                to={`/reader/${book.book}`}
-                                state={{ bookTitle: book.book_title }}
-                                className="btn btn-primary btnhover w-100"
-                              >
-                                <i className="fa fa-book-open me-1"></i>
-                                Lire maintenant
-                              </Link>
+                              {book.ebook_epub_url ? (
+                                <Link
+                                  to={`/reader/${book.book}`}
+                                  state={{ bookTitle: book.book_title }}
+                                  className="btn btn-primary btnhover w-100"
+                                >
+                                  <i className="fa fa-book-open me-1"></i>
+                                  Lire maintenant
+                                </Link>
+                              ) : (
+                                <Button variant="outline-secondary" className="w-100" disabled>
+                                  Lecture EPUB indisponible
+                                </Button>
+                              )}
                             </Card.Body>
                           </Card>
                         </div>
